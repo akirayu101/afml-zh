@@ -22,6 +22,9 @@ BAD_TEXT_PATTERNS = [
         r"Search contents",
         r"Previous:",
         r"Next:",
+        r"Front Matter",
+        r"前置内容",
+        r"查看前置内容",
         r"Snippet \d+",
         r"Figure \d+",
         r"Table \d+",
@@ -83,6 +86,16 @@ def main() -> int:
         zh = BeautifulSoup(zh_page.read_text(encoding="utf-8"), "html.parser")
         if zh.html is None or zh.html.get("lang") != "zh-CN":
             failures.append(f"{zh_page.name}: html lang is not zh-CN")
+        if page.name == "front-matter.html":
+            h1 = zh.select_one("article h1")
+            article_text = zh.select_one("article").get_text(" ", strip=True) if zh.select_one("article") else ""
+            if zh.select_one("body.cover-page") is None:
+                failures.append("front-matter.html: cover page body class is missing")
+            if h1 is None or h1.get_text(strip=True) != "封面":
+                failures.append("front-matter.html: page title should be 封面")
+            for dirty_text in ("推荐语", "关于作者", "pdf-page", "CONTENTS"):
+                if dirty_text in article_text:
+                    failures.append(f"front-matter.html: dirty front-matter text remains: {dirty_text}")
         src_math = text_of_math(src)
         zh_math = text_of_math(zh)
         if src_math != zh_math:

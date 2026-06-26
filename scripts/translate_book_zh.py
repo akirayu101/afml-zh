@@ -86,12 +86,12 @@ UI_MAP = {
     "Advances in Financial Machine Learning": "金融机器学习进阶",
     "Contents": "目录",
     "Book": "全书",
-    "Front Matter": "前置内容",
+    "Front Matter": "封面",
     "Back Matter": "书后内容",
     "Index": "索引",
     "Start Reading": "开始阅读",
     "Start with Chapter 1": "从第 1 章开始",
-    "Open Front Matter": "查看前置内容",
+    "Open Front Matter": "查看封面",
     "Search contents": "搜索目录",
     "Search chapters, parts, topics": "搜索章节、部分或主题",
     "Static web edition": "静态网页版",
@@ -533,8 +533,81 @@ def remove_excluded_page_links(html: str) -> str:
     return str(soup)
 
 
+def normalize_front_matter_labels(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+    changed = False
+    for link in soup.select('a[href="front-matter.html"]'):
+        number = link.select_one(".toc-number")
+        spans = link.find_all("span", recursive=False)
+        if number is not None and spans:
+            number.string = "封"
+            spans[-1].string = "封面"
+        else:
+            text = link.get_text(" ", strip=True)
+            if text.startswith("查看"):
+                link.string = "查看封面"
+            elif text in {"上一章", "Previous"}:
+                link.string = "上一章"
+            elif text.startswith(("上一章：", "上一章:", "Previous:")):
+                link.string = "上一章：封面"
+            else:
+                link.string = "封面"
+        changed = True
+        toc_part = link.find_parent("li", class_="toc-part")
+        heading = toc_part.select_one(".toc-part-heading p") if toc_part is not None else None
+        if heading is not None:
+            heading.string = "封面"
+        toc_chapter = link.find_parent("li", class_="toc-chapter")
+        if toc_chapter is not None:
+            toc_chapter["data-search"] = "cover front matter"
+    return str(soup) if changed else html
+
+
+def simplify_front_matter(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+    if soup.body is not None:
+        classes = soup.body.get("class", [])
+        if "cover-page" not in classes:
+            soup.body["class"] = [*classes, "cover-page"]
+    if soup.title is not None:
+        soup.title.string = "封面 | 金融机器学习进阶"
+    topbar_label = soup.select_one(".book-topbar > div > span")
+    if topbar_label is not None:
+        topbar_label.string = "封面"
+
+    article = soup.select_one("article")
+    cover = soup.select_one("figure.book-cover")
+    if article is None or cover is None:
+        return str(soup)
+
+    img = cover.find("img")
+    if img is not None:
+        img["alt"] = "《金融机器学习进阶》封面"
+
+    article.clear()
+    header = soup.new_tag("header", **{"class": "chapter-header"})
+    kicker = soup.new_tag("p")
+    kicker.string = "金融机器学习进阶"
+    title = soup.new_tag("h1")
+    title.string = "封面"
+    header.append(kicker)
+    header.append(title)
+    article.append(header)
+    article.append(cover)
+
+    pager = soup.new_tag("div", **{"class": "chapter-pager"})
+    next_link = soup.new_tag("a", href="chapter-01.html")
+    next_link.string = "下一章：金融机器学习作为独立学科"
+    pager.append(next_link)
+    article.append(pager)
+    return str(soup)
+
+
 def finalize_html(html: str, page_name: str) -> str:
     html = remove_excluded_page_links(html)
+    html = normalize_front_matter_labels(html)
+    if page_name == "front-matter.html":
+        html = simplify_front_matter(html)
     if page_name == "chapter-18.html":
         replacements = {
             "从而使 <span class=\"math inline\">\\(|r_t|\\)</span> 并减少对大字母表的需求。": "从而使 <span class=\"math inline\">\\(|r_t|\\)</span> 的分布更加规则，并减少对大字母表的需求。",
@@ -567,6 +640,10 @@ html[lang="zh-CN"] article {
 html[lang="zh-CN"] .contents-home article {
   max-width: 74rem;
 }
+html[lang="zh-CN"] body.cover-page article {
+  max-width: 34rem;
+  text-align: center;
+}
 html[lang="zh-CN"] p,
 html[lang="zh-CN"] li {
   line-height: 1.78;
@@ -583,6 +660,18 @@ html[lang="zh-CN"] .chapter-pager {
 html[lang="zh-CN"] .chapter-pager a {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+html[lang="zh-CN"] body.cover-page .chapter-header {
+  text-align: center;
+}
+html[lang="zh-CN"] body.cover-page .book-cover {
+  margin: 0 auto 1.5rem;
+}
+html[lang="zh-CN"] body.cover-page .book-cover img {
+  max-width: min(100%, 24rem);
+}
+html[lang="zh-CN"] body.cover-page .chapter-pager {
+  justify-content: center;
 }
 html[lang="zh-CN"] .book-figure figcaption,
 html[lang="zh-CN"] figure.table-figure figcaption {

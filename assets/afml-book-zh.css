@@ -8,6 +8,10 @@ html[lang="zh-CN"] article {
 html[lang="zh-CN"] .contents-home article {
   max-width: 74rem;
 }
+html[lang="zh-CN"] body.cover-page article {
+  max-width: 34rem;
+  text-align: center;
+}
 html[lang="zh-CN"] p,
 html[lang="zh-CN"] li {
   line-height: 1.78;
@@ -24,6 +28,18 @@ html[lang="zh-CN"] .chapter-pager {
 html[lang="zh-CN"] .chapter-pager a {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+html[lang="zh-CN"] body.cover-page .chapter-header {
+  text-align: center;
+}
+html[lang="zh-CN"] body.cover-page .book-cover {
+  margin: 0 auto 1.5rem;
+}
+html[lang="zh-CN"] body.cover-page .book-cover img {
+  max-width: min(100%, 24rem);
+}
+html[lang="zh-CN"] body.cover-page .chapter-pager {
+  justify-content: center;
 }
 html[lang="zh-CN"] .book-figure figcaption,
 html[lang="zh-CN"] figure.table-figure figcaption {
