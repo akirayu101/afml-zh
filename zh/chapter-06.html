@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>集成方法 | 金融机器学习进阶</title>
+<link href="../assets/afml-book.css?v=20260626-book-toc-captions" rel="stylesheet"/><link href="../assets/afml-book-zh.css?v=20260626-book-toc-captions" rel="stylesheet"/>
+<script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)']],
+          displayMath: [['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer="" src="../assets/afml-book-zh.js?v=20260626-book-toc-captions"></script>
+</head>
+<body>
+<header class="book-topbar">
+<div>
+<a class="book-title" href="index.html">金融机器学习进阶</a>
+<span>第二部分：建模</span>
+</div>
+<nav aria-label="书籍导航">
+<a href="index.html">目录</a>
+<a href="chapter-05.html">上一章</a>
+<a href="chapter-07.html">下一章</a>
+</nav>
+</header>
+<div class="book-layout">
+<main class="content">
+<article>
+<header class="chapter-header">
+<p>第二部分：建模</p>
+<h1>集成方法</h1>
+</header>
+<span class="pdf-page-anchor" id="pdf-page-120"></span>
+<h2 id="sec-6-1">6.1 动机</h2>
+<p>本章将介绍两种最常用的 ML 集成方法。<sup>1</sup> 在参考文献和脚注中，读者可以找到介绍这些技术的书籍和文章。与本书其他章节一样，本章假设读者已有使用这些方法的经验。本章的目标在于阐释其有效性的原因，以及如何避免在金融领域误用时常见的错误。</p>
+<h2 id="sec-6-2">6.2 误差的三个来源</h2>
+<p>ML 模型通常存在三类误差：<sup>2</sup></p>
+<ol><li><strong>偏差（Bias）：</strong> 该误差由不切实际的假设引起。当偏差较高时，ML 算法未能识别特征与结果之间的重要关系，此时称该算法"欠拟合"。</li><li><strong>方差（Variance）：</strong> 该误差由对训练集微小变化的高度敏感性引起。当方差较高时，算法对训练集产生了过拟合，因此即使训练集发生极小的变化，也会导致预测结果大相径庭。算法不是在学习训练集中的一般规律，而是将噪声误认为了信号。</li><li><strong>噪声特征（Noise）：</strong> 该误差由观测值的方差引起，例如不可预测的变化或测量误差。这是不可约误差，任何模型均无法解释。</li></ol>
+<p class="footnote"><sup>1</sup> 如需了解集成方法的入门知识，请访问 <a href="http://scikit-learn.org/stable/modules/ensemble.html">http://scikit-learn.org/stable/modules/ensemble.html</a>.</p><p class="footnote"><sup>2</sup> 通常我不会引用维基百科，但在此主题上，读者或许会发现该文章中的部分插图颇具参考价值： <a href="https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff">https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff</a>.</p>
+<span class="pdf-page-anchor" id="pdf-page-121"></span>
+<p>考虑一个由观测值构成的训练集 <span class="math inline">\(\{x_i\}_{i=1,\ldots,n}\)</span> 以及实值结果 <span class="math inline">\(\{y_i\}_{i=1,\ldots,n}\)</span>。假设存在一个函数 <span class="math inline">\(f[x]\)</span> 使得 <span class="math inline">\(y=f[x]+\varepsilon\)</span>，其中 <span class="math inline">\(\varepsilon\)</span> 为白噪声，且满足 <span class="math inline">\(\mathbb{E}[\varepsilon_i]=0\)</span> 的均值， <span class="math inline">\(\mathbb{E}[\varepsilon_i^2]=\sigma_\varepsilon^2\)</span>。我们希望估计函数 <span class="math inline">\(\hat f[x]\)</span> 以实现最优拟合 <span class="math inline">\(f[x]\)</span>，即使均方估计误差 <span class="math inline">\(\mathbb{E}[(y_i-\hat f[x_i])^2]\)</span> 最小化。均方误差不能为零，这是因为存在由 <span class="math inline">\(\sigma_\varepsilon^2\)</span>所代表的噪声。该误差可分解为</p><div class="math display">\[\mathbb{E}\left[(y_i-\hat f[x_i])^2\right]=\left(\underbrace{\mathbb{E}[\hat f[x_i]-f[x_i]]}_{\text{bias}}\right)^2+\underbrace{\mathbb{V}[\hat f[x_i]]}_{\text{variance}}+\underbrace{\sigma_\varepsilon^2}_{\text{noise}}\]</div>
+<p>集成方法（ensemble method）是将一组弱学习器组合起来的方法，这些弱学习器均基于同一学习算法，目的是构建一个性能优于任何单个学习器的（更强的）学习器。集成方法有助于降低偏差和/或方差。</p>
+<h2 id="sec-6-3">6.3 自助聚合（Bootstrap Aggregation）</h2>
+<p>自助聚合（Bagging）是降低预测方差的有效方法，其流程如下：第一，通过有放回随机抽样生成 N 个训练数据集；第二，分别在每个训练集上拟合一个估计器，共 N 个，这些估计器相互独立，因此可并行训练；第三，集成预测结果为 N 个模型单独预测的简单平均值。对于分类变量，某观测属于某类别的概率由将该观测归入该类别的估计器比例决定（多数投票）。当基础估计器能输出预测概率时，bagging 分类器可取各概率的均值。若使用 sklearn 的 BaggingClassifier 类计算袋外（out-of-bag）准确率，请注意此 bug：https://github.com/scikit-learn/scikitlearn/issues/8933. 一种规避方法是将标签按整数顺序重新编号。</p>
+<h3 id="sec-6-3-1">6.3.1 方差缩减</h3>
+<p>Bagging 的主要优势在于降低预测方差，从而有助于缓解过拟合。Bagging 预测的方差 <span class="math inline">\(\varphi_i[c]\)</span> 是 bagging 估计器数量的函数 <span class="math inline">\(N\)</span>，单个估计器预测的平均方差 <span class="math inline">\(\bar\sigma^2\)</span>，以及各估计器预测之间的平均相关系数 <span class="math inline">\(\bar\rho\)</span>:</p><div class="math display">\[\begin{aligned}\mathbb{V}\left[\frac{1}{N}\sum_{i=1}^{N}\varphi_i[c]\right]&amp;=\frac{1}{N^2}\sum_{i=1}^{N}\sum_{j=1}^{N}\sigma_{i,j}\\&amp;=\frac{1}{N^2}\sum_{i=1}^{N}\left(\sigma_i^2+\sum_{j\ne i}^{N}\sigma_i\sigma_j\rho_{i,j}\right)\\&amp;=\frac{\bar\sigma^2+(N-1)\bar\sigma^2\bar\rho}{N}\\&amp;=\bar\sigma^2\left(\bar\rho+\frac{1-\bar\rho}{N}\right).\end{aligned}\]</div><p>其中 <span class="math inline">\(\sigma_{i,j}\)</span> 为估计器 <span class="math inline">\(i,j\)</span>的预测协方差。平均方差与平均相关系数定义为</p><div class="math display">\[\bar\sigma^2=\frac{1}{N}\sum_{i=1}^{N}\sigma_i^2,\qquad\bar\rho=\frac{1}{\bar\sigma^2N(N-1)}\sum_{i=1}^{N}\sum_{j\ne i}^{N}\sigma_i\sigma_j\rho_{i,j}.\]</div><p>上式表明，bagging 有效的前提条件是 <span class="math inline">\(\bar\rho&lt;1\)</span>；当 <span class="math inline">\(\bar\rho\to1\)</span>, <span class="math inline">\(\mathbb{V}\left[N^{-1}\sum_{i=1}^{N}\varphi_i[c]\right]\to\bar\sigma^2\)</span>。序贯自助法（sequential bootstrap）（第4章）的目标之一是尽可能生成相互独立的样本，从而降低 <span class="math inline">\(\bar\rho\)</span>，这应有助于降低 bagging 分类器的方差。图 6.1 绘制了 bagged 预测值的标准差关于 <span class="math inline">\(N\in[5,30]\)</span>, <span class="math inline">\(\bar\rho\in[0,1]\)</span>，且 <span class="math inline">\(\bar\sigma=1\)</span>.</p>
+<span class="pdf-page-anchor" id="pdf-page-122"></span>
+<figure class="book-figure"><img alt="图 6.1" src="media/afml-122_1.jpg"/><figcaption>图 6.1：bagged 预测值的标准差</figcaption></figure>
+<span class="pdf-page-anchor" id="pdf-page-123"></span>
+<h3 id="sec-6-3-2">6.3.2 准确率的提升</h3>
+<p>考虑一个 bagging 分类器，它对 <span class="math inline">\(k\)</span> 个类别通过多数投票法进行预测，投票来自 <span class="math inline">\(N\)</span> 个独立分类器。我们可以将预测结果标记为 <span class="math inline">\(\{0,1\}\)</span>，其中 <span class="math inline">\(1\)</span> 表示预测正确。分类器的准确率是概率 <span class="math inline">\(p\)</span> ，即将预测标记为 <span class="math inline">\(1\)</span>。平均而言，我们将得到 <span class="math inline">\(Np\)</span> 个标记为正确的预测， <span class="math inline">\(1\)</span>方差为 <span class="math inline">\(Np(1-p)\)</span>。当预测票数最多的类别与实际观测类别一致时，多数投票法做出正确预测。例如，对于 <span class="math inline">\(N=10\)</span> 的均值， <span class="math inline">\(k=3\)</span>，当观测到类别 <span class="math inline">\(A\)</span> 且投票结果为 <span class="math inline">\([A,B,C]=[4,3,3]\)</span>时，bagging 分类器做出了正确预测。然而，当类别 <span class="math inline">\(A\)</span> 且投票结果为 <span class="math inline">\([A,B,C]=[4,1,5]\)</span>时，预测结果有误。充分条件是这些标签之和满足 <span class="math inline">\(X&gt;\frac{N}{2}\)</span>。一个必要但不充分的条件是 <span class="math inline">\(X&gt;\frac{N}{k}\)</span>，其发生概率为</p><div class="math display">\[P\left[X&gt;\frac{N}{k}\right]=1-P\left[X\le\frac{N}{k}\right]=1-\sum_{i=0}^{\lfloor N/k\rfloor}\binom{N}{i}p^i(1-p)^{N-i}.\]</div><p>其含义在于，当 <span class="math inline">\(N\)</span>足够大时，例如 <span class="math inline">\(N&gt;p(p-1/k)^{-2}\)</span>，则 <span class="math inline">\(p&gt;\frac{1}{k}\Rightarrow P\left[X&gt;\frac{N}{k}\right]&gt;p\)</span>，因此 bagging 分类器的准确率将超过各单个分类器的平均准确率。代码片段 6.1 实现了此计算。</p>
+<figure class="code-listing"><figcaption>代码清单 6.1：Bagging 分类器的准确率</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">from</span> <span class="va">scipy</span><span class="op">.</span><span class="va">misc</span> <span class="kw">import</span> <span class="va">comb</span>
+<span class="va">N</span><span class="op">,</span><span class="va">p</span><span class="op">,</span><span class="va">k</span><span class="op">=</span><span class="dv">100</span><span class="op">,</span><span class="dv">1.</span><span class="op">/</span><span class="dv">3</span><span class="op">,</span><span class="dv">3.</span>
+<span class="va">p_</span><span class="op">=</span><span class="dv">0</span>
+<span class="kw">for</span> <span class="va">i</span> <span class="kw">in</span> <span class="va">xrange</span><span class="op">(</span><span class="dv">0</span><span class="op">,</span><span class="va">int</span><span class="op">(</span><span class="va">N</span><span class="op">/</span><span class="va">k</span><span class="op">)</span><span class="op">+</span><span class="dv">1</span><span class="op">)</span><span class="op">:</span>
+    <span class="va">p_</span><span class="op">+=</span><span class="va">comb</span><span class="op">(</span><span class="va">N</span><span class="op">,</span><span class="va">i</span><span class="op">)</span><span class="op">*</span><span class="va">p</span><span class="op">**</span><span class="va">i</span><span class="op">*</span><span class="op">(</span><span class="dv">1</span><span class="op">-</span><span class="va">p</span><span class="op">)</span><span class="op">**</span><span class="op">(</span><span class="va">N</span><span class="op">-</span><span class="va">i</span><span class="op">)</span>
+<span class="va">print</span> <span class="va">p</span><span class="op">,</span><span class="dv">1</span><span class="op">-</span><span class="va">p_</span></code></pre></div></figure>
+<p>这是在计算资源允许时，对任意分类器使用 bagging 的有力论据。然而，与 boosting 不同，bagging 无法提升弱分类器的准确率：若单个学习器是弱分类器（<span class="math inline">\(p\ll\frac{1}{k}\)</span>），多数投票的表现仍然较差，尽管方差有所降低。图 6.2 说明了这些事实。由于更容易实现 <span class="math inline">\(\bar\rho\ll1\)</span> 而非 <span class="math inline">\(p&gt;\frac{1}{k}\)</span>，bagging 在降低方差方面比在降低偏差方面更容易取得成效。</p><p>关于该主题的进一步分析，读者可参阅孔多塞陪审团定理（Condorcet's Jury Theorem）。尽管该定理源于政治科学中的多数投票问题，但其所解决的问题与上述讨论具有相似之处。</p>
+<span class="pdf-page-anchor" id="pdf-page-124"></span>
+<figure class="book-figure"><img alt="图 6.2" src="media/afml-124_1.jpg"/><figcaption>图 6.2：bagging 分类器的准确率关于单个估计器准确率的函数关系 <span class="math inline">\(P\)</span>，以及估计器数量 <span class="math inline">\(N\)</span>，且 <span class="math inline">\(k=2\)</span></figcaption></figure>
+<h3 id="sec-6-3-3">6.3.3 观测冗余</h3>
+<p>在第 4 章中，我们研究了金融观测值不能被假定为 IID 的一个原因。冗余观测值对 bagging 有两种不利影响。首先，有放回抽取的样本更可能几乎完全相同，即使它们并不共享相同的观测值。这使得 <span class="math inline">\(\bar\rho\approx1\)</span>，此时 bagging 将无法降低方差，无论 <span class="math inline">\(N\)</span>。例如，若时刻 <span class="math inline">\(t\)</span> 的每个观测值根据 <span class="math inline">\(t\)</span> 的均值， <span class="math inline">\(t+100\)</span>之间的收益进行标签化，则每个 bagged 估计器应采样不超过 1% 的观测值。第 4 章第 4.5 节推荐了三种替代方案，其中一种方法是设置 <code>max_samples=out['tW'].mean()</code> 在 sklearn 的 bagging 分类器类实现中。另一种更好的解决方案是应用序贯自助法（sequential bootstrap）。</p><p>观测冗余的第二个不利影响是袋外准确率（out-of-bag accuracy）将被高估。这是因为有放回随机抽样会将与袋外样本非常相似的样本放入训练集中。在这种情况下，分区前不进行数据打乱的分层 k 折交叉验证将显示出远低于袋外估计的测试集准确率。因此，建议设置 <code>StratifiedKFold(n_splits=k, shuffle=False)</code> 在使用该 sklearn 类时，应对 bagging 分类器进行交叉验证，并忽略袋外准确率结果。较小的数值 <span class="math inline">\(k\)</span> 优于较大的数值，因为过度划分会使测试集中出现与训练集过于相似的样本。</p>
+<span class="pdf-page-anchor" id="pdf-page-125"></span>
+<h2 id="sec-6-4">6.4 随机森林</h2>
+<p>决策树以容易过拟合著称，这会增加预测结果的方差。<sup>3</sup> 为了解决这一问题，随机森林（RF）方法被设计用于生成方差更低的集成预测。</p><p>RF 与 bagging 有一定相似之处，即在数据的自助采样子集上训练相互独立的基学习器。与 bagging 的关键区别在于，随机森林引入了第二层随机性：在对每个节点进行最优分裂时，仅对随机抽取（无放回）的特征子集进行评估，目的是进一步降低各基学习器之间的相关性。</p><p>与 bagging 类似，RF 在不过拟合的前提下降低预测方差，只要 <span class="math inline">\(\bar\rho&lt;1\)</span>。其次，RF 能够评估特征重要性，我们将在第 8 章深入探讨。第三，RF 提供袋外准确率估计，但如第 6.3.3 节所述，在金融应用中这些估计往往偏高。不过与 bagging 一样，RF 相较于单棵决策树未必能表现出更低的偏差。</p><p>若大量样本存在冗余或非 IID 的情况，过拟合仍会发生：有放回的随机采样会构建出大量本质上几乎相同的树（<span class="math inline">\(\bar\rho\approx1\)</span>），其中每棵决策树都存在过拟合，而这正是决策树广为人知的缺陷。与 bagging 不同，RF 始终将自助采样样本的大小固定为与训练集大小一致。下面我们来探讨在 sklearn 中解决 RF 过拟合问题的方法。为便于说明，我将以 sklearn 的类为例；但这些解决方案可应用于任何实现：</p>
+<ol><li>将参数设置 <code>max_features</code> 为较小的值，以强制增大各树之间的差异。</li><li><strong>早停：</strong> 将正则化参数 <code>min_weight_fraction_leaf</code> 设置为足够大的值，e.g（如 5%），使得袋外准确率收敛至样本外 k 折交叉验证准确率。</li><li>使用 <code>BaggingClassifier</code> 于 <code>DecisionTreeClassifier</code> 其中 <code>max_samples</code> 被设置为样本间的平均唯一性（<code>avgU</code>）。<ol type="a"><li><code>clf=DecisionTreeClassifier(criterion='entropy',max_features='auto',class_weight='balanced')</code></li><li><code>bc=BaggingClassifier(base_estimator=clf,n_estimators=1000,max_samples=avgU,max_features=1.)</code></li></ol></li><li>使用 <code>BaggingClassifier</code> 于 <code>RandomForestClassifier</code> 其中 <code>max_samples</code> 被设置为样本间的平均唯一性（<code>avgU</code>）。<ol type="a"><li><code>clf=RandomForestClassifier(n_estimators=1,criterion='entropy',bootstrap=False,class_weight='balanced_subsample')</code></li><li><code>bc=BaggingClassifier(base_estimator=clf,n_estimators=1000,max_samples=avgU,max_features=1.)</code></li></ol></li><li>修改 RF 类，将标准自助采样替换为序贯自助法（sequential bootstrap）。</li></ol>
+<p class="footnote"><sup>3</sup> 如需直观了解随机森林，请访问 <a href="https://quantdare.com/random-forest-many-is-better-than-one/">https://quantdare.com/random-forest-many-is-better-than-one/</a>.</p>
+<span class="pdf-page-anchor" id="pdf-page-126"></span>
+<p>综上所述，代码片段 6.2 展示了三种设置 RF 的替代方式，分别使用不同的类。</p>
+<figure class="code-listing"><figcaption>代码清单 6.2：设置 RF 的三种方式</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="va">clf0</span><span class="op">=</span><span class="va">RandomForestClassifier</span><span class="op">(</span><span class="va">n_estimators</span><span class="op">=</span><span class="dv">1000</span><span class="op">,</span><span class="va">class_weight</span><span class="op">=</span><span class="st">'balanced_subsample'</span><span class="op">,</span>
+    <span class="va">criterion</span><span class="op">=</span><span class="st">'entropy'</span><span class="op">)</span>
+<span class="va">clf1</span><span class="op">=</span><span class="va">DecisionTreeClassifier</span><span class="op">(</span><span class="va">criterion</span><span class="op">=</span><span class="st">'entropy'</span><span class="op">,</span><span class="va">max_features</span><span class="op">=</span><span class="st">'auto'</span><span class="op">,</span>
+    <span class="va">class_weight</span><span class="op">=</span><span class="st">'balanced'</span><span class="op">)</span>
+<span class="va">clf1</span><span class="op">=</span><span class="va">BaggingClassifier</span><span class="op">(</span><span class="va">base_estimator</span><span class="op">=</span><span class="va">clf1</span><span class="op">,</span><span class="va">n_estimators</span><span class="op">=</span><span class="dv">1000</span><span class="op">,</span><span class="va">max_samples</span><span class="op">=</span><span class="va">avgU</span><span class="op">)</span>
+<span class="va">clf2</span><span class="op">=</span><span class="va">RandomForestClassifier</span><span class="op">(</span><span class="va">n_estimators</span><span class="op">=</span><span class="dv">1</span><span class="op">,</span><span class="va">criterion</span><span class="op">=</span><span class="st">'entropy'</span><span class="op">,</span><span class="va">bootstrap</span><span class="op">=</span><span class="kw">False</span><span class="op">,</span>
+    <span class="va">class_weight</span><span class="op">=</span><span class="st">'balanced_subsample'</span><span class="op">)</span>
+<span class="va">clf2</span><span class="op">=</span><span class="va">BaggingClassifier</span><span class="op">(</span><span class="va">base_estimator</span><span class="op">=</span><span class="va">clf2</span><span class="op">,</span><span class="va">n_estimators</span><span class="op">=</span><span class="dv">1000</span><span class="op">,</span><span class="va">max_samples</span><span class="op">=</span><span class="va">avgU</span><span class="op">,</span>
+    <span class="va">max_features</span><span class="op">=</span><span class="dv">1.</span><span class="op">)</span></code></pre></div></figure>
+<p>在拟合决策树时，将特征空间旋转至与坐标轴对齐的方向通常可以减少树所需的层数。因此，建议在特征的 PCA 上拟合 RF，这既能加快计算速度，也能在一定程度上减少过拟合，第 8 章将对此进行更多阐述。此外，如第 4 章第 4.8 节所述， <code>class_weight='balanced_subsample'</code> 将有助于防止树对少数类的误分类。</p>
+<h2 id="sec-6-5">6.5 提升法</h2>
+<p>Kearns 和 Valiant <span class="citation">[1989]</span> 是最早提出能否将弱估计器组合以获得高精度估计器这一问题的学者之一。此后不久，Schapire <span class="citation">[1990]</span> 证明了该问题的答案是肯定的，所用方法即今日所称的提升法（boosting）。其基本流程如下：第一，按照某种样本权重（初始为均匀权重）进行有放回随机抽样，生成一个训练集。第二，使用该训练集拟合一个估计器。第三，若单个估计器的精度高于接受阈值（例如二分类器中的 50%，即优于随机猜测），则保留该估计器，否则丢弃。第四，对误分类的样本赋予更大权重，对正确分类的样本赋予更小权重。第五，重复上述步骤，直至产生 <span class="math inline">\(N\)</span> 个估计器。第六，集成预测结果为各 <span class="math inline">\(N\)</span> 个模型单独预测结果的加权平均，权重由各估计器的精度决定。提升算法有很多种，其中 AdaBoost 是最为流行的之一（Geron <span class="citation">[2017]</span>）。图 6.3 概括了标准 AdaBoost 实现的决策流程。</p>
+<span class="pdf-page-anchor" id="pdf-page-127"></span>
+<figure class="book-figure"><img alt="图 6.3" src="media/afml-127_1.jpg"/><figcaption>图 6.3：AdaBoost 决策流程</figcaption></figure>
+<h2 id="sec-6-6">6.6 Bagging 与 Boosting 在金融中的比较</h2>
+<p>从上述描述可以看出，提升法与 bagging 在以下几个方面存在显著差异：<sup>4</sup></p>
+<ul><li>各分类器按顺序依次拟合。</li><li>性能较差的分类器将被剔除。</li><li>每轮迭代中各样本的权重各不相同。</li><li>集成预测结果为各弱学习器预测结果的加权平均。</li></ul>
+<p class="footnote"><sup>4</sup> 如需直观了解 bagging 与 boosting 之间的区别，请访问 <a href="https://quantdare.com/what-is-the-difference-between-bagging-and-boosting/">https://quantdare.com/what-is-the-difference-between-bagging-and-boosting/</a>.</p>
+<span class="pdf-page-anchor" id="pdf-page-128"></span>
+<p>Boosting 的主要优势在于能够同时降低预测的方差和偏差。然而，纠正偏差的代价是更高的过拟合风险。可以认为，在金融应用中，bagging 通常优于 boosting。Bagging 解决过拟合问题，而 boosting 解决欠拟合问题。过拟合往往比欠拟合更令人担忧，因为由于信噪比较低，将 ML 算法过拟合到金融数据并不困难。此外，bagging 可以并行化，而 boosting 通常需要顺序执行。</p>
+<h2 id="sec-6-7">6.7 用于可扩展性的 Bagging</h2>
+<p>众所周知，几种流行的 ML 算法在样本量增大时扩展性较差。支持向量机（SVMs）是一个典型例子。如果尝试在百万级观测值上拟合 SVM，算法可能需要较长时间才能收敛。即便收敛后，也无法保证所得解为全局最优，或未发生过拟合。</p><p>一种实用的做法是构建 bagging 算法，其中基估计器属于对样本量扩展性较差的类别，例如 SVM。在定义该基估计器时，我们将施加严格的早停条件。例如，在 sklearn 的 SVM 实现中，可以为 <code>max_iter</code> 参数设置较小的值，例如 1E5 次迭代。默认值为 <code>max_iter=-1</code>，该设置告知估计器持续迭代，直到误差降至容差水平以下。或者，也可以通过参数 <code>tol</code>来提高容差水平，其默认值为 <code>tol=1E-3</code>。上述两个参数均可强制早停。也可以通过等效参数对其他算法实施早停，例如 RF 中的层数（<code>max_depth</code>），或所有输入样本权重总和中，叶节点所需的最小加权分数（<code>min_weight_fraction_leaf</code>).</p><p>鉴于 bagging 算法可以并行化，我们将一个大型顺序任务转化为多个同时运行的小型任务。当然，早停会增加各个基估计器输出的方差；然而，这种增加可以被 bagging 算法所带来的方差降低效果所抵消，甚至超额抵消。通过增加更多独立的基估计器，可以控制方差降低的幅度。以这种方式使用时，bagging 将使您能够在超大规模数据集上实现快速且稳健的估计。</p>
+<h2 class="references-heading" id="references">参考文献</h2>
+<ul class="references-list"><li>Geron, A. (2017): Hands-on Machine Learning with Scikit-Learn and TensorFlow: Concepts, Tools, and Techniques to Build Intelligent Systems, 1st edition. O’Reilly Media.</li><li>Kearns, M. and L. Valiant (1989): “Cryptographic limitations on learning Boolean formulae and finite automata.” In Proceedings of the 21st Annual ACM Symposium on Theory of Computing, pp. 433–444, New York. Association for Computing Machinery.</li><li>Schapire, R. (1990): “The strength of weak learnability.” Machine Learning. Kluwer Academic Publishers. Vol. 5 No. 2, pp. 197–227.</li></ul>
+<h2 class="references-heading" id="bibliography">参考书目</h2>
+<ul class="references-list"><li>Gareth, J., D. Witten, T. Hastie, and R. Tibshirani (2013): An Introduction to Statistical Learning: With Applications in R, 1st ed. Springer-Verlag.</li><li>Hackeling, G. (2014): Mastering Machine Learning with Scikit-Learn, 1st ed. Packt Publishing.</li><li>Hastie, T., R. Tibshirani and J. Friedman (2016): The Elements of Statistical Learning, 2nd ed. Springer-Verlag.</li><li>Hauck, T. (2014): Scikit-Learn Cookbook, 1st ed. Packt Publishing.</li><li>Raschka, S. (2015): Python Machine Learning, 1st ed. Packt Publishing.</li></ul>
+<div class="chapter-pager"><a href="chapter-05.html">上一章：分数阶差分特征</a><a href="chapter-07.html">下一章：金融中的交叉验证</a></div>
+</article>
+</main>
+</div>
+</body>
+</html>

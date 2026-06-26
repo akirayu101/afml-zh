@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>理解策略风险 | 金融机器学习进阶</title>
+<link href="../assets/afml-book.css?v=20260626-book-toc-captions" rel="stylesheet"/><link href="../assets/afml-book-zh.css?v=20260626-book-toc-captions" rel="stylesheet"/>
+<script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)']],
+          displayMath: [['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer="" src="../assets/afml-book-zh.js?v=20260626-book-toc-captions"></script>
+</head>
+<body>
+<header class="book-topbar">
+<div>
+<a class="book-title" href="index.html">金融机器学习进阶</a>
+<span>第三部分：回测</span>
+</div>
+<nav aria-label="书籍导航">
+<a href="index.html">目录</a>
+<a href="chapter-14.html">上一章</a>
+<a href="chapter-16.html">下一章</a>
+</nav>
+</header>
+<div class="book-layout">
+<main class="content">
+<article>
+<header class="chapter-header">
+<p>第三部分：回测</p>
+<h1>理解策略风险</h1>
+</header>
+<span class="pdf-page-anchor" id="pdf-page-238"></span>
+<h2 id="sec-15-1">15.1 动机</h2>
+<p>如第3章和第13章所述，投资策略通常以持有头寸的方式实施，直至满足以下两个条件之一：（1）达到止盈条件，平仓获利；（2）达到止损条件，平仓认亏。即便某策略未明确设定止损，也始终存在一个隐性止损限额——届时投资者将无法继续为其头寸融资（触发追加保证金通知），或无力承受持续扩大的浮亏所带来的痛苦。由于大多数策略（隐性或显性地）具备上述两种退出条件，因此通过二项过程对结果分布进行建模是合理的。这将有助于我们理解哪些下注频率、赔率与赔付组合在经济上是不可行的。本章的目标是帮助读者评估策略在哪些情形下对上述任一变量的微小变化具有脆弱性。</p>
+<h2 id="sec-15-2">15.2 对称收益</h2>
+<p>考虑一个每年产生 <span class="math inline">\(n\)</span> IID 次下注的策略，其中 <span class="math inline">\(X_i\)</span> 某次下注 <span class="math inline">\(i\in[1,n]\)</span> 的结果为盈利 <span class="math inline">\(\pi&gt;0\)</span> 的概率为 <span class="math inline">\(P[X_i=\pi]=p\)</span>，以及亏损 <span class="math inline">\(-\pi\)</span> 的概率为 <span class="math inline">\(P[X_i=-\pi]=1-p\)</span>。可以将 <span class="math inline">\(p\)</span> 理解为二分类器的精确率，其中正类表示对某个机会下注，负类表示放弃某个机会：True 正例获得奖励，假正例受到惩罚，而负例（无论真假）均无收益。由于下注结果 <span class="math inline">\(\{X_i\}_{i=1,\ldots,n}\)</span> 相互独立，我们将计算每次下注的期望矩。单次下注的期望收益为 <span class="math inline">\(\mathbb{E}[X_i]=\pi p+(-\pi)(1-p)=\pi(2p-1)\)</span>。方差为 <span class="math inline">\(\mathbb{V}[X_i]=\mathbb{E}[X_i^2]-\mathbb{E}[X_i]^2\)</span>，其中 <span class="math inline">\(\mathbb{E}[X_i^2]=\pi^2p+(-\pi)^2(1-p)=\pi^2\)</span>时保持不变，因此</p>
+<span class="pdf-page-anchor" id="pdf-page-239"></span>
+<p><span class="math inline">\(\mathbb{V}[X_i]=\pi^2-\pi^2(2p-1)^2=\pi^2[1-(2p-1)^2]=4\pi^2p(1-p)\)</span>。对于 <span class="math inline">\(n\)</span> IID 次下注/年，年化夏普比率 <span class="math inline">\((\theta)\)</span> 为</p>
+<div class="math display">\[\theta[p,n]=\frac{n\mathbb{E}[X_i]}{\sqrt{n\mathbb{V}[X_i]}}=\underbrace{\frac{2p-1}{2\sqrt{p(1-p)}}}_{\substack{\text{t-value of }p\\\text{under }H_0:p=\frac12}}\sqrt{n}\]</div>
+<p>注意 <span class="math inline">\(\pi\)</span> 在上式中消去，因为收益是对称的。与高斯情形一样， <span class="math inline">\(\theta[p,n]\)</span> 可以理解为经过重新缩放的 t 值。这说明，即使对于较小的 <span class="math inline">\(p&gt;\frac{1}{2}\)</span>，对于足够大的 <span class="math inline">\(n\)</span>，夏普比率也可以做到很高。这正是高频交易的经济基础，其中 <span class="math inline">\(p\)</span> 可以仅略高于 0.5，成功业务的关键在于增加 <span class="math inline">\(n\)</span>。夏普比率是精确率而非准确率的函数，因为放弃机会（负类）不会直接获得奖励或惩罚（尽管过多的负类可能导致较小的 <span class="math inline">\(n\)</span>，从而使夏普比率趋近于零）。</p>
+<p>例如，对于 <span class="math inline">\(p=.55\)</span>, <span class="math inline">\(\frac{2p-1}{2\sqrt{p(1-p)}}=0.1005\)</span>，要实现年化夏普比率为 2，每年需要 396 次下注。代码片段 15.1 通过实验验证了该结果。图 15.1 描绘了在不同下注频率下，夏普比率关于精度的函数关系。</p>
+<figure class="book-figure"><img alt="图 15.1：不同下注频率（n）下精度（x 轴）与夏普比率（y 轴）之间的关系" src="media/chapter-15-figure-15-1.png"/><figcaption>图 15.1：不同下注频率（n）下精度（x 轴）与夏普比率（y 轴）之间的关系</figcaption></figure>
+<span class="pdf-page-anchor" id="pdf-page-240"></span>
+<figure class="code-listing"><figcaption>代码清单 15.1：以下注次数为函数的目标夏普比率</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="va">out</span><span class="op">,</span><span class="va">p</span><span class="op">=</span><span class="op">[</span><span class="op">]</span><span class="op">,</span><span class="dv">.55</span>
+<span class="kw">for</span> <span class="va">i</span> <span class="kw">in</span> <span class="va">xrange</span><span class="op">(</span><span class="dv">1000000</span><span class="op">)</span><span class="op">:</span>
+    <span class="va">rnd</span><span class="op">=</span><span class="va">np</span><span class="op">.</span><span class="va">random</span><span class="op">.</span><span class="va">binomial</span><span class="op">(</span><span class="va">n</span><span class="op">=</span><span class="dv">1</span><span class="op">,</span><span class="va">p</span><span class="op">=</span><span class="va">p</span><span class="op">)</span>
+    <span class="va">x</span><span class="op">=</span><span class="op">(</span><span class="dv">1</span> <span class="kw">if</span> <span class="va">rnd</span><span class="op">==</span><span class="dv">1</span> <span class="kw">else</span> <span class="op">-</span><span class="dv">1</span><span class="op">)</span>
+    <span class="va">out</span><span class="op">.</span><span class="va">append</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
+<span class="va">print</span> <span class="va">np</span><span class="op">.</span><span class="va">mean</span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">,</span><span class="va">np</span><span class="op">.</span><span class="va">std</span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">,</span><span class="va">np</span><span class="op">.</span><span class="va">mean</span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">/</span><span class="va">np</span><span class="op">.</span><span class="va">std</span><span class="op">(</span><span class="va">out</span><span class="op">)</span></code></pre></div></figure>
+<p>对其求解， <span class="math inline">\(0\le p\le1\)</span>时，可得 <span class="math inline">\(-4p^2+4p-\frac{n}{\theta^2+n}=0\)</span>，其解为</p>
+<div class="math display">\[p=\frac{1}{2}\left(1+\sqrt{1-\frac{n}{\theta^2+n}}\right)\]</div>
+<p>该方程明确揭示了精度 <span class="math inline">\((p)\)</span> 与频率 <span class="math inline">\((n)\)</span> 在给定夏普比率下的权衡关系 <span class="math inline">\((\theta)\)</span>。例如，仅每周下注一次的策略 <span class="math inline">\((n=52)\)</span> 将需要相当高的精度 <span class="math inline">\(p=0.6336\)</span> 才能实现年化夏普比率为 2。</p>
+<h2 id="sec-15-3">15.3 非对称收益</h2>
+<p>考虑一个每年产生 <span class="math inline">\(n\)</span> IID 次下注的策略，其中 <span class="math inline">\(X_i\)</span> 某次下注 <span class="math inline">\(i\in[1,n]\)</span> 为 <span class="math inline">\(\pi_+\)</span> 的概率为 <span class="math inline">\(P[X_i=\pi_+]=p\)</span>，以及结果 <span class="math inline">\(\pi_-\)</span>, <span class="math inline">\(\pi_-&lt;\pi_+\)</span> 以概率 <span class="math inline">\(P[X_i=\pi_-]=1-p\)</span>发生。单次下注的期望利润为 <span class="math inline">\(\mathbb{E}[X_i]=p\pi_++(1-p)\pi_-=(\pi_+-\pi_-)p+\pi_-\)</span>。方差为 <span class="math inline">\(\mathbb{V}[X_i]=\mathbb{E}[X_i^2]-\mathbb{E}[X_i]^2\)</span>，其中 <span class="math inline">\(\mathbb{E}[X_i^2]=p\pi_+^2+(1-p)\pi_-^2=(\pi_+^2-\pi_-^2)p+\pi_-^2\)</span>时保持不变，因此 <span class="math inline">\(\mathbb{V}[X_i]=(\pi_+-\pi_-)^2p(1-p)\)</span>。对于 <span class="math inline">\(n\)</span> IID 次下注/年，年化夏普比率 <span class="math inline">\((\theta)\)</span> 为</p>
+<div class="math display">\[\theta[p,n,\pi_-,\pi_+]=\frac{n\mathbb{E}[X_i]}{\sqrt{n\mathbb{V}[X_i]}}=\frac{(\pi_+-\pi_-)p+\pi_-}{(\pi_+-\pi_-)\sqrt{p(1-p)}}\sqrt{n}\]</div>
+<p>而对于 <span class="math inline">\(\pi_-=-\pi_+\)</span> 的情形，可以看出该方程化简为对称情形：</p>
+<div class="math display">\[\theta[p,n,-\pi_+,\pi_+]=\frac{2\pi_+p-\pi_+}{2\pi_+\sqrt{p(1-p)}}\sqrt{n}=\frac{2p-1}{2\sqrt{p(1-p)}}\sqrt{n}=\theta[p,n]\]</div>
+<p>例如，对于 <span class="math inline">\(n=260\)</span>, <span class="math inline">\(\pi_-=-.01\)</span>, <span class="math inline">\(\pi_+=.005\)</span>, <span class="math inline">\(p=.7\)</span>，我们得到 <span class="math inline">\(\theta=1.173\)</span>.</p>
+<p>最后，我们可以对前述方程求解 <span class="math inline">\(0\le p\le1\)</span>，得到</p>
+<div class="math display">\[p=\frac{-b+\sqrt{b^2-4ac}}{2a}\]</div>
+<span class="pdf-page-anchor" id="pdf-page-241"></span>
+<p>其中：</p>
+<div class="math display">\[\begin{aligned}a&amp;=(n+\theta^2)(\pi_+-\pi_-)^2\\b&amp;=\left[2n\pi_- - \theta^2(\pi_+-\pi_-)\right](\pi_+-\pi_-)\\c&amp;=n\pi_-^2\end{aligned}\]</div>
+<p>补充说明，代码片段 15.2 使用 SymPy Live 对上述符号运算进行了验证： <a href="http://live.sympy.org/">http://live.sympy.org/</a>.</p>
+<figure class="code-listing"><figcaption>代码清单 15.2：使用 SymPy 库进行符号运算</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="kw">from</span> <span class="va">sympy</span> <span class="kw">import</span> <span class="op">*</span>
+<span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="va">init_printing</span><span class="op">(</span><span class="va">use_unicode</span><span class="op">=</span><span class="kw">False</span><span class="op">,</span><span class="va">wrap_line</span><span class="op">=</span><span class="kw">False</span><span class="op">,</span><span class="va">no_global</span><span class="op">=</span><span class="kw">True</span><span class="op">)</span>
+<span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="va">p</span><span class="op">,</span><span class="va">u</span><span class="op">,</span><span class="va">d</span><span class="op">=</span><span class="va">symbols</span><span class="op">(</span><span class="st">'p u d'</span><span class="op">)</span>
+<span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="va">m2</span><span class="op">=</span><span class="va">p</span><span class="op">*</span><span class="va">u</span><span class="op">**</span><span class="dv">2</span><span class="op">+</span><span class="op">(</span><span class="dv">1</span><span class="op">-</span><span class="va">p</span><span class="op">)</span><span class="op">*</span><span class="va">d</span><span class="op">**</span><span class="dv">2</span>
+<span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="va">m1</span><span class="op">=</span><span class="va">p</span><span class="op">*</span><span class="va">u</span><span class="op">+</span><span class="op">(</span><span class="dv">1</span><span class="op">-</span><span class="va">p</span><span class="op">)</span><span class="op">*</span><span class="va">d</span>
+<span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="va">v</span><span class="op">=</span><span class="va">m2</span><span class="op">-</span><span class="va">m1</span><span class="op">**</span><span class="dv">2</span>
+<span class="op">&gt;&gt;</span><span class="op">&gt;</span> <span class="va">factor</span><span class="op">(</span><span class="va">v</span><span class="op">)</span></code></pre></div></figure>
+<p>上述方程回答了如下问题：给定一个由参数 <span class="math inline">\(\{\pi_-,\pi_+,n\}\)</span>刻画的交易规则，其精度率 <span class="math inline">\(p\)</span> 需要达到多少才能实现夏普比率 <span class="math inline">\(\theta^*\)</span>？例如，对于 <span class="math inline">\(n=260\)</span>, <span class="math inline">\(\pi_-=-.01\)</span>, <span class="math inline">\(\pi_+=.005\)</span>，为了获得 <span class="math inline">\(\theta=2\)</span> 我们需要 <span class="math inline">\(p=.72\)</span>。由于下注次数众多，精度率极小的变动 <span class="math inline">\(p\)</span> （从 <span class="math inline">\(p=.7\)</span> 增加至 <span class="math inline">\(p=.72\)</span>）已将夏普比率从 <span class="math inline">\(\theta=1.173\)</span> 增加至 <span class="math inline">\(\theta=2\)</span>。另一方面，这也说明该策略对精度率的微小变化极为敏感 <span class="math inline">\(p\)</span>。代码片段 15.3 实现了隐含精度的推导。图 15.2 展示了隐含精度关于 <span class="math inline">\(n\)</span> 的均值， <span class="math inline">\(\pi_-\)</span>，其中 <span class="math inline">\(\pi_+=0.1\)</span> 的均值， <span class="math inline">\(\theta^*=1.5\)</span>的函数图像。当 <span class="math inline">\(\pi_-\)</span> 在给定 <span class="math inline">\(n\)</span>下变得更负时，需要更高的 <span class="math inline">\(p\)</span> 才能实现 <span class="math inline">\(\theta^*\)</span> 在给定 <span class="math inline">\(\pi_+\)</span>的函数图像。当 <span class="math inline">\(n\)</span> 下变得更小时 <span class="math inline">\(\pi_-\)</span>下变得更负时，需要更高的 <span class="math inline">\(p\)</span> 才能实现 <span class="math inline">\(\theta^*\)</span> 在给定 <span class="math inline">\(\pi_+\)</span>.</p><figure class="book-figure"><img alt="图15.2：以n和pi_-为自变量的隐含精度热力图，其中pi_+=0.1，theta*=1.5" src="media/afml-242_1.jpg"/><figcaption>图 15.2：隐含精度关于 <span class="math inline">\(n\)</span> 的均值， <span class="math inline">\(\pi_-\)</span>，其中 <span class="math inline">\(\pi_+=0.1\)</span> 的均值， <span class="math inline">\(\theta^*=1.5\)</span></figcaption></figure>
+<figure class="code-listing"><figcaption>代码清单 15.3：计算隐含精度</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> <span class="fu">binHR</span><span class="op">(</span><span class="va">sl</span><span class="op">,</span><span class="va">pt</span><span class="op">,</span><span class="va">freq</span><span class="op">,</span><span class="va">tSR</span><span class="op">)</span><span class="op">:</span>
+    <span class="st">'''
+    Given a trading rule characterized by the parameters {sl,pt,freq},
+    what's the min precision p required to achieve a Sharpe ratio tSR?
+    1) Inputs
+    sl: stop loss threshold
+    pt: profit taking threshold
+    freq: number of bets per year
+    tSR: target annual Sharpe ratio
+    2) Output
+    p: the min precision rate p required to achieve tSR
+    '''</span>
+    <span class="va">a</span><span class="op">=</span><span class="op">(</span><span class="va">freq</span><span class="op">+</span><span class="va">tSR</span><span class="op">**</span><span class="dv">2</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pt</span><span class="op">-</span><span class="va">sl</span><span class="op">)</span><span class="op">**</span><span class="dv">2</span>
+    <span class="va">b</span><span class="op">=</span><span class="op">(</span><span class="dv">2</span><span class="op">*</span><span class="va">freq</span><span class="op">*</span><span class="va">sl</span><span class="op">-</span><span class="va">tSR</span><span class="op">**</span><span class="dv">2</span><span class="op">*</span><span class="op">(</span><span class="va">pt</span><span class="op">-</span><span class="va">sl</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">pt</span><span class="op">-</span><span class="va">sl</span><span class="op">)</span>
+    <span class="va">c</span><span class="op">=</span><span class="va">freq</span><span class="op">*</span><span class="va">sl</span><span class="op">**</span><span class="dv">2</span>
+    <span class="va">p</span><span class="op">=</span><span class="op">(</span><span class="op">-</span><span class="va">b</span><span class="op">+</span><span class="op">(</span><span class="va">b</span><span class="op">**</span><span class="dv">2</span><span class="op">-</span><span class="dv">4</span><span class="op">*</span><span class="va">a</span><span class="op">*</span><span class="va">c</span><span class="op">)</span><span class="op">**</span><span class="dv">.5</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="dv">2.</span><span class="op">*</span><span class="va">a</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="va">p</span></code></pre></div></figure>
+<p>代码片段 15.4 对 <span class="math inline">\(\theta[p,n,\pi_-,\pi_+]\)</span> 求解隐含下注频率， <span class="math inline">\(n\)</span>。图 15.3 绘制了隐含频率关于 <span class="math inline">\(p\)</span> 的均值， <span class="math inline">\(\pi_-\)</span>，其中 <span class="math inline">\(\pi_+=0.1\)</span> 的均值， <span class="math inline">\(\theta^*=1.5\)</span>的函数图像。当 <span class="math inline">\(\pi_-\)</span> 在给定 <span class="math inline">\(p\)</span>下变得更负时，需要更高的 <span class="math inline">\(n\)</span> 才能实现 <span class="math inline">\(\theta^*\)</span> 在给定 <span class="math inline">\(\pi_+\)</span>的函数图像。当 <span class="math inline">\(p\)</span> 下变得更小时 <span class="math inline">\(\pi_-\)</span>下变得更负时，需要更高的 <span class="math inline">\(n\)</span> 才能实现 <span class="math inline">\(\theta^*\)</span> 在给定 <span class="math inline">\(\pi_+\)</span>.</p><figure class="book-figure"><img alt="图15.3：以p和pi_-为自变量的隐含频率，其中pi_+=0.1，theta*=1.5" src="media/afml-243_1.jpg"/><figcaption>图 15.3：隐含频率关于 <span class="math inline">\(p\)</span> 的均值， <span class="math inline">\(\pi_-\)</span>，其中 <span class="math inline">\(\pi_+=0.1\)</span> 的均值， <span class="math inline">\(\theta^*=1.5\)</span></figcaption></figure>
+<figure class="code-listing"><figcaption>代码清单 15.4：计算隐含下注频率</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> <span class="fu">binFreq</span><span class="op">(</span><span class="va">sl</span><span class="op">,</span><span class="va">pt</span><span class="op">,</span><span class="va">p</span><span class="op">,</span><span class="va">tSR</span><span class="op">)</span><span class="op">:</span>
+    <span class="st">'''
+    Given a trading rule characterized by the parameters {sl,pt,freq},
+    what's the number of bets/year needed to achieve a Sharpe ratio
+    tSR with precision rate p?
+    Note: Equation with radicals, check for extraneous solution.
+    1) Inputs
+    sl: stop loss threshold
+    pt: profit taking threshold
+    p: precision rate p
+    tSR: target annual Sharpe ratio
+    2) Output
+    freq: number of bets per year needed
+    '''</span>
+    <span class="va">freq</span><span class="op">=</span><span class="op">(</span><span class="va">tSR</span><span class="op">*</span><span class="op">(</span><span class="va">pt</span><span class="op">-</span><span class="va">sl</span><span class="op">)</span><span class="op">)</span><span class="op">**</span><span class="dv">2</span><span class="op">*</span><span class="va">p</span><span class="op">*</span><span class="op">(</span><span class="dv">1</span><span class="op">-</span><span class="va">p</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="op">(</span><span class="va">pt</span><span class="op">-</span><span class="va">sl</span><span class="op">)</span><span class="op">*</span><span class="va">p</span><span class="op">+</span><span class="va">sl</span><span class="op">)</span><span class="op">**</span><span class="dv">2</span> <span class="co"># possible extraneous</span>
+    <span class="kw">if</span> <span class="kw">not</span> <span class="va">np</span><span class="op">.</span><span class="va">isclose</span><span class="op">(</span><span class="va">binSR</span><span class="op">(</span><span class="va">sl</span><span class="op">,</span><span class="va">pt</span><span class="op">,</span><span class="va">freq</span><span class="op">,</span><span class="va">p</span><span class="op">)</span><span class="op">,</span><span class="va">tSR</span><span class="op">)</span><span class="op">:</span>
+        <span class="kw">return</span>
+    <span class="kw">return</span> <span class="va">freq</span></code></pre></div></figure>
+<h2 id="sec-15-4">15.4 策略失败概率</h2>
+<p>在上述示例中，参数 <span class="math inline">\(\pi_-=-.01\)</span>, <span class="math inline">\(\pi_+=.005\)</span> 由投资组合经理设定，并随执行指令传达给交易员。参数 <span class="math inline">\(n=260\)</span> 同样由投资组合经理设定，因为她决定什么构成值得下注的机会。不受投资组合经理控制的两个参数是 <span class="math inline">\(p\)</span> （由市场决定）和 <span class="math inline">\(\theta^*\)</span> （由投资者设定的目标）。由于 <span class="math inline">\(p\)</span> 是未知的，我们可以将其建模为随机变量，期望值为 <span class="math inline">\(\mathbb{E}[p]\)</span>。让我们定义 <span class="math inline">\(p_{\theta^*}\)</span> 为 <span class="math inline">\(p\)</span> 低于该值时策略将无法达到目标夏普比率 <span class="math inline">\(\theta^*\)</span>的值，即， <span class="math inline">\(p_{\theta^*}=\max\{p\mid\theta\le\theta^*\}\)</span>。我们可以使用上述方程（或 binHR 函数）得出，对于 <span class="math inline">\(p_{\theta^*=0}=\frac{2}{3}\)</span>, <span class="math inline">\(p&lt;p_{\theta^*=0}\Rightarrow\theta\le0\)</span>.</p>
+<span class="pdf-page-anchor" id="pdf-page-244"></span>
+<p>这凸显了该策略所涉及的风险，因为 <span class="math inline">\(p\)</span> （从 <span class="math inline">\(p=.7\)</span> 增加至 <span class="math inline">\(p=.67\)</span>）的相对小幅下降将会抹去所有利润。即便持仓本身并无风险，该策略本质上仍是高风险的。这正是我们希望通过本章建立的核心区别：策略风险不应与投资组合风险相混淆。大多数公司和投资者在计算、监控和报告投资组合风险时，并未意识到这对于策略本身的风险毫无说明。策略风险并非首席风险官所计算的底层投资组合风险，而是投资策略随时间推移能否成功的风险——这是一个对首席投资官而言重要得多的问题。"该策略失败的概率是多少？"这一问题的答案，等价于计算 <span class="math inline">\(P[p&lt;p_{\theta^*}]\)</span>。以下算法将帮助我们计算策略风险。</p>
+<h3 id="sec-15-4-1">15.4.1 算法</h3>
+<p>本节将描述一种计算 <span class="math inline">\(P[p&lt;p_{\theta^*}]\)</span>的流程。给定一组下注结果的时间序列 <span class="math inline">\(\{\pi_t\}_{t=1,\ldots,T}\)</span>，首先估计 <span class="math inline">\(\pi_-=\mathbb{E}[\{\pi_t\mid\pi_t\le0\}_{t=1,\ldots,T}]\)</span>，且 <span class="math inline">\(\pi_+=\mathbb{E}[\{\pi_t\mid\pi_t&gt;0\}_{t=1,\ldots,T}]\)</span>。另外， <span class="math inline">\(\{\pi_-,\pi_+\}\)</span> 也可以通过使用 EF3M 算法拟合两个高斯分布的混合模型来推导（López de Prado 和 Foreman <span class="citation">[2014]</span>）。其次，年度频率 <span class="math inline">\(n\)</span> 由下式给出 <span class="math inline">\(n=\frac{T}{y}\)</span>，其中 <span class="math inline">\(y\)</span> 为 <span class="math inline">\(t=1\)</span> 的均值， <span class="math inline">\(t=T\)</span>。第三，我们对以下分布进行自助法抽样： <span class="math inline">\(p\)</span> 的值如下：</p>
+<ol><li>对于迭代次数 <span class="math inline">\(i=1,\ldots,I\)</span>:<ol type="a"><li>抽取 <span class="math inline">\(\lfloor nk\rfloor\)</span> 个样本，来自 <span class="math inline">\(\{\pi_t\}_{t=1,\ldots,T}\)</span> ，有放回抽样，其中 <span class="math inline">\(k\)</span> 为投资者用于评估策略的年数（例如，2年）。将这些抽取样本的集合记为 <span class="math inline">\(\{\pi_j^{(i)}\}_{j=1,\ldots,\lfloor nk\rfloor}\)</span>.</li><li>从迭代 <span class="math inline">\(i\)</span> 时计算为 <span class="math inline">\(p_i=\frac{1}{\lfloor nk\rfloor}\left\|\{\pi_j^{(i)}\mid\pi_j^{(i)}&gt;0\}_{j=1,\ldots,\lfloor nk\rfloor}\right\|\)</span>.</li></ol></li><li>拟合 <span class="math inline">\(p\)</span>的，记为 <span class="math inline">\(f[p]\)</span>，方法是对 <span class="math inline">\(\{p_i\}_{i=1,\ldots,I}\)</span>.</li></ol>
+<p>应用核密度估计（）。当 <span class="math inline">\(k\)</span>足够大时，第三步可近似为 <span class="math inline">\(f[p]\sim N[\bar p,\bar p(1-\bar p)]\)</span>，其中 <span class="math inline">\(\bar p=\mathbb{E}[p]=\frac{1}{T}\left\|\{\pi_t^{(i)}\mid\pi_t^{(i)}&gt;0\}_{t=1,\ldots,T}\right\|\)</span>。第四，给定阈值 <span class="math inline">\(\theta^*\)</span> （区分失败与成功的夏普比率），推导出 <span class="math inline">\(p_{\theta^*}\)</span> （参见第15.4节）。第五，策略风险计算如下：</p><div class="math display">\[\mathbb{P}[p&lt;p_{\theta^*}]=\int_{-\infty}^{p_{\theta^*}} f[p]\,dp\]</div>
+<h3 id="sec-15-4-2">15.4.2 实现</h3>
+<p>代码片段15.5列出了该算法的一种可能实现。通常，我们会排除满足以下条件的策略： <span class="math inline">\(P[p&lt;p_{\theta^*}]&gt;.05\)</span> ，认为其风险过高，即便这些策略投资于低波动率工具亦然。原因在于，即使亏损不多，其未能达到目标的概率也过高。为使策略得以实盘部署，策略开发者必须找到降低 <span class="math inline">\(p_{\theta^*}\)</span>.</p>
+<span class="pdf-page-anchor" id="pdf-page-245"></span>
+<figure class="code-listing"><figcaption>代码片段15.5：实践中策略风险的计算</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span><span class="op">,</span><span class="va">scipy</span><span class="op">.</span><span class="va">stats</span> <span class="kw">as</span> <span class="va">ss</span>
+<span class="co">#---------------------------------------</span>
+<span class="kw">def</span> <span class="fu">mixGaussians</span><span class="op">(</span><span class="va">mu1</span><span class="op">,</span><span class="va">mu2</span><span class="op">,</span><span class="va">sigma1</span><span class="op">,</span><span class="va">sigma2</span><span class="op">,</span><span class="va">prob1</span><span class="op">,</span><span class="va">nObs</span><span class="op">)</span><span class="op">:</span>
+    <span class="co"># Random draws from a mixture of gaussians</span>
+    <span class="va">ret1</span><span class="op">=</span><span class="va">np</span><span class="op">.</span><span class="va">random</span><span class="op">.</span><span class="va">normal</span><span class="op">(</span><span class="va">mu1</span><span class="op">,</span><span class="va">sigma1</span><span class="op">,</span><span class="va">size</span><span class="op">=</span><span class="va">int</span><span class="op">(</span><span class="va">nObs</span><span class="op">*</span><span class="va">prob1</span><span class="op">)</span><span class="op">)</span>
+    <span class="va">ret2</span><span class="op">=</span><span class="va">np</span><span class="op">.</span><span class="va">random</span><span class="op">.</span><span class="va">normal</span><span class="op">(</span><span class="va">mu2</span><span class="op">,</span><span class="va">sigma2</span><span class="op">,</span><span class="va">size</span><span class="op">=</span><span class="va">int</span><span class="op">(</span><span class="va">nObs</span><span class="op">)</span><span class="op">-</span><span class="va">ret1</span><span class="op">.</span><span class="va">shape</span><span class="op">[</span><span class="dv">0</span><span class="op">]</span><span class="op">)</span>
+    <span class="va">ret</span><span class="op">=</span><span class="va">np</span><span class="op">.</span><span class="va">append</span><span class="op">(</span><span class="va">ret1</span><span class="op">,</span><span class="va">ret2</span><span class="op">,</span><span class="va">axis</span><span class="op">=</span><span class="dv">0</span><span class="op">)</span>
+    <span class="va">np</span><span class="op">.</span><span class="va">random</span><span class="op">.</span><span class="va">shuffle</span><span class="op">(</span><span class="va">ret</span><span class="op">)</span>
+    <span class="kw">return</span> <span class="va">ret</span>
+<span class="co">#---------------------------------------</span>
+<span class="kw">def</span> <span class="fu">probFailure</span><span class="op">(</span><span class="va">ret</span><span class="op">,</span><span class="va">freq</span><span class="op">,</span><span class="va">tSR</span><span class="op">)</span><span class="op">:</span>
+    <span class="co"># Derive probability that strategy may fail</span>
+    <span class="va">rPos</span><span class="op">,</span><span class="va">rNeg</span><span class="op">=</span><span class="va">ret</span><span class="op">[</span><span class="va">ret</span><span class="op">&gt;</span><span class="dv">0</span><span class="op">]</span><span class="op">.</span><span class="va">mean</span><span class="op">(</span><span class="op">)</span><span class="op">,</span><span class="va">ret</span><span class="op">[</span><span class="va">ret</span><span class="op">&lt;=</span><span class="dv">0</span><span class="op">]</span><span class="op">.</span><span class="va">mean</span><span class="op">(</span><span class="op">)</span>
+    <span class="va">p</span><span class="op">=</span><span class="va">ret</span><span class="op">[</span><span class="va">ret</span><span class="op">&gt;</span><span class="dv">0</span><span class="op">]</span><span class="op">.</span><span class="va">shape</span><span class="op">[</span><span class="dv">0</span><span class="op">]</span><span class="op">/</span><span class="va">float</span><span class="op">(</span><span class="va">ret</span><span class="op">.</span><span class="va">shape</span><span class="op">[</span><span class="dv">0</span><span class="op">]</span><span class="op">)</span>
+    <span class="va">thresP</span><span class="op">=</span><span class="va">binHR</span><span class="op">(</span><span class="va">rNeg</span><span class="op">,</span><span class="va">rPos</span><span class="op">,</span><span class="va">freq</span><span class="op">,</span><span class="va">tSR</span><span class="op">)</span>
+    <span class="va">risk</span><span class="op">=</span><span class="va">ss</span><span class="op">.</span><span class="va">norm</span><span class="op">.</span><span class="va">cdf</span><span class="op">(</span><span class="va">thresP</span><span class="op">,</span><span class="va">p</span><span class="op">,</span><span class="va">p</span><span class="op">*</span><span class="op">(</span><span class="dv">1</span><span class="op">-</span><span class="va">p</span><span class="op">)</span><span class="op">)</span> <span class="co"># approximation to bootstrap</span>
+    <span class="kw">return</span> <span class="va">risk</span>
+<span class="co">#---------------------------------------</span>
+<span class="kw">def</span> <span class="fu">main</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>
+    <span class="co">#1) Parameters</span>
+    <span class="va">mu1</span><span class="op">,</span><span class="va">mu2</span><span class="op">,</span><span class="va">sigma1</span><span class="op">,</span><span class="va">sigma2</span><span class="op">,</span><span class="va">prob1</span><span class="op">,</span><span class="va">nObs</span><span class="op">=</span><span class="dv">.05</span><span class="op">,</span><span class="op">-</span><span class="dv">.1</span><span class="op">,</span><span class="dv">.05</span><span class="op">,</span><span class="dv">.1</span><span class="op">,</span><span class="dv">.75</span><span class="op">,</span><span class="dv">2600</span>
+    <span class="va">tSR</span><span class="op">,</span><span class="va">freq</span><span class="op">=</span><span class="dv">2.</span><span class="op">,</span><span class="dv">260</span>
+    <span class="co">#2) Generate sample from mixture</span>
+    <span class="va">ret</span><span class="op">=</span><span class="va">mixGaussians</span><span class="op">(</span><span class="va">mu1</span><span class="op">,</span><span class="va">mu2</span><span class="op">,</span><span class="va">sigma1</span><span class="op">,</span><span class="va">sigma2</span><span class="op">,</span><span class="va">prob1</span><span class="op">,</span><span class="va">nObs</span><span class="op">)</span>
+    <span class="co">#3) Compute prob failure</span>
+    <span class="va">probF</span><span class="op">=</span><span class="va">probFailure</span><span class="op">(</span><span class="va">ret</span><span class="op">,</span><span class="va">freq</span><span class="op">,</span><span class="va">tSR</span><span class="op">)</span>
+    <span class="va">print</span> <span class="st">'Prob strategy will fail'</span><span class="op">,</span><span class="va">probF</span>
+    <span class="kw">return</span>
+<span class="co">#---------------------------------------</span>
+<span class="kw">if</span> <span class="va">__name__</span><span class="op">==</span><span class="st">'__main__'</span><span class="op">:</span><span class="va">main</span><span class="op">(</span><span class="op">)</span></code></pre></div></figure>
+<p>该方法与 <span class="math inline">\(\mathrm{PSR}\)</span> 有若干相似之处（参见第14章，以及Bailey和López de Prado [2012, 2014]）。 <span class="math inline">\(\mathrm{PSR}\)</span> 推导出在非高斯收益分布下，真实夏普比率超过给定阈值的概率。类似地，本章介绍的方法基于非对称二元结果推导策略的失败概率。关键区别在于， <span class="math inline">\(\mathrm{PSR}\)</span> 不区分组合管理人可控与不可控的参数，而本章讨论的方法允许组合管理人在其可控参数的约束下研究策略的可行性： <span class="math inline">\(\{\pi_-,\pi_+,n\}\)</span>。这在设计或评估交易策略的可行性时非常有用。</p>
+<span class="pdf-page-anchor" id="pdf-page-246"></span>
+<h2 class="references-heading" id="references">参考文献</h2>
+<ul class="references-list"><li>Bailey, D. and M. López de Prado (2014): “The deflated Sharpe ratio: Correcting for selection bias, backtest overfitting and non-normality.” Journal of Portfolio Management, Vol. 40, No. 5. Available at <a href="https://ssrn.com/abstract=2460551">https://ssrn.com/abstract=2460551</a>.</li><li>Bailey, D. and M. López de Prado (2012): “The Sharpe ratio efficient frontier.” Journal of Risk, Vol. 15, No. 2, pp. 3–44. Available at <a href="https://ssrn.com/abstract=1821643">https://ssrn.com/abstract=1821643</a>.</li><li>López de Prado, M. and M. Foreman (2014): “A mixture of Gaussians approach to mathematical portfolio oversight: The EF3M algorithm.” Quantitative Finance, Vol. 14, No. 5, pp. 913–930. Available at <a href="https://ssrn.com/abstract=1931734">https://ssrn.com/abstract=1931734</a>.</li><li>López de Prado, M. and A. Peijan (2004): “Measuring loss potential of hedge fund strategies.” Journal of Alternative Investments, Vol. 7, No. 1 (Summer), pp. 7–31. Available at <a href="http://ssrn.com/abstract=641702">http://ssrn.com/abstract=641702</a>.</li></ul>
+<div class="chapter-pager"><a href="chapter-14.html">上一章：回测统计</a><a href="chapter-16.html">下一章：机器学习资产配置</a></div>
+</article>
+</main>
+</div>
+</body>
+</html>

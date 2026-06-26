@@ -1,0 +1,42 @@
+html[lang="zh-CN"] body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC", "Segoe UI", sans-serif;
+  line-height: 1.78;
+}
+html[lang="zh-CN"] article {
+  max-width: 52rem;
+}
+html[lang="zh-CN"] .contents-home article {
+  max-width: 74rem;
+}
+html[lang="zh-CN"] p,
+html[lang="zh-CN"] li {
+  line-height: 1.78;
+}
+html[lang="zh-CN"] h1,
+html[lang="zh-CN"] h2,
+html[lang="zh-CN"] h3,
+html[lang="zh-CN"] h4 {
+  line-height: 1.28;
+}
+html[lang="zh-CN"] .chapter-pager {
+  flex-wrap: wrap;
+}
+html[lang="zh-CN"] .chapter-pager a {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+html[lang="zh-CN"] .book-figure figcaption,
+html[lang="zh-CN"] figure.table-figure figcaption {
+  line-height: 1.55;
+}
+html[lang="zh-CN"] figure.code-listing,
+html[lang="zh-CN"] div.sourceCode,
+html[lang="zh-CN"] pre.sourceCode {
+  width: 100%;
+  max-width: 100%;
+}
+@media (max-width: 760px) {
+  html[lang="zh-CN"] .chapter-pager {
+    display: grid;
+  }
+}

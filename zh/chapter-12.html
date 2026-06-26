@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>通过交叉验证进行回测 | 金融机器学习进阶</title>
+<link href="../assets/afml-book.css?v=20260626-book-toc-captions" rel="stylesheet"/><link href="../assets/afml-book-zh.css?v=20260626-book-toc-captions" rel="stylesheet"/>
+<script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)']],
+          displayMath: [['\\[', '\\]']]
+        },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer="" src="../assets/afml-book-zh.js?v=20260626-book-toc-captions"></script>
+</head>
+<body>
+<header class="book-topbar">
+<div>
+<a class="book-title" href="index.html">金融机器学习进阶</a>
+<span>第三部分：回测</span>
+</div>
+<nav aria-label="书籍导航">
+<a href="index.html">目录</a>
+<a href="chapter-11.html">上一章</a>
+<a href="chapter-13.html">下一章</a>
+</nav>
+</header>
+<div class="book-layout">
+<main class="content">
+<article>
+<header class="chapter-header">
+<p>第三部分：回测</p>
+<h1>通过交叉验证进行回测</h1>
+</header>
+<span class="pdf-page-anchor" id="pdf-page-188"></span>
+<h2 id="sec-12-1">12.1 动机</h2>
+<p>回测利用历史观测数据，对投资策略的样本外表现进行评估。这些历史数据可以通过两种方式加以利用：（1）狭义上，模拟某一投资策略的历史表现，仿佛该策略曾在过去实际运行；（2）广义上，模拟历史上未曾发生的情景。第一种（狭义）方法又称滚动前推（walk-forward），极为普遍，事实上，"回测"一词已成为"历史模拟"的事实同义词。第二种（广义）方法知者甚少，本章将介绍若干实施它的新颖方式。两种方法各有利弊，均值得审慎考量。</p>
+<h2 id="sec-12-2">12.2 滚动前推法（Walk-Forward Method）</h2>
+<p>文献中最常见的回测方法是滚动前推（WF）法。WF 是对策略在历史上如何表现的模拟。每个策略决策均基于该决策时间点之前的观测数据。如第 11 章所述，执行一次无懈可击的 WF 模拟是一项艰巨的任务，需要对数据来源、市场微观结构、风险管理、绩效衡量标准（e.g.、GIPS）、多重检验方法、实验数学等有深入了解。遗憾的是，并不存在通用的回测流程。为确保准确性和代表性，每次回测都必须根据特定策略的假设进行定制化设计。WF 具有两大关键优势：（1）WF 具有明确的历史解释性，其表现可与模拟交易相印证。（2）历史是一个过滤过程；因此，只要正确实施了清除操作（见第 7 章第 7.4.1 节），使用滞后数据即可保证测试集为样本外数据（无信息泄漏）。这是一个</p>
+<span class="pdf-page-anchor" id="pdf-page-189"></span>
+<p>在 WF 回测中发现信息泄漏是一个常见错误，其中 t1.index 落在训练集内，而 t1.values 落在测试集内（见第 3 章）。WF 回测无需设置禁运期，因为训练集始终早于测试集。</p>
+<h3 id="sec-12-2-1">12.2.1 滚动前推法的陷阱</h3>
+<p>WF 存在三大主要缺陷：第一，仅测试单一场景（历史路径），这很容易导致过拟合（Bailey et al. <span class="citation">[2014]</span>）。第二，WF 不一定能代表未来表现，因为结果可能受到特定数据点排列顺序的影响而产生偏差。WF 方法的支持者通常认为，预测过去数据会导致绩效估计过于乐观。然而，在倒序观测序列上拟合出表现优异的模型，往往会在正向 WF 回测中表现欠佳。事实上，对滚动前推回测进行过拟合与对滚动后推回测进行过拟合同样容易，而改变观测序列顺序会导致结果不一致，这本身就是过拟合的证据。如果 WF 的支持者是正确的，我们应当观察到滚动后推回测系统性地优于其滚动前推的对应结果。然而事实并非如此，因此支持 WF 的主要论点相当薄弱。</p><p>为了更清晰地说明第二个缺点，假设一个股票策略在 S&amp;P 500 数据上以 WF 进行回测，起始日期为 2007 年 1 月 1 日。在 2009 年 3 月 15 日之前，市场的反复涨跌将训练该策略保持市场中性，每个持仓的置信度均较低。此后，持续上涨行情将主导数据集，到 2017 年 1 月 1 日时，买入预测将超过卖出预测。若将信息倒序使用，即从 2017 年 1 月 1 日回溯至 2007 年 1 月 1 日，策略表现将大相径庭。通过利用特定的时间序列顺序，由 WF 筛选出的策略可能会使我们陷入困境。</p><p>WF 的第三个缺点是，初始决策仅基于总样本中较小的一部分。即使设置了预热期，大多数信息也只被少数决策所利用。考虑一个设有预热期的策略，其使用 <span class="math inline">\(t_0\)</span> 个观测值，共 <span class="math inline">\(T\)</span>个观测值。该策略做出其一半决策， <span class="math inline">\((T-t_0)/2\)</span>个，所依据的平均数据点数为，</p><div class="math display">\[\left(\frac{T-t_0}{2}\right)^{-1}\left(t_0+\frac{T+t_0}{2}\right)\frac{T-t_0}{4}=\frac{1}{4}T+\frac{3}{4}t_0\]</div><p>仅占 <span class="math inline">\(\frac{3}{4}\frac{t_0}{T}+\frac{1}{4}\)</span> 的观测值比例。尽管可以通过延长预热期来缓解这一问题，但这样做也会相应缩短回测的时间长度。</p>
+<h2 id="sec-12-3">12.3 交叉验证法</h2>
+<p>投资者常常询问，若某策略面临如 2008 年金融危机、互联网泡沫、缩减恐慌（taper tantrum）或 2015—2016 年中国股市震荡等难以预料的压力情景，其表现将会如何。一种解答方式是将观测值拆分为两个集合：一个包含待测时期（测试集），另一个包含其余时期（训练集）。例如，分类器在 2009 年 1 月 1 日至 2017 年 1 月 1 日期间进行训练，然后在 2008 年 1 月 1 日至 2008 年 12 月 31 日期间进行测试。所得到的 2008 年表现并不具有历史准确性，因为分类器是在 2008 年之后才可获取的数据上训练的。但历史准确性并非本次测试的目标。测试的目的在于将一个对 2008 年一无所知的策略置于类似 2008 年的压力情景中加以检验。</p><p>通过交叉验证（CV）进行回测的目标，并非推导历史准确的表现，而是通过多个样本外情景来推断未来表现。对于回测中的每个时期，我们模拟一个了解除该时期以外所有信息的分类器的表现。</p>
+<span class="pdf-page-anchor" id="pdf-page-190"></span>
+<p>分类器是在2008年之后才可获得的数据上训练的。但历史准确性并非测试的目标。测试的目的是将一个对2008年一无所知的策略置于2008年这样的压力情景之下。通过交叉验证进行回测（CV）的目标不是推导历史上的准确表现，而是从多个样本外情景中推断未来表现。对于回测中的每个时期，我们模拟一个除该时期外掌握所有信息的分类器的表现。</p>
+<p class="example-caption"><strong>优势</strong></p>
+<ol><li>测试结果并非源自某一特定（历史）情景。事实上，CV 测试了 k 个备选情景，其中只有一个与历史序列相对应。</li><li>每个决策均基于规模相等的数据集。就作出决策所使用的信息量而言，这使得各时期的结果具有可比性。</li><li>每个观测值仅属于且恰好属于一个测试集。不存在预热子集，从而实现了尽可能长的样本外模拟。</li></ol>
+<p class="example-caption"><strong>劣势</strong></p>
+<ol><li>与 WF 类似，仅模拟单条回测路径（尽管并非历史路径）。每个观测值仅生成一个且只有一个预测值。</li><li>CV 没有清晰的历史解释。其输出并非模拟策略在过去的表现，而是模拟策略在各种压力情景下未来可能的表现（这本身就是一个有价值的结论）。</li><li>由于训练集并不位于测试集之后，信息泄漏是可能发生的。必须格外谨慎，避免将测试集信息泄漏到训练集中。参见第7章，了解在 CV 情境下，清除/剔除重叠样本（purging）和禁运期/隔离期（embargo）如何有助于防止信息泄漏的相关讨论。</li></ol>
+<h2 id="sec-12-4">12.4 组合式清除交叉验证法</h2>
+<p>本节将介绍一种新方法，以解决 WF 和 CV 方法的主要缺陷，即这两种方案仅测试单条路径。我将其称为"组合式清除交叉验证"（CPCV）方法。给定数量 <span class="math inline">\(\varphi\)</span> 研究人员所设定的回测路径数量，CPCV 生成产生这些路径所需的训练集／测试集组合的精确数量，同时清除包含泄漏信息的训练观测值。</p>
+<span class="pdf-page-anchor" id="pdf-page-191"></span>
+<figure class="table-figure cpcv-figure"><figcaption>图12.1：为以下条件生成的路径 <span class="math inline">\(\varphi[6,2]=5\)</span></figcaption><div class="table-wrap"><table class="semantic-table cpcv-table"><thead><tr><th>组</th><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th><th>S6</th><th>S7</th><th>S8</th><th>S9</th><th>S10</th><th>S11</th><th>S12</th><th>S13</th><th>S14</th><th>S15</th><th>路径</th></tr></thead><tbody><tr><th scope="row">G1</th><td>x</td><td>x</td><td>x</td><td>x</td><td>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>5</td></tr><tr><th scope="row">G2</th><td>x</td><td></td><td></td><td></td><td></td><td>x</td><td>x</td><td>x</td><td>x</td><td></td><td></td><td></td><td></td><td></td><td></td><td>5</td></tr><tr><th scope="row">G3</th><td></td><td>x</td><td></td><td></td><td></td><td>x</td><td></td><td></td><td></td><td>x</td><td>x</td><td>x</td><td></td><td></td><td></td><td>5</td></tr><tr><th scope="row">G4</th><td></td><td></td><td>x</td><td></td><td></td><td></td><td>x</td><td></td><td></td><td>x</td><td></td><td></td><td>x</td><td>x</td><td></td><td>5</td></tr><tr><th scope="row">G5</th><td></td><td></td><td></td><td>x</td><td></td><td></td><td></td><td>x</td><td></td><td></td><td>x</td><td></td><td>x</td><td></td><td>x</td><td>5</td></tr><tr><th scope="row">G6</th><td></td><td></td><td></td><td></td><td>x</td><td></td><td></td><td></td><td>x</td><td></td><td></td><td>x</td><td></td><td>x</td><td>x</td><td>5</td></tr></tbody></table></div></figure>
+<h3 id="sec-12-4-1">12.4.1 组合式划分</h3>
+<p>考虑 <span class="math inline">\(T\)</span> 个观测值划分为 <span class="math inline">\(N\)</span> 个不重排的组，其中第 <span class="math inline">\(n=1,\ldots,N-1\)</span> 组的大小为 <span class="math inline">\(\lfloor T/N\rfloor\)</span>，第 <span class="math inline">\(N\)</span>组的大小为 <span class="math inline">\(T-\lfloor T/N\rfloor(N-1)\)</span>，且 <span class="math inline">\(\lfloor\cdot\rfloor\)</span> 为向下取整函数。对于大小为 <span class="math inline">\(k\)</span> 个组的测试集，可能的训练／测试划分数为</p><div class="math display">\[\binom{N}{N-k}=\frac{\prod_{i=0}^{k-1}(N-i)}{k!}.\]</div>
+<p>由于每种组合涉及 <span class="math inline">\(k\)</span> 个测试组，测试组的总数为 <span class="math inline">\(k\binom{N}{N-k}\)</span>。又由于我们已穷举了所有可能的组合，这些测试组均匀分布在所有 <span class="math inline">\(N\)</span> 个组上。这意味着，利用 <span class="math inline">\(k\)</span>规模的测试集，在 <span class="math inline">\(N\)</span> 个组上可回测的路径总数 <span class="math inline">\(\varphi[N,k]\)</span>,</p><div class="math display">\[\varphi[N,k]=\frac{k}{N}\binom{N}{N-k}=\frac{\prod_{i=1}^{k-1}(N-i)}{(k-1)!}.\]</div>
+<p>图 12.1 展示了训练／测试划分的构成，参数为 <span class="math inline">\(N=6\)</span> 的均值， <span class="math inline">\(k=2\)</span>。共有 <span class="math inline">\(\binom{6}{4}=15\)</span> 个划分，索引为 <span class="math inline">\(S_1,\ldots,S_{15}\)</span>。对于每个划分，图中以叉号（x）标记测试集所含的组，未标记的组构成训练集。每个组属于 <span class="math inline">\(\varphi[6,2]=5\)</span> 个测试集，因此该训练／测试划分方案允许我们计算 5 条回测路径。</p><p>图 12.2 展示了每个测试组到各回测路径的分配情况。</p>
+<figure class="table-figure cpcv-figure"><figcaption>图 12.2：测试组到 5 条路径的分配</figcaption><div class="table-wrap"><table class="semantic-table cpcv-table"><thead><tr><th>组</th><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th><th>S6</th><th>S7</th><th>S8</th><th>S9</th><th>S10</th><th>S11</th><th>S12</th><th>S13</th><th>S14</th><th>S15</th><th>路径</th></tr></thead><tbody><tr><th scope="row">G1</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>5</td></tr><tr><th scope="row">G2</th><td>1</td><td></td><td></td><td></td><td></td><td>2</td><td>3</td><td>4</td><td>5</td><td></td><td></td><td></td><td></td><td></td><td></td><td>5</td></tr><tr><th scope="row">G3</th><td></td><td>1</td><td></td><td></td><td></td><td>2</td><td></td><td></td><td></td><td>3</td><td>4</td><td>5</td><td></td><td></td><td></td><td>5</td></tr><tr><th scope="row">G4</th><td></td><td></td><td>1</td><td></td><td></td><td></td><td>2</td><td></td><td></td><td>3</td><td></td><td></td><td>4</td><td>5</td><td></td><td>5</td></tr><tr><th scope="row">G5</th><td></td><td></td><td></td><td>1</td><td></td><td></td><td></td><td>2</td><td></td><td></td><td>3</td><td></td><td>4</td><td></td><td>5</td><td>5</td></tr><tr><th scope="row">G6</th><td></td><td></td><td></td><td></td><td>1</td><td></td><td></td><td></td><td>2</td><td></td><td></td><td>3</td><td></td><td>4</td><td>5</td><td>5</td></tr></tbody></table></div></figure>
+<span class="pdf-page-anchor" id="pdf-page-192"></span>
+<p>例如，前两条路径综合了来自以下测试组的预测结果：</p><div class="math display">\[\begin{aligned}\text{Path 1}:&amp;\ (G_1,S_1),(G_2,S_1),(G_3,S_2),\\&amp;\ (G_4,S_3),(G_5,S_4),(G_6,S_5),\\\text{Path 2}:&amp;\ (G_1,S_2),(G_2,S_6),(G_3,S_6),\\&amp;\ (G_4,S_7),(G_5,S_8),(G_6,S_9).\end{aligned}\]</div><p>依此类推。</p><p>这些路径通过在比例为 <span class="math inline">\(\theta=1-\frac{k}{N}\)</span> 的数据上训练分类器来生成，每种组合分别进行一次。虽然理论上可以在比例为 <span class="math inline">\(\theta&lt;\frac{1}{2}\)</span>的数据上进行训练，但在实际中我们假设 <span class="math inline">\(k\le N/2\)</span>。训练集中的数据比例 <span class="math inline">\(\theta\)</span> 随 <span class="math inline">\(N\to T\)</span> 增大，但随 <span class="math inline">\(k\to N/2\)</span>减小。路径的数量 <span class="math inline">\(\varphi[N,k]\)</span> 随 <span class="math inline">\(N\to T\)</span> 以及随 <span class="math inline">\(k\to N/2\)</span>增大。在极限情况下，最大路径数量可通过将 <span class="math inline">\(N=T\)</span> 的均值， <span class="math inline">\(k=N/2=T/2\)</span>来实现，代价是每种组合仅使用一半数据训练分类器 <span class="math inline">\((\theta=1/2)\)</span>.</p>
+<h3 id="sec-12-4-2">12.4.2 组合式清除交叉验证（CPCV）回测算法</h3>
+<p>在第7章中，我们在CV的背景下介绍了清除（purging）与禁运期（embargo）的概念。现在我们将把这些概念用于通过CV进行回测。CPCV回测算法的步骤如下：</p>
+<ol class="algorithm-list"><li>将 <span class="math inline">\(T\)</span> 个观测值划分为 <span class="math inline">\(N\)</span> 个不重排的组，其中第 <span class="math inline">\(n=1,\ldots,N-1\)</span> 组的大小为 <span class="math inline">\(\lfloor T/N\rfloor\)</span>，以及 <span class="math inline">\(N\)</span>组的大小为 <span class="math inline">\(T-\lfloor T/N\rfloor(N-1)\)</span>.</li><li>计算所有可能的训练/测试划分，其中对于每次划分， <span class="math inline">\(N-k\)</span> 个组构成训练集， <span class="math inline">\(k\)</span> 个组构成测试集。</li><li>对于任意一对标签 <span class="math inline">\((y_i,y_j)\)</span>，其中 <span class="math inline">\(y_i\)</span> 属于训练集，而 <span class="math inline">\(y_j\)</span> 属于测试集，应用 <code>PurgedKFold</code> 类以清除 <span class="math inline">\(y_i\)</span> 若 <span class="math inline">\(y_i\)</span> 跨越了用于确定标签的时间段 <span class="math inline">\(y_j\)</span>。若某些测试样本的时间早于某些训练样本，该类还将应用禁运期（embargo）。</li><li>在 <span class="math inline">\(\binom{N}{N-k}\)</span> 个训练集上拟合分类器，并在相应的 <span class="math inline">\(\binom{N}{N-k}\)</span> 测试集上生成预测。</li><li>计算 <span class="math inline">\(\varphi[N,k]\)</span> 回测路径。您可以从每条路径计算一个夏普比率，进而推导出策略夏普比率的经验分布，而非像 WF 或 CV 那样仅得到单一夏普比率。</li></ol>
+<h3 id="sec-12-4-3">12.4.3 若干示例</h3>
+<p>当 <span class="math inline">\(k=1\)</span>，我们将得到 <span class="math inline">\(\varphi[N,1]=1\)</span> 路径，此时 CPCV 退化为 CV。因此，CPCV 可视为 CV 在以下情形下的推广： <span class="math inline">\(k&gt;1\)</span>.</p><p>当 <span class="math inline">\(k=2\)</span>，我们将得到 <span class="math inline">\(\varphi[N,2]=N-1\)</span> 条路径。这是一个特别有趣的情形，因为在用大部分数据训练分类器的同时， <span class="math inline">\(\theta=1-\frac{2}{N}\)</span>，我们几乎可以生成与分组数量相当的回测路径， <span class="math inline">\(N-1\)</span>。一个简便的经验法则是将数据划分为 <span class="math inline">\(N=\varphi+1\)</span> 组，其中 <span class="math inline">\(\varphi\)</span> 为目标路径数，然后构成 <span class="math inline">\(\binom{N}{N-2}\)</span> 种组合。在极限情形下，可为每个观测值分配一组， <span class="math inline">\(N=T\)</span>，并生成 <span class="math inline">\(\varphi[T,2]=T-1\)</span> 条路径，同时每种组合使用占 <span class="math inline">\(\theta=1-\frac{2}{T}\)</span> 的数据训练分类器。</p>
+<span class="pdf-page-anchor" id="pdf-page-193"></span>
+<p>若需要更多路径，可以增大 <span class="math inline">\(k\to N/2\)</span>，但如前所述，这将以使用更小比例的数据集进行训练为代价。在实践中， <span class="math inline">\(k=2\)</span> 通常足以生成所需的 <span class="math inline">\(\varphi\)</span> 条路径，只需令 <span class="math inline">\(N=\varphi+1\le T\)</span>.</p>
+<h2 id="sec-12-5">12.5 组合式清除交叉验证（CPCV）如何解决回测过拟合</h2>
+<p>给定 IID 个随机变量的样本， <span class="math inline">\(x_i\sim Z,\ i=1,\ldots,I\)</span>，其中 <span class="math inline">\(Z\)</span> 为标准正态分布，该样本的期望最大值可近似为</p><div class="math display">\[\mathbb{E}[\max\{x_i\}_{i=1,\ldots,I}]\approx(1-\gamma)Z^{-1}\!\left[1-\frac{1}{I}\right]+\gamma Z^{-1}\!\left[1-\frac{e^{-1}}{I}\right]\le\sqrt{2\log[I]}.\]</div>
+<p>其中 <span class="math inline">\(Z^{-1}[\cdot]\)</span> 是 CDF 的反函数， <span class="math inline">\(Z\)</span>, <span class="math inline">\(\gamma\approx0.5772156649\cdots\)</span> 为 Euler-Mascheroni 常数，且 <span class="math inline">\(I\gg1\)</span> （参见 Bailey et al. <span class="citation">[2014]</span> 以获得证明）。现假设某研究人员回测 <span class="math inline">\(I\)</span> 在表现类似鞅的标的上运行的策略，其夏普比率为 <span class="math inline">\(\{y_i\}_{i=1,\ldots,I}\)</span>, <span class="math inline">\(\mathbb{E}[y_i]=0\)</span>, <span class="math inline">\(\sigma^2[y_i]&gt;0\)</span>，且 <span class="math inline">\(\frac{y_i}{\sigma[y_i]}\sim Z\)</span>。尽管真实夏普比率为零，我们仍预期会发现某一策略的夏普比率为</p><div class="math display">\[\mathbb{E}[\max\{y_i\}_{i=1,\ldots,I}]=\mathbb{E}[\max\{x_i\}_{i=1,\ldots,I}]\sigma[y_i].\]</div>
+<p>WF 回测具有较高的方差， <span class="math inline">\(\sigma[y_i]\gg0\)</span>，至少有一个原因：大量决策仅基于数据集中的少部分样本，少数观测值对夏普比率具有较大的权重。使用预热期会缩短回测长度，可能进一步加剧方差。WF 的高方差会导致虚假发现，因为研究者会选取估计夏普比率最高的回测结果，即便真实夏普比率为零。正因如此，在回测过程中必须控制试验次数 <span class="math inline">\(I\)</span> 在 WF 回测的背景下。若缺乏这一信息，便无法确定族错误率（FWER）、False 发现率（FDR）、回测过拟合概率（PBO，见第 11 章）或其他类似的模型评估统计量。</p><p>CV 回测（第 12.3 节）通过在等量且较大的数据集份额上训练每个分类器，来解决该方差来源。尽管 CV 相较于 WF 能产生更少的虚假发现，但两种方法仍均从单一路径估计策略的夏普比率 <span class="math inline">\(i\)</span>, <span class="math inline">\(y_i\)</span>，该估计可能具有较高的波动性。相比之下，CPCV 从大量路径中推导出夏普比率的分布， <span class="math inline">\(j=1,\ldots,\varphi\)</span>，均值为 <span class="math inline">\(\mathbb{E}[\{y_{i,j}\}_{j=1,\ldots,\varphi}]=\mu_i\)</span> 方差为 <span class="math inline">\(\sigma^2[\{y_{i,j}\}_{j=1,\ldots,\varphi}]=\sigma_i^2\)</span>。CPCV 条路径样本均值的方差为</p><div class="math display">\[\sigma^2[\mu_i]=\varphi^{-2}\left(\varphi\sigma_i^2+\varphi(\varphi-1)\sigma_i^2\bar\rho_i\right)=\varphi^{-1}\sigma_i^2\left(1+(\varphi-1)\bar\rho_i\right).\]</div>
+<p>其中 <span class="math inline">\(\sigma_i^2\)</span> 是策略在各路径上夏普比率的方差 <span class="math inline">\(i\)</span>，且 <span class="math inline">\(\bar\rho_i\)</span> 是以下变量的非对角元素平均相关系数 <span class="math inline">\(\{y_{i,j}\}_{j=1,\ldots,\varphi}\)</span>。CPCV 产生的虚假发现少于 CV 和 WF，因为 <span class="math inline">\(\bar\rho_i&lt;1\)</span> 意味着样本均值的方差低于样本方差，</p><div class="math display">\[\varphi^{-1}\sigma_i^2\le\sigma^2[\mu_i]&lt;\sigma_i^2.\]</div>
+<span class="pdf-page-anchor" id="pdf-page-194"></span>
+<p>路径之间的相关性越低， <span class="math inline">\(\bar\rho_i\ll1\)</span>，CPCV 的方差就越低，在极限情况下，CPCV 将报告真实夏普比率 <span class="math inline">\(\mathbb{E}[y_i]\)</span> 且方差为零， <span class="math inline">\(\lim_{\varphi\to\infty}\sigma^2[\mu_i]=0\)</span>。不会存在选择偏差，因为从中选出的策略 <span class="math inline">\(i=1,\ldots,I\)</span> 将是具有最高真实夏普比率的策略。</p><p>当然，我们知道零方差是无法实现的，因为 <span class="math inline">\(\varphi\)</span> 存在上界， <span class="math inline">\(\varphi\le\varphi[T,T/2]\)</span>。尽管如此，对于足够多的路径数量 <span class="math inline">\(\varphi\)</span>，CPCV 可以将回测的方差缩小到使虚假发现的概率可忽略不计的程度。</p><p>在第11章中，我们论证了回测过拟合可能是整个数学金融领域最重要的未解问题。让我们看看 CPCV 在实践中如何帮助解决这一问题。假设某研究人员向期刊投稿了一篇策略论文，其支撑依据是从大量未公开试验中筛选出的过拟合 WF 回测。期刊可以要求该研究人员使用 CPCV 针对给定的 <span class="math inline">\(N\)</span> 的均值， <span class="math inline">\(k\)</span>重复实验。由于研究人员事先不知道待回测路径的数量和特征，其过拟合行为将很容易被识破。论文将被拒稿或撤稿。希望 CPCV 能被广泛用于减少期刊及其他渠道所发表的虚假发现数量。</p>
+<h2 class="references-heading" id="references">参考文献</h2>
+<ul class="references-list"><li>Bailey, D. and M. López de Prado (2012): “The Sharpe ratio efficient frontier.” Journal of Risk, Vol. 15, No. 2 (Winter). Available at <a href="https://ssrn.com/abstract=1821643">https://ssrn.com/abstract=1821643</a>.</li><li>Bailey, D. and M. López de Prado (2014): “The deflated Sharpe ratio: Correcting for selection bias, backtest overfitting and non-normality.” Journal of Portfolio Management, Vol. 40, No. 5, pp. 94–107. Available at <a href="https://ssrn.com/abstract=2460551">https://ssrn.com/abstract=2460551</a>.</li><li>Bailey, D., J. Borwein, M. López de Prado, and J. Zhu (2014): “Pseudo-mathematics and financial charlatanism: The effects of backtest overfitting on out-of-sample performance.” Notices of the American Mathematical Society, Vol. 61, No. 5, pp. 458–471. Available at <a href="http://ssrn.com/abstract=2308659">http://ssrn.com/abstract=2308659</a>.</li><li>Bailey, D., J. Borwein, M. López de Prado, and J. Zhu (2017): “The probability of backtest overfitting.” Journal of Computational Finance, Vol. 20, No. 4, pp. 39–70. Available at <a href="https://ssrn.com/abstract=2326253">https://ssrn.com/abstract=2326253</a>.</li></ul>
+<div class="chapter-pager"><a href="chapter-11.html">上一章：回测的危险</a><a href="chapter-13.html">下一章：在合成数据上回测</a></div>
+</article>
+</main>
+</div>
+</body>
+</html>

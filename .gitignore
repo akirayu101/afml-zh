@@ -1,4 +1,6 @@
 tmp/
+translations/zh/cache-shard-*.json
+translations/zh/last-error.json
 .DS_Store
 __pycache__/
 *.py[cod]

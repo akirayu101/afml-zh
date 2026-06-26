@@ -29,9 +29,10 @@ jobs:
         run: |
           mkdir _site
           cp index.html .nojekyll _site/
-          cp -R assets book _site/
-          test -f _site/book/index.html
+          cp -R assets zh _site/
+          test -f _site/zh/index.html
           test -f _site/assets/afml-book.css
+          test -f _site/assets/afml-book-zh.css
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

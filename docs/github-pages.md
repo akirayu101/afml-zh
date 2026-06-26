@@ -7,9 +7,9 @@ The Pages artifact intentionally includes only:
 - `index.html`
 - `.nojekyll`
 - `assets/`
-- `book/`
+- `zh/`
 
-It does not publish the source PDF, generator scripts, review reports, skills, or temporary files as site artifacts.
+The root `index.html` redirects to `zh/index.html`. The artifact does not publish the source PDF, generator scripts, review reports, skills, original English `book/`, or temporary files as site artifacts.
 
 ## Before Public Publishing
 

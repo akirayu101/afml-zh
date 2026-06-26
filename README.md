@@ -1,6 +1,6 @@
-# AFML Static Web Book
+# AFML Chinese Static Web Book
 
-Static web edition of *Advances in Financial Machine Learning*.
+Simplified Chinese static web edition of *Advances in Financial Machine Learning*.
 
 ## Local Preview
 
@@ -13,7 +13,7 @@ python3 -m http.server 8787
 Then open:
 
 ```text
-http://127.0.0.1:8787/book/index.html
+http://127.0.0.1:8787/zh/index.html
 ```
 
 ## Build and Review
@@ -35,10 +35,17 @@ Reports:
 - `docs/full-book-review.md`
 - `docs/browser-layout-review.md`
 
+Regenerate the Chinese static site from the translation cache:
+
+```bash
+python3 scripts/translate_book_zh.py --cache-path translations/zh/cache.json
+python3 scripts/audit_zh_translation.py
+```
+
 ## GitHub Pages
 
 The repository includes a GitHub Pages workflow at `.github/workflows/pages.yml`.
 
-The deployed site artifact contains only the static website files: `index.html`, `.nojekyll`, `assets/`, and `book/`.
+The deployed site artifact contains only the static website files: `index.html`, `.nojekyll`, `assets/`, and `zh/`.
 
 See `docs/github-pages.md` before making the repository or site public.
