@@ -76,7 +76,7 @@
 <figure class="book-figure"><img alt="图 2.1：tick 条、成交量条与成交额条的日均频率" src="media/afml-55_1.jpg"/><figcaption>图 2.1：tick 条、成交量条与成交额条的日均频率</figcaption></figure>
 <span class="pdf-page-anchor" id="pdf-page-56"></span>
 <h3 id="sec-2-3-2">2.3.2 信息驱动 bar</h3>
-<p>信息驱动 bar 的目的是在新信息进入市场时提高采样频率。此处"信息"一词取市场微观结构意义上的含义。正如我们将在第 19 章所见，市场微观结构理论赋予不平衡带符号成交量的持续性以特殊地位，因为该现象与知情交易者的存在密切相关。通过将采样与知情交易者的到来同步，我们或许能够在价格达到新均衡水平之前做出决策。本节将探讨如何利用各类信息到达指标来对 bar 进行采样。</p>
+<p>信息驱动 bar 的目的是在新信息进入市场时提高采样频率。此处"信息"一词取市场微观结构意义上的含义。正如我们将在第 19 章所见，市场微观结构理论特别重视带符号成交量失衡的持续性，因为该现象与知情交易者的存在密切相关。通过将采样与知情交易者的到来同步，我们或许能够在价格达到新均衡水平之前做出决策。本节将探讨如何利用各类信息到达指标来对 bar 进行采样。</p>
 <h4 id="sec-2-3-2-1">2.3.2.1 Tick 不平衡 bar</h4>
 <p>考虑一个 tick 序列 <span class="math inline">\(\{(p_t,v_t)\}_{t=1,\ldots,T}\)</span> ，其中 <span class="math inline">\(p_t\)</span> 是与 tick t 关联的价格，而 <span class="math inline">\(v_t\)</span> 是与 tick t 关联的成交量。所谓的 tick 规则定义了一个序列 <span class="math inline">\(\{b_t\}_{t=1,\ldots,T}\)</span> 其中</p>
 <div class="math display">\[b_t=\begin{cases} b_{t-1}, &amp; \Delta p_t=0,\\ \dfrac{|\Delta p_t|}{\Delta p_t}, &amp; \Delta p_t\ne 0.\end{cases}\]</div>
