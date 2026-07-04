@@ -76,6 +76,15 @@ def main() -> int:
             failures.append("assets/afml-book.css: light theme variable block is missing")
         if ".theme-toggle" not in css:
             failures.append("assets/afml-book.css: theme toggle style is missing")
+        for expected in (
+            ".codex-selection-button",
+            ".codex-selection-dialog",
+            ".codex-selection-question",
+            ".codex-selection-command",
+            ".selection-note-highlight",
+        ):
+            if expected not in css:
+                failures.append(f"assets/afml-book.css: selection note style missing `{expected}`")
         caption_block = re.search(r"\.book-figure figcaption,\s*figure\.table-figure figcaption\s*\{(?P<body>[^}]*)\}", css)
         if caption_block is None:
             failures.append("assets/afml-book.css: figure/table caption style block is missing")
@@ -151,6 +160,36 @@ def main() -> int:
         for expected in ('THEME_STORAGE_KEY = "afml-theme"', "installThemeToggle", 'button.className = "theme-toggle"'):
             if expected not in js:
                 failures.append(f"assets/afml-book.js: theme toggle logic missing `{expected}`")
+        for expected in (
+            'SELECTION_NOTES_STORAGE_KEY = "afml-selection-notes"',
+            "installSelectionNotes",
+            "selectionNotesToMarkdown",
+            "refreshSelectionNoteHighlights",
+            "applySelectionNoteHighlight",
+            "openDialogForStoredNote",
+            'button.className = "codex-selection-button selection-note-button"',
+            'panel.className = "codex-selection-dialog selection-note-dialog"',
+            'note.className = "codex-selection-question selection-note-textarea"',
+            'highlight.className = "selection-note-highlight"',
+        ):
+            if expected not in js:
+                failures.append(f"assets/afml-book.js: selection note logic missing `{expected}`")
+        for disabled in ('DOMContentLoaded", installReaderNotes', "installReaderNotes();"):
+            if disabled in js:
+                failures.append(f"assets/afml-book.js: chapter-wide notes should not auto-install `{disabled}`")
+        for expected in (
+            "installCodexSelectionPrompt",
+            "codex://new?",
+            "CODEX_SELECTION_LIMIT",
+            "CODEX_APP_PROJECT_PATH",
+            "codexAppEnabled",
+            "isGithubPagesHost",
+            "data-codex-selection",
+            '!event.shiftKey && !event.isComposing',
+            "buildCodexPrompt",
+        ):
+            if expected not in js:
+                failures.append(f"assets/afml-book.js: Codex selection logic missing `{expected}`")
 
     for path in sorted(BOOK.glob("*.html")):
         soup = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
