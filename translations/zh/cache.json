@@ -5194,7 +5194,7 @@
   "t_fa51fd49abf67705d6a3": "为",
   "t_fa52889ebc81bd9048b9": "上一章：Brute Force and Quantum Computers",
   "t_fa57204a190260fdd020": "调用 multiprocessing 引擎，该引擎在第 20 章中有详细说明。目前，您只需了解该函数将执行",
-  "t_fa66c3dc8fd59c22a13f": "匹配，该终值取自紧前一根 bar。Tick 不平衡 bar（TIBs）的核心思想是：每当 tick 不平衡量超出预期时便进行采样。我们希望确定 tick 索引 T，使得带符号 tick（依据 tick 规则赋予符号）的累积量超过给定阈值。下面讨论确定 T 的具体步骤。首先，将时刻 T 处的 tick 不平衡量定义为",
+  "t_fa66c3dc8fd59c22a13f": "匹配，该终值取自紧前一根 bar。Tick 不平衡 bar（TIBs）的核心思想是：每当 tick 不平衡量超出预期时便进行采样。我们希望确定当前 bar 应在第 T 个 tick 处采样，使得带符号 tick 的累积不平衡量超过给定阈值。下面讨论确定 T 的具体步骤。首先，将时刻 T 处的 tick 不平衡量定义为",
   "t_fa6c2919f545a30dc941": "\\(N^3+N^2+N\\)",
   "t_fa76a5906e175cbd23c4": "\\(\\tau_h[\\omega]\\)",
   "t_fa8fc1769d36b0c1526c": "；以及",

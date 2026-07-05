@@ -80,7 +80,7 @@
 <h4 id="sec-2-3-2-1">2.3.2.1 Tick 不平衡 bar</h4>
 <p>考虑一个 tick 序列 <span class="math inline">\(\{(p_t,v_t)\}_{t=1,\ldots,T}\)</span> ，其中 <span class="math inline">\(p_t\)</span> 是与 tick t 关联的价格，而 <span class="math inline">\(v_t\)</span> 是与 tick t 关联的成交量。所谓的 tick 规则定义了一个序列 <span class="math inline">\(\{b_t\}_{t=1,\ldots,T}\)</span> 其中</p>
 <div class="math display">\[b_t=\begin{cases} b_{t-1}, &amp; \Delta p_t=0,\\ \dfrac{|\Delta p_t|}{\Delta p_t}, &amp; \Delta p_t\ne 0.\end{cases}\]</div>
-<p>与 <span class="math inline">\(b_t\in\{-1,1\}\)</span>，边界条件 <span class="math inline">\(b_0\)</span> 被设置为与终值 <span class="math inline">\(b_T\)</span> 匹配，该终值取自紧前一根 bar。Tick 不平衡 bar（TIBs）的核心思想是：每当 tick 不平衡量超出预期时便进行采样。我们希望确定 tick 索引 T，使得带符号 tick（依据 tick 规则赋予符号）的累积量超过给定阈值。下面讨论确定 T 的具体步骤。首先，将时刻 T 处的 tick 不平衡量定义为</p>
+<p>与 <span class="math inline">\(b_t\in\{-1,1\}\)</span>，边界条件 <span class="math inline">\(b_0\)</span> 被设置为与终值 <span class="math inline">\(b_T\)</span> 匹配，该终值取自紧前一根 bar。Tick 不平衡 bar（TIBs）的核心思想是：每当 tick 不平衡量超出预期时便进行采样。我们希望确定当前 bar 应在第 T 个 tick 处采样，使得带符号 tick 的累积不平衡量超过给定阈值。下面讨论确定 T 的具体步骤。首先，将时刻 T 处的 tick 不平衡量定义为</p>
 <div class="math display">\[\theta_T=\sum_{t=1}^{T} b_t\]</div>
 <p>其次，计算 <span class="math inline">\(\theta_T\)</span> 在 bar 起始时刻的期望值， <span class="math inline">\(\mathbb{E}_0[\theta_T]=\mathbb{E}_0[T](P[b_t=1]-P[b_t=-1])\)</span>，其中 <span class="math inline">\(\mathbb{E}_0[T]\)</span> 是 tick bar 的期望规模， <span class="math inline">\(P[b_t=1]\)</span> 是某一 tick 被判定为买入的无条件概率， <span class="math inline">\(P[b_t=-1]\)</span> 是某一 tick 被判定为卖出的无条件概率。由于 <span class="math inline">\(P[b_t=1]+P[b_t=-1]=1\)</span>，则</p>
 <div class="math display">\[\mathbb{E}_0[\theta_T]=\mathbb{E}_0[T]\bigl(2P[b_t=1]-1\bigr)\]</div>
