@@ -23,7 +23,7 @@ TMP = ROOT / "tmp" / "webbook"
 XML = TMP / "afml.xml"
 ASSET_CSS = ROOT / "assets" / "afml-book.css"
 ASSET_JS = ROOT / "assets" / "afml-book.js"
-ASSET_VERSION = "20260703-codex-simple"
+ASSET_VERSION = "20260706-selection-dialogs"
 
 
 @dataclass(frozen=True)
@@ -14219,6 +14219,7 @@ const installReaderNotes = () => {
 
 const CODEX_SELECTION_LIMIT = 2200;
 const CODEX_APP_PROJECT_PATH = "D:/code/github/afml-zh";
+const SELECTION_DIALOG_OPEN_EVENT = "afml-selection-dialog-open";
 let codexSelectionTimer = 0;
 
 const isGithubPagesHost = hostname => hostname === "github.io" || hostname.endsWith(".github.io");
@@ -14409,6 +14410,10 @@ const openCodexLink = href => {
   link.remove();
 };
 
+const announceSelectionDialogOpen = panel => {
+  document.dispatchEvent(new CustomEvent(SELECTION_DIALOG_OPEN_EVENT, { detail: { panel } }));
+};
+
 const positionCodexSelectionButton = (button, rect, slot = 0) => {
   const margin = 8;
   const gap = 8;
@@ -14489,6 +14494,7 @@ const installCodexSelectionPrompt = () => {
   if (!article || document.querySelector("[data-codex-selection='ask']")) return;
   const labels = codexSelectionLabels();
   let selectionData = null;
+  let pendingSelectionData = null;
 
   const button = document.createElement("button");
   button.className = "codex-selection-button";
@@ -14506,14 +14512,13 @@ const installCodexSelectionPrompt = () => {
   };
 
   const refreshSelectionButton = () => {
-    if (!dialog.panel.hidden) return;
-    selectionData = selectedArticleText(labels);
-    if (!selectionData) {
+    pendingSelectionData = selectedArticleText(labels);
+    if (!pendingSelectionData) {
       hideButton();
       return;
     }
     button.hidden = false;
-    positionCodexSelectionButton(button, selectionData.rect);
+    positionCodexSelectionButton(button, pendingSelectionData.rect);
   };
 
   const scheduleSelectionRefresh = () => {
@@ -14526,6 +14531,11 @@ const installCodexSelectionPrompt = () => {
     dialog.status.textContent = "";
     scheduleSelectionRefresh();
   };
+
+  document.addEventListener(SELECTION_DIALOG_OPEN_EVENT, event => {
+    if (event.detail?.panel === dialog.panel) return;
+    if (!dialog.panel.hidden) closeDialog();
+  });
 
   const promptFromDialog = () => {
     if (!selectionData) return "";
@@ -14554,14 +14564,16 @@ const installCodexSelectionPrompt = () => {
     event.preventDefault();
   });
   button.addEventListener("click", () => {
-    selectionData = selectedArticleText(labels) || selectionData;
+    selectionData = selectedArticleText(labels) || pendingSelectionData || selectionData;
     if (!selectionData) return;
+    pendingSelectionData = null;
     hideButton();
     dialog.excerpt.textContent = selectionData.wasTruncated
       ? `${selectionData.text}\\n${labels.truncated}`
       : selectionData.text;
     dialog.question.value = "";
     dialog.status.textContent = "";
+    announceSelectionDialogOpen(dialog.panel);
     dialog.panel.hidden = false;
     dialog.question.focus();
   });
@@ -14617,6 +14629,7 @@ const selectionNoteLabels = () => {
     save: isZh ? "保存" : "Save",
     saving: isZh ? "保存中" : "Saving",
     saved: isZh ? "已保存" : "Saved",
+    highlighted: isZh ? "已高亮" : "Highlighted",
     empty: isZh ? "未保存" : "Not saved",
     failed: isZh ? "无法保存" : "Unable to save",
     copyQuote: isZh ? "复制原文" : "Copy quote",
@@ -14712,7 +14725,9 @@ const selectionDataForNote = labels => {
 
 const pageSelectionNoteEntries = notes => {
   const pageKey = selectionNotesPageKey();
-  return selectionNoteEntries(notes).filter(note => note.pageKey === pageKey && note.quote);
+  return Object.values(notes)
+    .filter(note => note && note.pageKey === pageKey && note.quote)
+    .sort((left, right) => (right.updatedAt || "").localeCompare(left.updatedAt || ""));
 };
 
 const clearSelectionNoteHighlights = article => {
@@ -14858,6 +14873,7 @@ const installSelectionNotes = () => {
   if (!article || document.querySelector(".selection-note-button")) return;
   const labels = selectionNoteLabels();
   let selectionData = null;
+  let pendingSelectionData = null;
 
   const button = document.createElement("button");
   button.className = "codex-selection-button selection-note-button";
@@ -14874,14 +14890,13 @@ const installSelectionNotes = () => {
   };
 
   const refreshSelectionButton = () => {
-    if (!dialog.panel.hidden) return;
-    selectionData = selectionDataForNote(labels);
-    if (!selectionData) {
+    pendingSelectionData = selectionDataForNote(labels);
+    if (!pendingSelectionData) {
       hideButton();
       return;
     }
     button.hidden = false;
-    positionCodexSelectionButton(button, selectionData.rect, codexAppEnabled() ? 1 : 0);
+    positionCodexSelectionButton(button, pendingSelectionData.rect, codexAppEnabled() ? 1 : 0);
   };
 
   const scheduleSelectionRefresh = () => {
@@ -14889,45 +14904,65 @@ const installSelectionNotes = () => {
     selectionNoteTimer = window.setTimeout(refreshSelectionButton, 80);
   };
 
-  const saveCurrentSelectionNote = () => {
-    if (!selectionData) return;
+  const selectionNoteRecord = (existing, text) => ({
+    id: selectionData.id,
+    pageKey: selectionData.pageKey,
+    title: selectionData.title,
+    url: selectionData.url,
+    quote: selectionData.text,
+    quoteIndex: Number.isFinite(selectionData.quoteIndex) ? selectionData.quoteIndex : (existing?.quoteIndex ?? null),
+    note: text,
+    createdAt: existing?.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+
+  const saveCurrentSelectionNote = ({ refreshHighlights = true } = {}) => {
+    if (!selectionData?.text) return false;
     const notes = readSelectionNotes();
     const text = dialog.note.value.trimEnd();
-    if (text.trim()) {
-      const existing = notes[selectionData.id];
-      notes[selectionData.id] = {
-        id: selectionData.id,
-        pageKey: selectionData.pageKey,
-        title: selectionData.title,
-        url: selectionData.url,
-        quote: selectionData.text,
-        quoteIndex: Number.isFinite(selectionData.quoteIndex) ? selectionData.quoteIndex : (existing?.quoteIndex ?? null),
-        note: text,
-        createdAt: existing?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-    } else {
-      delete notes[selectionData.id];
-    }
+    const existing = notes[selectionData.id];
+    notes[selectionData.id] = selectionNoteRecord(existing, text);
     const didWrite = writeSelectionNotes(notes);
-    dialog.status.textContent = didWrite ? (text.trim() ? labels.saved : labels.empty) : labels.failed;
-    if (didWrite) refreshSelectionNoteHighlights(labels);
+    dialog.status.textContent = didWrite ? (text.trim() ? labels.saved : labels.highlighted) : labels.failed;
+    if (didWrite && refreshHighlights) refreshSelectionNoteHighlights(labels);
+    return didWrite;
+  };
+
+  const flushPendingSelectionNoteSave = () => {
+    if (!selectionNoteSaveTimer) return;
+    window.clearTimeout(selectionNoteSaveTimer);
+    selectionNoteSaveTimer = 0;
+    saveCurrentSelectionNote();
   };
 
   const openDialogForSelection = data => {
     selectionData = data;
-    const existing = readSelectionNotes()[selectionData.id];
+    const notes = readSelectionNotes();
+    let existing = notes[selectionData.id];
+    let markerWriteFailed = false;
+    if (!existing && selectionData.text) {
+      existing = selectionNoteRecord(null, "");
+      if (writeSelectionNotes({ ...notes, [selectionData.id]: existing })) {
+        refreshSelectionNoteHighlights(labels);
+      } else {
+        markerWriteFailed = true;
+      }
+    }
     const nl = String.fromCharCode(10);
     dialog.excerpt.textContent = selectionData.wasTruncated
       ? `${selectionData.text}${nl}${labels.truncated}`
       : selectionData.text;
     dialog.note.value = existing?.note || "";
-    dialog.status.textContent = existing?.note ? labels.saved : labels.empty;
+    dialog.status.textContent = markerWriteFailed
+      ? labels.failed
+      : (existing ? (existing.note ? labels.saved : labels.highlighted) : labels.empty);
+    announceSelectionDialogOpen(dialog.panel);
     dialog.panel.hidden = false;
     dialog.note.focus();
   };
 
   const openDialogForStoredNote = note => {
+    flushPendingSelectionNoteSave();
     selectionData = {
       id: note.id,
       pageKey: note.pageKey || selectionNotesPageKey(),
@@ -14942,14 +14977,16 @@ const installSelectionNotes = () => {
   };
 
   const closeDialog = () => {
-    if (selectionNoteSaveTimer) {
-      window.clearTimeout(selectionNoteSaveTimer);
-      saveCurrentSelectionNote();
-    }
+    flushPendingSelectionNoteSave();
     dialog.panel.hidden = true;
     dialog.status.textContent = "";
     scheduleSelectionRefresh();
   };
+
+  document.addEventListener(SELECTION_DIALOG_OPEN_EVENT, event => {
+    if (event.detail?.panel === dialog.panel) return;
+    if (!dialog.panel.hidden) closeDialog();
+  });
 
   const exportAllSelectionNotes = () => {
     const notes = readSelectionNotes();
@@ -14971,10 +15008,14 @@ const installSelectionNotes = () => {
     event.preventDefault();
   });
   button.addEventListener("click", () => {
-    selectionData = selectionDataForNote(labels) || selectionData;
-    if (!selectionData) return;
+    const nextSelectionData = selectionDataForNote(labels) || pendingSelectionData || selectionData;
+    if (!nextSelectionData) return;
+    if (!dialog.panel.hidden && nextSelectionData.id !== selectionData?.id) {
+      flushPendingSelectionNoteSave();
+    }
+    pendingSelectionData = null;
     hideButton();
-    openDialogForSelection(selectionData);
+    openDialogForSelection(nextSelectionData);
   });
   dialog.close.addEventListener("click", closeDialog);
   dialog.save.addEventListener("click", saveCurrentSelectionNote);
@@ -14995,7 +15036,7 @@ const installSelectionNotes = () => {
   });
   dialog.note.addEventListener("input", () => {
     window.clearTimeout(selectionNoteSaveTimer);
-    dialog.status.textContent = dialog.note.value.trim() ? labels.saving : labels.empty;
+    dialog.status.textContent = dialog.note.value.trim() ? labels.saving : labels.highlighted;
     selectionNoteSaveTimer = window.setTimeout(saveCurrentSelectionNote, SELECTION_NOTE_SAVE_DELAY_MS);
   });
   dialog.note.addEventListener("keydown", event => {
@@ -15044,10 +15085,7 @@ const installSelectionNotes = () => {
     if (event.key === SELECTION_NOTES_STORAGE_KEY) refreshSelectionNoteHighlights(labels);
   });
   window.addEventListener("beforeunload", () => {
-    if (selectionNoteSaveTimer) {
-      window.clearTimeout(selectionNoteSaveTimer);
-      saveCurrentSelectionNote();
-    }
+    flushPendingSelectionNoteSave();
   });
   refreshSelectionNoteHighlights(labels);
 };
