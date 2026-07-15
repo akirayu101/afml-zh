@@ -1,0 +1,26 @@
+{
+  "chapter": "chapter-01",
+  "scope": "1.7-and-footnotes",
+  "units": [
+    {
+      "key": "t_5cb30aaf7f05893c762e",
+      "source": "1.7 Acknowledgments",
+      "translation": "1.7 致谢"
+    },
+    {
+      "key": "t_957925fcb66fc504b168",
+      "source": "Dr. Horst Simon, who is the deputy director of Lawrence Berkeley National Laboratory, accepted to co-author Chapter 22 with Dr. Kesheng Wu, who leads several projects at Berkeley Lab and the National Energy Research Scientific Computing Center (NERSC).",
+      "translation": "劳伦斯伯克利国家实验室副主任 Horst Simon 博士同意与 Kesheng Wu 博士共同撰写第 22 章；Kesheng Wu 博士负责伯克利实验室及国家能源研究科学计算中心（NERSC）的多个项目。"
+    },
+    {
+      "key": "t_82af24ac506a431ba709",
+      "source": "ML requires extreme amounts of computing power, and my research would not have been possible without their generous support and guidance. In that chapter, Horst and Kesheng explain how Berkeley Lab satisfies the supercomputing needs of researchers worldwide, and the instrumental role played by ML and big data in today’s scientific breakthroughs. Prof. Riccardo Rebonato was the first to read this manuscript and encouraged me to publish it. My many conversations with Prof. Frank Fabozzi on these topics were instrumental in shaping the book in its current form. Very few people in academia have Frank’s and Riccardo’s industry experience, and very few people in the industry have Riccardo’s and Frank’s academic pedigree. Over the past two decades, I have published nearly a hundred works on this book’s subject, including journal articles, books, chapters, lectures, source code, etc. In my latest count, these works were co-authored with more than 30 leading experts in this field, including Prof. David H. Bailey (15 articles), Prof. David Easley (8 articles), Prof. Maureen O’Hara (8 articles), and Prof. Jonathan M. Borwein (6 articles). This book is to a great extent also theirs, for it would not have been possible without their support, insights, and continuous exchange of ideas over the years. It would take too long to give them proper credit, so instead I have published the following link where you can find our collective effort: http://www.quantresearch.org/Co-authors.htm. Last but not least, I would like to thank some of my research team members for proofreading the book and helping me produce some of the figures: Diego Aparicio,",
+      "translation": "ML 需要巨量算力；没有他们慷慨的支持与指导，我的研究不可能完成。在第 22 章中，Horst 和 Kesheng 介绍了伯克利实验室如何满足世界各地研究人员对超级计算的需求，也说明了 ML 和大数据如何成为当今科学突破的关键助力。Riccardo Rebonato 教授是第一个读过这部书稿的人，也是他鼓励我将其出版。我就这些主题与 Frank Fabozzi 教授进行过多次交流；本书最终形成今天的样貌，这些交流发挥了关键作用。学界很少有人像 Frank 和 Riccardo 一样拥有如此丰富的业界经验；业界也很少有人具备 Riccardo 和 Frank 这样的学术资历。过去二十年里，我围绕本书主题发表了近百项成果，包括期刊论文、图书、书中章节、讲座和源代码等。据我最近统计，这些成果由我和本领域 30 多位顶尖专家共同完成，其中包括 David H. Bailey 教授（15 篇文章）、David Easley 教授（8 篇文章）、Maureen O’Hara 教授（8 篇文章）和 Jonathan M. Borwein 教授（6 篇文章）。从很大程度上说，这本书也是他们的成果：没有他们多年来的支持、见解和持续的思想交流，本书不可能问世。若要在这里逐一充分致谢，篇幅会过长，因此我把我们共同完成的成果汇总在以下网页：http://www.quantresearch.org/Co-authors.htm。最后，我还要感谢研究团队中的几位成员；他们校对了本书，并协助制作了书中的部分图表：Diego Aparicio、"
+    },
+    {
+      "key": "t_252d5eee04f06f2f3676",
+      "source": "Dr. Lee Cohn, Dr. Michael Lewis, Dr. Michael Lock, Dr. Yaxiong Zeng, and Dr. Zhibai Zhang.",
+      "translation": "Lee Cohn 博士、Michael Lewis 博士、Michael Lock 博士、Yaxiong Zeng 博士和 Zhibai Zhang 博士。"
+    }
+  ]
+}

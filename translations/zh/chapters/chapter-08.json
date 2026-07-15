@@ -1,0 +1,756 @@
+{
+  "chapter": "chapter-08",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_75eb0a366da6c948efb4",
+      "source": "Feature Importance | Advances in Financial Machine Learning",
+      "translation": "特征重要性 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_da8dfe259f6c4e21d93c",
+      "source": "Part 2: Modelling",
+      "translation": "第二部分：建模"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_8cde8594e459608b5682",
+      "source": "Feature Importance",
+      "translation": "特征重要性"
+    },
+    {
+      "key": "t_d291725b4b8ee6779777",
+      "source": "8.1 Motivation",
+      "translation": "8.1 动机"
+    },
+    {
+      "key": "t_6db7ea757351271ba403",
+      "source": "One of the most pervasive mistakes in financial research is to take some data, run it through an ML algorithm, backtest the predictions, and repeat the sequence until a nice-looking backtest shows up. Academic journals are filled with such pseudodiscoveries, and even large hedge funds constantly fall into this trap. It does not matter if the backtest is a walk-forward out-of-sample. The fact that we are repeating a test over and over on the same data will likely lead to a false discovery. This methodological error is so notorious among statisticians that they consider it scientific fraud, and the American Statistical Association warns against it in its ethical guidelines (American Statistical Association",
+      "translation": "金融研究中最常见的错误之一，是拿到一些数据后交给 ML 算法处理，再回测预测结果；如果结果不好看，就不断重复，直到出现一份漂亮的回测。学术期刊里充斥着这类伪发现，就连大型对冲基金也经常掉进这个陷阱。即便采用滚动前推的样本外回测，也不能解决问题：在同一份数据上反复检验，很可能产生虚假发现。统计学家对这种方法论错误深恶痛绝，甚至把它视为科研欺诈；美国统计协会也在伦理指南中对此提出警告（American Statistical Association"
+    },
+    {
+      "key": "t_d27a624b11befc2a7590",
+      "source": ", Discussion #4). It typically takes about 20 such iterations to discover a (false) investment strategy subject to the standard significance level (false positive rate) of 5%. In this chapter we will explore why such an approach is a waste of time and money, and how feature importance offers an alternative.",
+      "translation": "，讨论 #4）。在常用的 5% 显著性水平（假阳性率）下，通常反复尝试约 20 次，就能“发现”一个虚假的投资策略。本章将说明这种做法为什么浪费时间和金钱，以及如何改用特征重要性分析。"
+    },
+    {
+      "key": "t_9350960c600e6a703c1b",
+      "source": "8.2 The Importance of Feature Importance",
+      "translation": "8.2 特征重要性为何重要"
+    },
+    {
+      "key": "t_2e79befa0410e93e0266",
+      "source": "A striking facet of the financial industry is that so many very seasoned portfolio managers (including many with a quantitative background) do not realize how easy it is to overfit a backtest. How to backtest properly is not the subject of this chapter; we will address that extremely important topic in Chapters 11-15. The goal of this chapter is to explain one of the analyses that must be performed before any backtest is carried out.",
+      "translation": "金融业有一个令人吃惊的现象：许多经验丰富的投资组合经理，包括不少量化背景深厚的人，并没有意识到回测有多容易过拟合。本章不讨论如何正确回测；第 11～15 章会详细介绍这一极其重要的主题。本章要讲的是任何回测之前都必须完成的一项分析。"
+    },
+    {
+      "key": "t_f81f9cda5bbfd8210ca7",
+      "source": "Suppose that you are given a pair of matrices",
+      "translation": "假设你拿到一对矩阵"
+    },
+    {
+      "key": "t_388b8926e2dc99535888",
+      "source": ", that respectively contain features and labels for a particular financial instrument. We can fit a classifier on",
+      "translation": "，它们分别包含某个金融工具的特征和标签。我们可以在"
+    },
+    {
+      "key": "t_68560d0a8c7619b34c41",
+      "source": "and evaluate the generalization error through a purged",
+      "translation": "上拟合分类器，并像第 7 章那样，通过经过清除处理的"
+    },
+    {
+      "key": "t_c7ac94d898d5342b948e",
+      "source": "-fold cross-validation (CV), as we saw in Chapter 7. Suppose that we achieve good performance. The next natural question is to try to understand what features contributed to that performance. Maybe we could add some features that strengthen the signal responsible for the classifier's predictive power. Maybe we could eliminate some of the features that are only adding noise to the system.",
+      "translation": "折交叉验证（CV）评估泛化误差。假设模型表现不错，接下来自然要问：哪些特征带来了这种表现？也许可以加入一些特征，强化分类器预测能力所依赖的信号；也许可以删掉一些只会给系统增加噪声的特征。"
+    },
+    {
+      "key": "t_29053e6f12d3487ba9d7",
+      "source": "Notably, understanding feature importance opens up the proverbial black box. We can gain insight into the patterns identified by the classifier if we understand what source of information is indispensable to it. This is one of the reasons why the black box mantra is somewhat overplayed by the ML skeptics. Yes, the algorithm has learned without us directing the process (that is the whole point of ML!) in a black box, but that does not mean that we cannot (or should not) take a look at what the algorithm has found.",
+      "translation": "理解特征重要性，能帮助我们打开所谓的“黑箱”。只要弄清哪些信息来源对分类器不可或缺，就能看懂分类器识别出的模式。因此，质疑 ML 的人常把“黑箱”问题说得过了头。没错，算法在没有人工指挥的情况下自行学习——这正是 ML 的意义——但这不表示我们不能或不该查看算法究竟发现了什么。"
+    },
+    {
+      "key": "t_fbee39677f3376cf2121",
+      "source": "Once we have found what features are important, we can learn more by conducting a number of experiments. Are these features important all the time, or only in some specific environments? What triggers a change in importance over time? Can those regime switches be predicted? Are those important features also relevant to other related financial instruments? Are they relevant to other asset classes? What are the most relevant features across all financial instruments? What is the subset of features with the highest rank correlation across the entire investment universe? This is a much better way of researching strategies than the foolish backtest cycle. Let me state this maxim as one of the most critical lessons I hope you learn from this book:",
+      "translation": "找出重要特征后，还可以通过一系列实验继续深挖：这些特征始终重要，还是只在特定环境下重要？是什么触发了重要性随时间变化？能否预测这种状态切换？这些重要特征对相关金融工具是否也有用？对其他资产类别呢？在所有金融工具中，哪些特征最重要？整个投资范围内，哪个特征子集的排名相关性最高？用这种方式研究策略，远胜于反复试回测的愚蠢循环。下面这条准则，是我希望你从本书学到的最重要经验之一："
+    },
+    {
+      "key": "t_d8b8ca1017f5a3b66295",
+      "source": "Snippet 8.1: Marcos’ First Law of Backtesting—ignore at Your Own Peril",
+      "translation": "代码清单 8.1：Marcos 的回测第一定律——忽视它，后果自负"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_fd1a7eab077bcecc81f0",
+      "source": "8.3 Feature Importance with Substitution Effects",
+      "translation": "8.3 受替代效应影响的特征重要性"
+    },
+    {
+      "key": "t_d3d18aae5ee51cb5f44d",
+      "source": "I find it useful to distinguish between feature importance methods based on whether they are impacted by substitution effects. In this context, a substitution effect takes place when the estimated importance of one feature is reduced by the presence of other related features. Substitution effects are the ML analogue of what the statistics and econometrics literature calls “multi-collinearity.” One way to address linear substitution effects is to apply PCA on the raw features, and then perform the feature importance analysis on the orthogonal features. See Belsley et al.",
+      "translation": "我认为，可以按特征重要性方法是否受替代效应影响来分类。这里的替代效应，是指其他相关特征的存在会压低某个特征的估计重要性。它相当于统计学和计量经济学所说的“多重共线性”。处理线性替代效应的一种办法，是先对原始特征做主成分分析（PCA），再对得到的正交特征做重要性分析。更多细节参见 Belsley 等人"
+    },
+    {
+      "key": "t_c7e8cb7504e1552416d9",
+      "source": ", Goldberger [1991, pp. 245–253], and Hill et al.",
+      "translation": "、Goldberger [1991，第 245～253 页] 和 Hill 等人"
+    },
+    {
+      "key": "t_3421d179a33f3da55eb3",
+      "source": "for further details.",
+      "translation": "。"
+    },
+    {
+      "key": "t_a188ec71a85f326f9102",
+      "source": "8.3.1 Mean Decrease Impurity",
+      "translation": "8.3.1 平均不纯度下降"
+    },
+    {
+      "key": "t_fcbc21d64505d82226cf",
+      "source": "Mean decrease impurity (MDI) is a fast, explanatory-importance (in-sample, IS) method specific to tree-based classifiers, like RF. At each node of each decision tree, the selected feature splits the subset it received in such a way that impurity is",
+      "translation": "平均不纯度下降（MDI）是一种计算很快的解释型特征重要性方法，使用样本内（IS）数据，只适用于 RF 等树模型分类器。在每棵决策树的每个节点上，入选特征都会划分该节点收到的样本子集，从而降低不纯度。"
+    },
+    {
+      "key": "t_a88f5ccbadbcaaec1338",
+      "source": "decreased. Therefore, we can derive for each decision tree how much of the overall impurity decrease can be assigned to each feature. And given that we have a forest of trees, we can average those values across all estimators and rank the features accordingly. See Louppe et al.",
+      "translation": "由此，对每棵树都可以计算总不纯度下降中有多少应归于各个特征。森林包含多棵树，所以可以对所有估计器的结果取平均，再据此给特征排序。详细说明参见 Louppe 等人"
+    },
+    {
+      "key": "t_7f191cc54d537ac41c37",
+      "source": "for a detailed description. There are some important considerations you must keep in mind when working with MDI:",
+      "translation": "。使用 MDI 时需要特别注意以下几点："
+    },
+    {
+      "key": "t_5714f152d48d9a6e2127",
+      "source": "Masking effects take place when some features are systematically ignored by tree-based classifiers in favor of others. In order to avoid them, set",
+      "translation": "当树模型持续偏爱某些特征、系统性忽略其他特征时，就会出现遮蔽效应。为避免这种情况，使用 sklearn 的 RF 类时请设置"
+    },
+    {
+      "key": "t_dba07f9d47d0235eee35",
+      "source": "when using sklearn's RF class. In this way, only one random feature is considered per level.",
+      "translation": "。这样每一层只随机考虑一个特征。"
+    },
+    {
+      "key": "t_3428076ce43b506f60ef",
+      "source": "Every feature is given a chance (at some random levels of some random trees) to reduce impurity.",
+      "translation": "这样，每个特征都有机会在某棵随机树的某个随机层级上降低不纯度。"
+    },
+    {
+      "key": "t_4cdb48c4b1e31c74af29",
+      "source": "Make sure that features with zero importance are not averaged, since the only reason for a 0 is that the feature was not randomly chosen. Replace those values with",
+      "translation": "不要把重要性为 0 的结果计入平均值，因为 0 只表示该特征没有被随机抽到。应把这些值替换为"
+    },
+    {
+      "key": "t_210ae230645ba0c9bedf",
+      "source": "The procedure is obviously IS. Every feature will have some importance, even if they have no predictive power whatsoever.",
+      "translation": "这种方法显然使用样本内数据。即使特征毫无预测能力，也会得到一定的重要性。"
+    },
+    {
+      "key": "t_70c0d14087c6daa7df83",
+      "source": "MDI cannot be generalized to other non-tree based classifiers.",
+      "translation": "MDI 无法推广到非树模型分类器。"
+    },
+    {
+      "key": "t_f6d7bef6f463d667f953",
+      "source": "By construction, MDI has the nice property that feature importances add up to 1, and every feature importance is bounded between 0 and 1.",
+      "translation": "MDI 的一个良好性质是：所有特征重要性之和为 1，而且每个特征的重要性都在 0 到 1 之间。"
+    },
+    {
+      "key": "t_c58e3a9fe50b7efa58ba",
+      "source": "The method does not address substitution effects in the presence of correlated features. MDI dilutes the importance of substitute features, because of their interchangeability: The importance of two identical features will be halved, as they are randomly chosen with equal probability.",
+      "translation": "存在相关特征时，这种方法无法处理替代效应。可互换的替代特征会分摊重要性，因此 MDI 会低估它们：两个完全相同的特征被选中的概率相等，各自的重要性便会减半。"
+    },
+    {
+      "key": "t_cab9024ea68395fc55f3",
+      "source": "Strobl et al. [2007] show experimentally that MDI is biased towards some predictor variables. White and Liu [1994] argue that, in case of single decision trees, this bias is due to an unfair advantage given by popular impurity functions toward predictors with a large number of categories.",
+      "translation": "Strobl 等人 [2007] 通过实验表明，MDI 会偏向某些预测变量。White 和 Liu [1994] 认为，对单棵决策树而言，这种偏差源于常用不纯度函数会让类别数量较多的预测变量获得不公平优势。"
+    },
+    {
+      "key": "t_39ddf2c496ec36cb36c9",
+      "source": "Sklearn's",
+      "translation": "sklearn 的"
+    },
+    {
+      "key": "t_84870cd4e781a216979b",
+      "source": "class implements MDI as the default feature importance score. This choice is likely motivated by the ability to compute MDI on the fly, with minimum computational cost.",
+      "translation": "类默认用 MDI 作为特征重要性分数。之所以这样设计，很可能是因为 MDI 能在模型训练过程中直接计算，而且计算成本很低。"
+    },
+    {
+      "key": "t_b2ae87755f6dd252839d",
+      "source": "Snippet 8.2 illustrates an implementation of MDI, incorporating the considerations listed earlier.",
+      "translation": "代码清单 8.2 给出了一种 MDI 实现，并纳入了前面列出的注意事项。"
+    },
+    {
+      "key": "t_faad9691b4b166d50f7a",
+      "source": "Snippet 8.2: MDI Feature Importance",
+      "translation": "代码清单 8.2：MDI 特征重要性"
+    },
+    {
+      "key": "t_1c5f0e28940c9e5931af",
+      "source": "8.3.2 Mean Decrease Accuracy",
+      "translation": "8.3.2 平均准确率下降"
+    },
+    {
+      "key": "t_0052695f669cca3da6d0",
+      "source": "Mean decrease accuracy (MDA) is a slow, predictive-importance (out-of-sample, OOS) method. First, it fits a classifier; second, it derives its performance OOS according to some performance score (accuracy, negative log-loss, etc.); third, it permutates each column of the features matrix (X), one column at a time, deriving the performance OOS after each column’s permutation. The importance of a feature is a function of the loss in performance caused by its column’s permutation. Some relevant considerations include:",
+      "translation": "平均准确率下降（MDA）是一种计算较慢的预测型特征重要性方法，使用样本外（OOS）数据。其步骤是：第一，拟合分类器；第二，用某种评分指标（准确率、负对数损失等）计算样本外表现；第三，每次打乱特征矩阵（X）的一列，并在每次打乱后重新计算样本外表现。某个特征的重要性取决于打乱该列后造成的性能损失。需要注意以下几点："
+    },
+    {
+      "key": "t_b7f7b8e6978283dd37f3",
+      "source": "This method can be applied to any classifier, not only tree-based classifiers.",
+      "translation": "这种方法适用于任何分类器，并不局限于树模型。"
+    },
+    {
+      "key": "t_f554e299c271d50e7073",
+      "source": "MDA is not limited to accuracy as the sole performance score. For example, in the context of meta-labeling applications, we may prefer to score a classifier with F1 rather than accuracy (see Chapter 14, Section 14.8 for an explanation). That is one reason a better descriptive name would have been “permutation importance.” When the scoring function does not correspond to a metric space, MDA results should be used as a ranking.",
+      "translation": "MDA 的评分指标并非只能用准确率。例如，在元标签化应用中，我们可能更愿意用 F1 而不是准确率给分类器评分（解释见第 14 章第 14.8 节）。因此，“置换重要性”其实是更准确的名称。如果评分函数不对应一个度量空间，MDA 结果只应当用来排序。"
+    },
+    {
+      "key": "t_00c02349047c20ea236f",
+      "source": "Like MDI, the procedure is also susceptible to substitution effects in the presence of correlated features. Given two identical features, MDA always considers one to be redundant to the other. Unfortunately, MDA will make both features appear to be outright irrelevant, even if they are critical.",
+      "translation": "与 MDI 一样，存在相关特征时，MDA 也会受到替代效应影响。面对两个完全相同的特征，MDA 总会把其中一个视为另一个的冗余项。遗憾的是，即使这两个特征都至关重要，MDA 也会让它们看起来完全无关。"
+    },
+    {
+      "key": "t_2fe159d6b37840774386",
+      "source": "Unlike MDI, it is possible that MDA concludes that all features are unimportant. That is because MDA is based on OOS performance.",
+      "translation": "与 MDI 不同，MDA 可能得出所有特征都不重要的结论，因为它依据的是样本外表现。"
+    },
+    {
+      "key": "t_e824b2d6b17b1e6f1c07",
+      "source": "The CV must be purged and embargoed, for the reasons explained in Chapter 7.",
+      "translation": "出于第 7 章所述原因，CV 必须执行清除重叠样本和禁运期处理。"
+    },
+    {
+      "key": "t_bbac9326e25e4e9e55bb",
+      "source": "Snippet 8.3 implements MDA feature importance with sample weights, with purged",
+      "translation": "代码清单 8.3 实现了带样本权重的 MDA 特征重要性计算，采用经过清除处理的"
+    },
+    {
+      "key": "t_724e5e08f294e8e80127",
+      "source": "-fold CV, and with scoring by negative log-loss or accuracy. It measures MDA importance as a function of the improvement (from permutating to not permutating the feature), relative to the maximum possible score (negative log-loss of 0, or accuracy of 1). Note that, in some cases, the improvement may be negative, meaning that the feature is actually detrimental to the forecasting power of the ML algorithm.",
+      "translation": "折 CV，并用负对数损失或准确率评分。它把“未打乱特征相对于打乱特征所带来的性能提升”与理论最高分（负对数损失为 0，或准确率为 1）相比，据此衡量 MDA 重要性。某些情况下，这一提升可能为负，说明该特征实际上损害了 ML 算法的预测能力。"
+    },
+    {
+      "key": "t_985e64a53c33e621d9a0",
+      "source": "Snippet 8.3: MDA Feature Importance",
+      "translation": "代码清单 8.3：MDA 特征重要性"
+    },
+    {
+      "key": "t_8d1ae6ef0e280c0d95c2",
+      "source": "8.4 Feature Importance without Substitution Effects",
+      "translation": "8.4 不受替代效应影响的特征重要性"
+    },
+    {
+      "key": "t_af707be625a6e205dd60",
+      "source": "Substitution effects can lead us to discard important features that happen to be redundant. This is not generally a problem in the context of prediction, but it could lead us to wrong conclusions when we are trying to understand, improve, or simplify a model. For this reason, the following single feature importance method can be a good complement to MDI and MDA.",
+      "translation": "替代效应可能让我们误删那些虽然冗余却很重要的特征。若目的只是预测，这通常不是问题；但如果要理解、改进或简化模型，就可能得出错误结论。因此，下面的单特征重要性方法可以很好地补充 MDI 和 MDA。"
+    },
+    {
+      "key": "t_719e87bb257a26c74215",
+      "source": "8.4.1 Single Feature Importance",
+      "translation": "8.4.1 单特征重要性"
+    },
+    {
+      "key": "t_eb3d6e5f44bbc653814e",
+      "source": "Single feature importance (SFI) is a cross-section predictive-importance (out-of-sample) method. It computes the OOS performance score of each feature in isolation. A few considerations:",
+      "translation": "单特征重要性（SFI）是一种横截面的预测型特征重要性方法，使用样本外数据。它单独计算每个特征的样本外性能分数。需要注意以下几点："
+    },
+    {
+      "key": "t_650ebf5bb9fa8ea6b07c",
+      "source": "SFI is not limited to accuracy as the sole performance score.",
+      "translation": "SFI 的评分指标并非只能用准确率。"
+    },
+    {
+      "key": "t_60a603c16bc139013924",
+      "source": "Unlike MDI and MDA, no substitution effects take place, since only one feature is taken into consideration at a time.",
+      "translation": "与 MDI 和 MDA 不同，SFI 每次只考虑一个特征，因此不会出现替代效应。"
+    },
+    {
+      "key": "t_9a1c49c68615b2b2b78a",
+      "source": "Like MDA, it can conclude that all features are unimportant, because performance is evaluated via OOS CV.",
+      "translation": "与 MDA 一样，SFI 也可能得出所有特征都不重要的结论，因为它通过样本外 CV 评估性能。"
+    },
+    {
+      "key": "t_925129c870894f585882",
+      "source": "The main limitation of SFI is that a classifier with two features can perform better than the bagging of two single-feature classifiers. For example, (1) feature B may be useful only in combination with feature A; or (2) feature B may be useful in explaining the splits from feature A, even if feature B alone is inaccurate. In other words, joint effects and hierarchical importance are lost in SFI. One alternative would be to compute the OOS performance score from subsets of features, but that calculation will become intractable as more features are considered. Snippet 8.4 demonstrates one possible implementation of the SFI method. A discussion of the function cvScore can be found in Chapter 7.",
+      "translation": "SFI 的主要局限是：一个同时使用两个特征的分类器，可能胜过两个单特征分类器的 bagging 组合。例如：（1）特征 B 可能只有与特征 A 搭配时才有用；（2）即使特征 B 单独使用时不准确，它也可能有助于解释特征 A 形成的划分。换句话说，SFI 会丢失联合效应和层级重要性。另一种办法是按特征子集计算样本外性能，但随着特征增多，计算量很快就会失控。代码清单 8.4 给出了 SFI 的一种实现。函数 cvScore 的说明见第 7 章。"
+    },
+    {
+      "key": "t_1d294a2acb549490f2b6",
+      "source": "Snippet 8.4: Implementation of SFI",
+      "translation": "代码清单 8.4：SFI 的实现"
+    },
+    {
+      "key": "t_cf95604a534ffc3497e4",
+      "source": "8.4.2 Orthogonal Features",
+      "translation": "8.4.2 正交特征"
+    },
+    {
+      "key": "t_75399d72290e2a5e4128",
+      "source": "As argued in Section 8.3, substitution effects dilute the importance of features measured by MDI, and significantly underestimate the importance of features measured by MDA. A partial solution is to orthogonalize the features before applying MDI and MDA. An orthogonalization procedure such as principal components analysis (PCA) does not prevent all substitution effects, but at least it should alleviate the impact of linear substitution effects.",
+      "translation": "如第 8.3 节所述，替代效应会稀释 MDI 测得的特征重要性，并使 MDA 严重低估特征重要性。一个不完全的解决办法，是在使用 MDI 和 MDA 前先将特征正交化。主成分分析（PCA）等正交化方法无法消除所有替代效应，但至少能减轻线性替代效应的影响。"
+    },
+    {
+      "key": "t_5dc6aff58251edce5910",
+      "source": "Consider a matrix",
+      "translation": "设平稳特征矩阵"
+    },
+    {
+      "key": "t_accf729046b10d19a340",
+      "source": "of stationary features, with observations",
+      "translation": "，观测索引为"
+    },
+    {
+      "key": "t_03ed3963c0f8bd351b7a",
+      "source": "and variables",
+      "translation": "，变量索引为"
+    },
+    {
+      "key": "t_361fc1f972c77533062d",
+      "source": ". First, we compute the standardized features matrix",
+      "translation": "。首先计算标准化后的特征矩阵"
+    },
+    {
+      "key": "t_6a6f53b834dc24488c17",
+      "source": ", such that",
+      "translation": "，满足"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_ad94dc0a389418f3c5d0",
+      "source": "is the mean of",
+      "translation": "是"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "的均值，"
+    },
+    {
+      "key": "t_ed01d171717ed659143e",
+      "source": "is the standard deviation of",
+      "translation": "是"
+    },
+    {
+      "key": "t_98310c4f5f817520f150",
+      "source": ". Second, we compute the eigenvalues",
+      "translation": "的标准差。然后计算特征值"
+    },
+    {
+      "key": "t_f1ee83525cda8a229782",
+      "source": "and eigenvectors",
+      "translation": "和特征向量"
+    },
+    {
+      "key": "t_4f2634aaa64272a68265",
+      "source": "such that",
+      "translation": "，使"
+    },
+    {
+      "key": "t_89ebce7412c48723ca2b",
+      "source": "is an",
+      "translation": "是一个"
+    },
+    {
+      "key": "t_82774a30676167fc70c4",
+      "source": "diagonal matrix with main entries sorted in descending order, and",
+      "translation": "的对角矩阵，主对角元按降序排列，而"
+    },
+    {
+      "key": "t_556f40bf223ee1450e79",
+      "source": "orthonormal matrix. Third, we derive the orthogonal features as",
+      "translation": "的正交归一矩阵。最后得到正交特征"
+    },
+    {
+      "key": "t_6666db6cc8d35657e7e6",
+      "source": ". We can verify the orthogonality of the features by noting that",
+      "translation": "。可以由下式验证这些特征彼此正交："
+    },
+    {
+      "key": "t_cdb3f4bae9afd364da71",
+      "source": "The diagonalization is done on",
+      "translation": "这里对"
+    },
+    {
+      "key": "t_d9c6399d00eec706d6f9",
+      "source": "rather than",
+      "translation": "而不是"
+    },
+    {
+      "key": "t_7d382be07e04a13aafb2",
+      "source": ", for two reasons: (1) centering the data ensures that the first principal component is correctly oriented in the main direction of the observations. It is equivalent to adding an intercept in a linear regression; (2) re-scaling the data makes PCA focus on explaining correlations rather than variances. Without re-scaling, the first principal components would be dominated by the columns of",
+      "translation": "做对角化，原因有二：（1）数据中心化能让第一主成分正确指向观测的主要方向，相当于在线性回归中加入截距项；（2）重新缩放数据后，PCA 会着重解释相关性，而不是方差。如果不重新缩放，前几个主成分会由"
+    },
+    {
+      "key": "t_7e4595780c899335b27c",
+      "source": "with highest variance, and we would not learn much about the structure or relationship between the variables. Snippet 8.5 computes the smallest number of orthogonal features that explain at least 95% of the variance of",
+      "translation": "中方差最大的列主导，我们也就很难了解变量之间的结构和关系。代码清单 8.5 会找出能解释至少 95% 方差的最少正交特征数，计算所用的标准化矩阵为"
+    },
+    {
+      "key": "t_e5c4feb7d1aebe949106",
+      "source": "Snippet 8.5: Computation of Orthogonal Features",
+      "translation": "代码清单 8.5：计算正交特征"
+    },
+    {
+      "key": "t_779fb645a1f0552acf5c",
+      "source": "Besides addressing substitution effects, working with orthogonal features provides two additional benefits: (1) orthogonalization can also be used to reduce the dimensionality of the features matrix",
+      "translation": "除了缓解替代效应，使用正交特征还有两个好处：（1）可以删除小特征值对应的特征，从而降低特征矩阵"
+    },
+    {
+      "key": "t_b2d5f33626f50e5c6a11",
+      "source": ", by dropping features associated with small eigenvalues. This usually speeds up the convergence of ML algorithms; (2) the analysis is conducted on features designed to explain the structure of the data.",
+      "translation": "的维度，这通常能加快 ML 算法收敛；（2）分析所用的特征本身就是为了刻画数据结构而设计的。"
+    },
+    {
+      "key": "t_3341271d4be897a05fa9",
+      "source": "Let me stress this latter point. An ubiquitous concern throughout the book is the risk of overfitting. ML algorithms will always find a pattern, even if that pattern is a statistical fluke. You should always be skeptical about the purportedly important features identified by any method, including MDI, MDA, and SFI. Now, suppose that you derive orthogonal features using PCA. Your PCA analysis has determined that some features are more “principal” than others, without any knowledge of the labels (unsupervised learning). That is, PCA has ranked features without any possible overfitting in a classification sense. When your MDI, MDA, or SFI analysis selects as most important (using label information) the same features that PCA chose as principal (ignoring label information), this constitutes confirmatory evidence that the pattern identified by the ML algorithm is not entirely overfit.",
+      "translation": "第二点尤其值得强调。本书反复关注过拟合风险。ML 算法总能找到某种模式，哪怕它只是统计巧合。因此，无论 MDI、MDA 还是 SFI 声称找到了什么重要特征，都应保持怀疑。现在假设你用 PCA 得到正交特征。PCA 完全不知道标签，也就是采用无监督学习，却判断出某些特征比其他特征更“主要”。换言之，PCA 给特征排序时，不可能发生分类意义上的过拟合。如果 MDI、MDA 或 SFI 使用标签信息选出的最重要特征，恰好也是 PCA 忽略标签信息后选出的主成分，这就是一项相互印证的证据，说明 ML 算法发现的模式并非完全来自过拟合。"
+    },
+    {
+      "key": "t_27f1d347c13cb560dac1",
+      "source": "Figure 8.1 displays the scatter plot of eigenvalues associated with an eigenvector (x-axis) paired with MDI of the feature associated with an eigenvector (y-axis). The Pearson correlation is 0.8491 (p-value below 1E-150), evidencing that PCA identified informative features and ranked them correctly without overfitting.",
+      "translation": "图 8.1 是一张散点图：横轴为各特征向量对应的特征值，纵轴为该特征向量所对应特征的 MDI。二者的 Pearson 相关系数为 0.8491（p 值低于 1E-150），说明 PCA 在没有过拟合的情况下识别出了有效特征，并给出了正确排序。"
+    },
+    {
+      "key": "t_de728a6ef531bef6b055",
+      "source": "Figure 8.1: Scatter plot of eigenvalues (x-axis) and MDI levels (y-axis) in log-log scale",
+      "translation": "图 8.1：特征值（横轴）与 MDI 值（纵轴）的双对数散点图"
+    },
+    {
+      "key": "t_0d32ea4ab8aa0ef5b894",
+      "source": "I find it useful to compute the weighted Kendall's tau between the feature importances and their associated eigenvalues (or equivalently, their inverse PCA rank). The closer this value is to 1, the stronger is the consistency between PCA ranking and feature importance ranking. One argument for preferring a weighted Kendall's tau over the standard Kendall is that we want to prioritize rank concordance among the most important features. We do not care so much about rank concordance among irrelevant (likely noisy) features. The hyperbolic-weighted Kendall's tau for the sample in Figure 8.1 is 0.8206.",
+      "translation": "我建议计算特征重要性与相应特征值之间的加权 Kendall τ；等价地，也可以使用 PCA 排名的倒数。该值越接近 1，PCA 排名与特征重要性排名就越一致。相比普通 Kendall τ，加权版本更合适，因为我们更关心最重要特征之间的排名是否一致，而不太关心无关特征（很可能是噪声）的排名。图 8.1 样本的双曲加权 Kendall τ 为 0.8206。"
+    },
+    {
+      "key": "t_df65f32df557bde1d3f4",
+      "source": "Snippet 8.6 shows how to compute this correlation using SciPy. In this example, sorting the features in descending importance gives us a PCA rank sequence very close to an ascending list. Because the",
+      "translation": "代码清单 8.6 展示了如何用 SciPy 计算这种相关性。在这个例子中，按重要性降序排列特征后，PCA 排名序列非常接近升序排列。由于"
+    },
+    {
+      "key": "t_150149400dd1a02569d1",
+      "source": "function gives higher weight to higher values, we compute the correlation on the inverse PCA ranking,",
+      "translation": "函数会给数值较大的项更高权重，所以我们基于 PCA 排名的倒数计算相关性，即"
+    },
+    {
+      "key": "t_346c65e93170bd746d19",
+      "source": ". The resulting weighted Kendall's tau is relatively high, at 0.8133.",
+      "translation": "。最终得到的加权 Kendall τ 较高，为 0.8133。"
+    },
+    {
+      "key": "t_c7979d30cac65049ef45",
+      "source": "Snippet 8.6: Computation of Weighted Kendall’s Tau Between Feature Importance and Inverse PCA Ranking",
+      "translation": "代码清单 8.6：计算特征重要性与 PCA 排名倒数之间的加权 Kendall τ"
+    },
+    {
+      "key": "t_1cdcdd4faa0169f4ad95",
+      "source": "8.5 Parallelized vs. Stacked Feature Importance",
+      "translation": "8.5 并行式与堆叠式特征重要性"
+    },
+    {
+      "key": "t_12fa6944bd96fe3ab6f5",
+      "source": "There are at least two research approaches to feature importance. First, for each security",
+      "translation": "特征重要性至少有两种研究方法。第一种是：对投资范围内的每只证券"
+    },
+    {
+      "key": "t_ae3d049ad1c29ff980c5",
+      "source": "in an investment universe",
+      "translation": "（整个投资范围为"
+    },
+    {
+      "key": "t_bdd332cffa30d7ad742d",
+      "source": ", we form a dataset",
+      "translation": "），构建数据集"
+    },
+    {
+      "key": "t_10051405cc5d9cccfd24",
+      "source": ", and derive the feature importance in parallel. For example, let us denote",
+      "translation": "，并行计算特征重要性。例如，用"
+    },
+    {
+      "key": "t_61430cc6c1d83dddd80e",
+      "source": "the importance of feature",
+      "translation": "表示特征"
+    },
+    {
+      "key": "t_2dbba88e232444b00495",
+      "source": "on instrument",
+      "translation": "在金融工具"
+    },
+    {
+      "key": "t_dba69a51501914a1b372",
+      "source": "according to criterion",
+      "translation": "的重要性，其评价标准是"
+    },
+    {
+      "key": "t_c8471b9cd265ce56c681",
+      "source": ". Then we can aggregate all results across the entire universe to derive a combined",
+      "translation": "。然后汇总整个投资范围内的结果，得到综合重要性"
+    },
+    {
+      "key": "t_2ad730bd563454cc0404",
+      "source": "importance of feature",
+      "translation": "，它对应特征"
+    },
+    {
+      "key": "t_b56d33561cc5350e9b32",
+      "source": ". Features that are important across a wide variety of instruments are more likely to be associated with an underlying phenomenon, particularly when these feature importances exhibit high rank correlation across the criteria. It may be worth studying in-depth the theoretical mechanism that makes these features predictive.",
+      "translation": "。如果某个特征在许多不同金融工具中都很重要，它更可能对应某种真实的底层现象；若该特征在不同评价标准下的重要性排名也高度相关，这种判断就更可信。值得进一步研究使这些特征具有预测力的理论机制。"
+    },
+    {
+      "key": "t_a974f2166d0dfd3ca566",
+      "source": "The main advantage of this approach is that it is computationally fast, as it can be parallelized. A disadvantage is that, due to substitution effects, important features may swap their ranks across instruments, increasing the variance of the estimated",
+      "translation": "这种方法的主要优点是可以并行处理，计算很快。缺点是受替代效应影响，重要特征在不同金融工具上的名次可能互换，从而增大估计值"
+    },
+    {
+      "key": "t_69ab3641c3dd314e135e",
+      "source": ". This disadvantage becomes relatively minor if we average",
+      "translation": "的方差。如果投资范围足够大，对"
+    },
+    {
+      "key": "t_e47f901a9a5fc89d7d09",
+      "source": "across instruments for a sufficiently large investment universe.",
+      "translation": "在不同金融工具上的结果取平均，这个缺点就相对不重要。"
+    },
+    {
+      "key": "t_12b4c40fc6f602413423",
+      "source": "A second alternative is what I call “features stacking.” It consists in stacking all datasets",
+      "translation": "第二种方法是我所说的“特征堆叠（feature stacking）”。它把所有数据集"
+    },
+    {
+      "key": "t_a8e28d94d66f65771baf",
+      "source": "into a single combined dataset",
+      "translation": "堆叠成一个合并数据集"
+    },
+    {
+      "key": "t_557813be4ae586dbd7d0",
+      "source": "is a transformed instance of",
+      "translation": "是"
+    },
+    {
+      "key": "t_47cb6df5fbcfd98b6294",
+      "source": "(e.g., standardized on a rolling trailing window). The purpose of this transformation is to ensure some distributional homogeneity,",
+      "translation": "经过变换后的结果，例如用滚动回看窗口进行标准化。这样变换是为了使各数据集的分布更一致，即"
+    },
+    {
+      "key": "t_5539c8a5045c92527969",
+      "source": ". Under this approach, the classifier must learn what features are more important across all instruments simultaneously, as if the entire investment universe were in fact a single instrument.",
+      "translation": "。在这种方法下，分类器必须同时学习所有金融工具中哪些特征更重要，相当于把整个投资范围看成一只金融工具。"
+    },
+    {
+      "key": "t_02178f70cb13db67dba4",
+      "source": "Features stacking presents some advantages: (1) The classifier will be fit on a much larger dataset than the one used with the parallelized (first) approach; (2) the importance is derived directly, and no weighting scheme is required for combining the results; (3) conclusions are more general and less biased by outliers or overfitting; and (4) because importance scores are not averaged across instruments, substitution effects do not cause the dampening of those scores.",
+      "translation": "特征堆叠有几个优点：（1）分类器使用的数据集远大于第一种并行方法；（2）可以直接得到重要性，无需设计权重来合并结果；（3）结论更具普遍性，也较少受异常值或过拟合影响；（4）重要性分数不需要跨金融工具取平均，因此替代效应不会压低这些分数。"
+    },
+    {
+      "key": "t_c84d967b301e6d025867",
+      "source": "I usually prefer features stacking, not only for features importance but whenever a classifier can be fit on a set of instruments, including for the purpose of model prediction. That reduces the likelihood of overfitting an estimator to a particular instrument or small dataset. The main disadvantage of stacking is that it may consume a lot of memory and resources, however that is where a sound knowledge of HPC techniques will come in handy (Chapters 20-22).",
+      "translation": "我通常更喜欢特征堆叠。不只是分析特征重要性，只要可以在一组金融工具上拟合分类器——包括用于模型预测——我都会优先考虑它。这样可以降低估计器对某一金融工具或某个小数据集过拟合的概率。堆叠的主要缺点是可能消耗大量内存和计算资源，但扎实的 HPC 技术正好可以派上用场（第 20～22 章）。"
+    },
+    {
+      "key": "t_267b8e7f143025d449ec",
+      "source": "8.6 Experiments with Synthetic Data",
+      "translation": "8.6 合成数据实验"
+    },
+    {
+      "key": "t_13af854322826f10e76b",
+      "source": "In this section, we are going to test how these feature importance methods respond to synthetic data. We are going to generate a dataset",
+      "translation": "本节将测试这些特征重要性方法面对合成数据时的表现。我们会生成一个数据集"
+    },
+    {
+      "key": "t_5c8ea12e3f1547922138",
+      "source": "composed of three kinds of features:",
+      "translation": "，其中包含三类特征："
+    },
+    {
+      "key": "t_a5c16628c6fbef3d1201",
+      "source": "Informative:",
+      "translation": "有效特征："
+    },
+    {
+      "key": "t_037f10c2ab3c3f1a27e0",
+      "source": "These are features that are used to determine the label.",
+      "translation": "这些特征直接用于确定标签。"
+    },
+    {
+      "key": "t_ca3bb7fc34a8e2d1d46f",
+      "source": "Redundant:",
+      "translation": "冗余特征："
+    },
+    {
+      "key": "t_91b76832df39f19572b6",
+      "source": "These are random linear combinations of the informative features. They will cause substitution effects.",
+      "translation": "这些特征是有效特征的随机线性组合，会引起替代效应。"
+    },
+    {
+      "key": "t_61b402f1ac4a2c68bc34",
+      "source": "Noise:",
+      "translation": "噪声特征："
+    },
+    {
+      "key": "t_d72b2fda31f2e1b78708",
+      "source": "These are features that have no bearing on determining the observation's label.",
+      "translation": "这些特征与观测标签的确定完全无关。"
+    },
+    {
+      "key": "t_c7e0e0a84aef392d351f",
+      "source": "Snippet 8.7 shows how we can generate a synthetic dataset of 40 features where 10 are informative, 10 are redundant, and 20 are noise, on 10,000 observations. For details on how sklearn generates synthetic datasets, visit:",
+      "translation": "代码清单 8.7 展示了如何基于 10,000 个观测生成一个含 40 个特征的合成数据集，其中 10 个是有效特征、10 个是冗余特征、20 个是噪声特征。关于 sklearn 如何生成合成数据集，详见："
+    },
+    {
+      "key": "t_7858e03fa50af1d5f7ff",
+      "source": "Snippet 8.7: Creating a Synthetic Dataset",
+      "translation": "代码清单 8.7：创建合成数据集"
+    },
+    {
+      "key": "t_8956dc5eee32a77d1861",
+      "source": "Given that we know for certain what feature belongs to each class, we can evaluate whether these three feature importance methods perform as designed. Now we need a function that can carry out each analysis on the same dataset. Snippet 8.8 accomplishes that, using bagged decision trees as default classifier (Chapter 6).",
+      "translation": "由于我们确切知道每个特征属于哪一类，因此可以检验这三种特征重要性方法是否按预期工作。现在还需要一个函数，用同一数据集执行每种分析。代码清单 8.8 完成了这项工作，并把经过 bagging 的决策树作为默认分类器（第 6 章）。"
+    },
+    {
+      "key": "t_f53d90a66ab877ed2c29",
+      "source": "a function that can carry out each analysis on the same dataset. Snippet 8.8 accomplishes that, using bagged decision trees as default classifier (Chapter 6).",
+      "translation": "这个函数可以在同一数据集上执行每种分析。代码清单 8.8 完成了这项工作，并把经过 bagging 的决策树作为默认分类器（第 6 章）。"
+    },
+    {
+      "key": "t_ff69757b7180802e8826",
+      "source": "Snippet 8.8: Calling Feature Importance for Any Method",
+      "translation": "代码清单 8.8：调用任意特征重要性方法"
+    },
+    {
+      "key": "t_d7367187dcc279629d0e",
+      "source": "Finally, we need a main function to call all components, from data generation to feature importance analysis to collection and processing of output. These tasks are performed by Snippet 8.9.",
+      "translation": "最后还需要一个主函数来调用所有组件，依次完成数据生成、特征重要性分析，以及输出的收集和处理。代码清单 8.9 执行了这些任务。"
+    },
+    {
+      "key": "t_6626039426c16e5e878d",
+      "source": "Snippet 8.9: Calling All Components",
+      "translation": "代码清单 8.9：调用所有组件"
+    },
+    {
+      "key": "t_48a53dc1bcd50c6ad21e",
+      "source": "For the aesthetically inclined, Snippet 8.10 provides a nice layout for plotting feature importances.",
+      "translation": "如果你在意图表美观，代码清单 8.10 提供了一种清晰漂亮的特征重要性绘图布局。"
+    },
+    {
+      "key": "t_61513624ef458c638f2a",
+      "source": "Snippet 8.10: Feature Importance Plotting Function",
+      "translation": "代码清单 8.10：特征重要性绘图函数"
+    },
+    {
+      "key": "t_63998fa5fa072c96d322",
+      "source": "Figure 8.2: MDI feature importance computed on a synthetic dataset",
+      "translation": "图 8.2：在合成数据集上计算的 MDI 特征重要性"
+    },
+    {
+      "key": "t_532eee1b0df98ed92d9a",
+      "source": "Figure 8.2 shows results for MDI. For each feature, the horizontal bar indicates the mean MDI value across all the decision trees, and the horizontal line is the standard deviation of that mean. Since MDI importances add up to 1, if all features were equally important, each importance would have a value of",
+      "translation": "图 8.2 展示了 MDI 的结果。对每个特征而言，横条表示所有决策树上的 MDI 均值，横线表示该均值的标准差。由于 MDI 重要性之和为 1，如果所有特征同等重要，每个特征的重要性应为"
+    },
+    {
+      "key": "t_065863fc38bd45334f0d",
+      "source": ". The vertical dotted line marks that",
+      "translation": "。竖直虚线标出了"
+    },
+    {
+      "key": "t_218766622bfff0dc68b0",
+      "source": "threshold, separating features whose importance exceeds what would be expected from undistinguishable features. As you can see, MDI does a very good job in terms of placing all informative and redundant features above the red dotted line, with the exception of",
+      "translation": "这一阈值，用来区分重要性是否高于“所有特征无法区分时”的预期水平。可以看到，MDI 表现得很好：除"
+    },
+    {
+      "key": "t_53cc3bac646d59add0e7",
+      "source": ", which did not make the cut by a small margin. Substitution effects cause some informative or redundant features to rank better than others, which was expected.",
+      "translation": "略低于阈值外，所有有效特征和冗余特征都位于红色虚线上方。替代效应使一部分有效或冗余特征的排名高于其他同类特征，这符合预期。"
+    },
+    {
+      "key": "t_82dd53adab29cb934991",
+      "source": "Figure 8.3: MDA feature importance computed on a synthetic dataset",
+      "translation": "图 8.3：在合成数据集上计算的 MDA 特征重要性"
+    },
+    {
+      "key": "t_0685c7fe560d697e9e98",
+      "source": "Figure 8.3 shows that MDA also did a good job. Results are consistent with those from MDI's in the sense that all the informed and redundant features rank better than the noise feature, with the exception of",
+      "translation": "图 8.3 表明 MDA 的表现也不错。结果与 MDI 一致：除"
+    },
+    {
+      "key": "t_54102e6107f190161634",
+      "source": ", likely due to a substitution effect. One not so positive aspect of MDA is that the standard deviation of the means are somewhat higher, although that could be addressed by increasing the number of partitions in the purged",
+      "translation": "外（可能是替代效应所致），所有有效特征和冗余特征的排名都高于噪声特征。MDA 不太理想的一点是均值的标准差较高，不过可以增加经过清除处理的"
+    },
+    {
+      "key": "t_f5ace5b4e439ad7d3811",
+      "source": "-fold CV, from, say, 10 to 100 (at the cost of",
+      "translation": "折 CV 的划分数量，例如从 10 增至 100；代价是单线程计算时间变为原来的"
+    },
+    {
+      "key": "t_24ed5a90a8936bc491b6",
+      "source": "the computation time without parallelization).",
+      "translation": "。"
+    },
+    {
+      "key": "t_3a1eb11269847dd33abb",
+      "source": "Figure 8.4: SFI feature importance computed on a synthetic dataset",
+      "translation": "图 8.4：在合成数据集上计算的 SFI 特征重要性"
+    },
+    {
+      "key": "t_e39c79aad1d99193fbd6",
+      "source": "Figure 8.4 shows that SFI also does a decent job; however, a few important features rank worse than noise (",
+      "translation": "图 8.4 表明 SFI 的表现也还不错，但有几个重要特征的排名反而低于噪声特征（"
+    },
+    {
+      "key": "t_8026bd216c994a3da786",
+      "source": "), likely due to joint effects.",
+      "translation": "），这很可能由联合效应造成。"
+    },
+    {
+      "key": "t_e0e4753b2638146ec76c",
+      "source": "The labels are a function of a combination of features, and trying to forecast them independently misses the joint effects. Still, SFI is useful as a complement to MDI and MDA, precisely because both types of analyses are affected by different kinds of problems.",
+      "translation": "标签由多个特征共同决定，逐个特征独立预测会漏掉联合效应。尽管如此，SFI 仍可作为 MDI 和 MDA 的有益补充，因为这两类分析受到的问题各不相同。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_dea5b578813c819f640c",
+      "source": "Previous: Cross-Validation in Finance",
+      "translation": "上一章：金融领域的交叉验证"
+    },
+    {
+      "key": "t_8e853689df01d5ffd8d8",
+      "source": "Next: Hyper-Parameter Tuning with Cross-Validation",
+      "translation": "下一章：用交叉验证调优超参数"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    }
+  ]
+}

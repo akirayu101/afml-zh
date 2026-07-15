@@ -1,0 +1,621 @@
+{
+  "chapter": "chapter-21",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_3abb373f43ca5e27dfb1",
+      "source": "Brute Force and Quantum Computers | Advances in Financial Machine Learning",
+      "translation": "暴力搜索与量子计算机｜金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_23d8e96707146dc696b8",
+      "source": "Part 5: High-Performance Computing Recipes",
+      "translation": "第五部分：高性能计算方法"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_2a252ad22ccb6d9dd093",
+      "source": "Brute Force and Quantum Computers",
+      "translation": "暴力搜索与量子计算机"
+    },
+    {
+      "key": "t_7c4f46c3e0af9e274d66",
+      "source": "21.1 Motivation",
+      "translation": "21.1 动机"
+    },
+    {
+      "key": "t_c898999891f8076c6ee4",
+      "source": "Discrete mathematics appears naturally in multiple ML problems, including hierarchical clustering, grid searches, decisions based on thresholds, and integer optimization. Sometimes, these problems do not have a known analytical (closed-form) solution, or even a heuristic to approximate it, and our only hope is to search for it through brute force. In this chapter, we will study how a financial problem, intractable to modern supercomputers, can be reformulated as an integer optimization problem. Such a representation makes it amenable to quantum computers. From this example the reader can infer how to translate his particular financial ML intractable problem into a quantum brute force search.",
+      "translation": "离散数学会自然出现在许多机器学习问题中，例如层次聚类、网格搜索、基于阈值的决策和整数优化。有时，这些问题既没有已知的闭式解，甚至也没有可用来逼近答案的启发式方法，只能寄希望于暴力搜索。本章将说明如何把一个现代超级计算机都难以求解的金融问题，重新表述为整数优化问题。采用这种表示后，就可以交给量子计算机处理。读者可以由此推断，怎样把自己难解的金融机器学习问题转换成适合量子暴力搜索的形式。"
+    },
+    {
+      "key": "t_ccb3941c62a84ddbcf26",
+      "source": "21.2 Combinatorial Optimization",
+      "translation": "21.2 组合优化"
+    },
+    {
+      "key": "t_b0ee573834950151126d",
+      "source": "Combinatorial optimization problems can be described as problems where there is a finite number of feasible solutions, which result from combining the discrete values of a finite number of variables. As the number of feasible combinations grows, an exhaustive search becomes impractical. The traveling salesman problem is an example of a combinatorial optimization problem that is known to be NP hard (Woeginger",
+      "translation": "组合优化问题具有有限个可行解，这些解来自有限个变量的离散取值组合。可行组合数量一旦增大，穷举搜索很快就会失去可行性。旅行商问题就是著名的 NP 难组合优化问题（Woeginger"
+    },
+    {
+      "key": "t_02383644b4067512ae6b",
+      "source": "), that is, the category of problems that are at least as hard as the hardest problems solvable is nondeterministic polynomial time. What makes an exhaustive search impractical is that standard computers evaluate and store the feasible solutions sequentially. But what if we could evaluate and store all feasible solutions at once? That is the goal of quantum computers. Whereas the bits of a standard computer can only adopt one of two possible states ({0, 1}) at once, quantum computers rely on qubits, which are memory elements that may hold a linear superposition of both states. In theory, quantum computers can accomplish this thanks",
+      "translation": "），也就是说，这类问题至少与非确定性多项式时间内可解的最难问题同样困难。穷举之所以不可行，是因为传统计算机只能依次计算并存储各个可行解。但如果能同时计算并存储所有可行解呢？这正是量子计算机追求的目标。传统计算机的比特在某一时刻只能处于 {0, 1} 两种状态之一；量子计算机则使用量子位。量子位是一种可以同时保持两种状态线性叠加的存储单元。理论上，这种能力来自量子力学现象。"
+    },
+    {
+      "key": "t_804ef80ec270114edcc4",
+      "source": "to quantum mechanical phenomena. In some implementations, qubits can support currents flowing in two directions at once, hence providing the desired superposition. This linear superposition property is what makes quantum computers ideally suited for solving NP-hard combinatorial optimization problems. See Williams",
+      "translation": "在某些实现中，量子位可以同时支持两个方向的电流，从而形成所需的叠加态。正是这种线性叠加性质，使量子计算机很适合求解 NP 难组合优化问题。关于量子计算机能力的全面介绍，参见 Williams"
+    },
+    {
+      "key": "t_96032793271828f95848",
+      "source": "for a general treatise on the capabilities of quantum computers. The best way to understand this approach is through a particular example. We will now see how a dynamic portfolio optimization problem subject to generic transaction cost functions can be represented as a combinatorial optimization problem, tractable to quantum computers. Unlike Garleanu and Pedersen",
+      "translation": "。理解这种方法的最好方式，是看一个具体例子。下面把一个带有一般交易成本函数的动态投资组合优化问题表示为组合优化问题，使量子计算机能够处理。与 Garleanu 和 Pedersen"
+    },
+    {
+      "key": "t_3f98dbbd01aeadc8fc15",
+      "source": ", we will not assume that the returns are drawn from an IID Gaussian distribution. This problem is particularly relevant to large asset managers, as the costs from excessive turnover and implementation shortfall may critically erode the profitability of their investment strategies.",
+      "translation": "不同，我们不假设收益率来自独立同分布的高斯分布。这个问题对大型资产管理机构尤其重要，因为换手过度和执行缺口造成的成本，可能严重侵蚀投资策略的盈利能力。"
+    },
+    {
+      "key": "t_b78b1582717427399789",
+      "source": "21.3 The Objective Function",
+      "translation": "21.3 目标函数"
+    },
+    {
+      "key": "t_2013f58d9a63a668a507",
+      "source": "Consider a set of assets",
+      "translation": "考虑资产集合"
+    },
+    {
+      "key": "t_631b4ca26ed8ba3e8511",
+      "source": ", with returns following a multivariate Normal distribution at each time horizon",
+      "translation": "。在每个时间区间"
+    },
+    {
+      "key": "t_49b06dce882568009066",
+      "source": ", with varying mean and variance. We will assume that the returns are multivariate Normal, time-independent, however not identically distributed through time. We define a trading trajectory as an",
+      "translation": "上，资产收益服从均值和方差随时间变化的多元正态分布。我们假设收益在各期均为多元正态且彼此独立，但不要求各期同分布。把交易轨迹定义为一个"
+    },
+    {
+      "key": "t_6e00cd562cc2d88e238d",
+      "source": "matrix",
+      "translation": "矩阵"
+    },
+    {
+      "key": "t_be92e80d75d06cfd922c",
+      "source": "that determines the proportion of capital allocated to each of the",
+      "translation": "，它决定"
+    },
+    {
+      "key": "t_60a2d2827a0e504c5cba",
+      "source": "assets over each of the",
+      "translation": "项资产在"
+    },
+    {
+      "key": "t_b5de3f375b756c9021f7",
+      "source": "horizons. At a particular horizon",
+      "translation": "个时间区间上的资金配置比例。在某个时间区间"
+    },
+    {
+      "key": "t_0f5a8e837792a7c999ca",
+      "source": ", we have a forecasted mean",
+      "translation": "，我们有预测均值"
+    },
+    {
+      "key": "t_a2751b0fd8af303f88d4",
+      "source": ", a forecasted variance",
+      "translation": "、预测方差"
+    },
+    {
+      "key": "t_7cd4bd63af5d0121be95",
+      "source": "and a forecasted transaction cost function",
+      "translation": "和预测交易成本函数"
+    },
+    {
+      "key": "t_6ed6e89f01aa4edfb29e",
+      "source": ". This means that, given a trading trajectory",
+      "translation": "。这意味着，给定交易轨迹"
+    },
+    {
+      "key": "t_1a2cc3a9e53d94e98a63",
+      "source": ", we can compute a vector of expected investment returns",
+      "translation": "，就可以计算预期投资收益向量"
+    },
+    {
+      "key": "t_45c24a28fba275daf7a3",
+      "source": ", as",
+      "translation": "："
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "其中"
+    },
+    {
+      "key": "t_8734e1a5a8675d35f79d",
+      "source": "can adopt any functional form. Without loss of generality, consider the following:",
+      "translation": "可以采用任意函数形式。不失一般性，考虑下面的设定："
+    },
+    {
+      "key": "t_9cf10b3762c01b344178",
+      "source": "is the initial allocation to instrument",
+      "translation": "是资产"
+    },
+    {
+      "key": "t_5c404a55160ce8a4aaf1",
+      "source": ". The implementation below defaults to",
+      "translation": "的初始配置。下面的实现默认设为"
+    },
+    {
+      "key": "t_69558ef78fddbfed3160",
+      "source": "unless an optional initial allocation",
+      "translation": "；除非提供可选的初始配置参数"
+    },
+    {
+      "key": "t_0e793ab996fa0cab93a3",
+      "source": "is supplied.",
+      "translation": "。"
+    },
+    {
+      "key": "t_89ebce7412c48723ca2b",
+      "source": "is an",
+      "translation": "是一个"
+    },
+    {
+      "key": "t_c754806145d4f8e5f88c",
+      "source": "vector of transaction costs. In words, the transaction costs associated with each asset are the sum of the square roots of the changes in capital allocations, re-scaled by an asset-specific factor",
+      "translation": "的交易成本向量。具体来说，每项资产的交易成本，是各期资金配置变化量平方根之和，再乘以该资产对应的缩放因子"
+    },
+    {
+      "key": "t_de8075f50f3733d321de",
+      "source": "that changes with",
+      "translation": "；该因子随"
+    },
+    {
+      "key": "t_88875af15994eb0a8a6d",
+      "source": ". Thus,",
+      "translation": "变化。因此，"
+    },
+    {
+      "key": "t_133f7973e696bb8fbd38",
+      "source": "vector that determines the relative transaction cost across assets.",
+      "translation": "向量，用来确定各资产之间交易成本的相对大小。"
+    },
+    {
+      "key": "t_f95f9113d9ef9602ade9",
+      "source": "The Sharpe Ratio (Chapter 14) associated with",
+      "translation": "预期投资收益向量"
+    },
+    {
+      "key": "t_6285a081cc18c4a8c743",
+      "source": "can be computed as (",
+      "translation": "对应的夏普比率（见第 14 章）可按下式计算，其中"
+    },
+    {
+      "key": "t_eb3d8e85c2e8c352b9b8",
+      "source": "being net of the risk-free rate)",
+      "translation": "已经扣除无风险利率："
+    },
+    {
+      "key": "t_b382692cc2b31cf94fdc",
+      "source": "21.4 The Problem",
+      "translation": "21.4 问题定义"
+    },
+    {
+      "key": "t_8f2c739c81096076cb13",
+      "source": "We would like to compute the optimal trading trajectory that solves the problem",
+      "translation": "我们希望求出满足下列问题的最优交易轨迹："
+    },
+    {
+      "key": "t_6b0e1ad0696ee70845a8",
+      "source": "This problem attempts to compute a global dynamic optimum, in contrast to the static optimum derived by mean-variance optimizers (see Chapter 16). Note that non-smooth transaction costs are embedded in",
+      "translation": "这个问题寻找的是全局动态最优解，不同于均值—方差优化器得到的静态最优解，见第 16 章。注意，非光滑交易成本已经包含在"
+    },
+    {
+      "key": "t_9f24f9edb29aa18e62a6",
+      "source": ". Compared to standard portfolio optimization applications, this is not a convex (quadratic) programming problem for at least three reasons: (1) Returns are not identically distributed, because",
+      "translation": "中。与标准投资组合优化相比，这至少出于三个原因不是凸二次规划问题：（1）收益率不同分布，因为"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "和"
+    },
+    {
+      "key": "t_65a15651c54150be408f",
+      "source": "change with",
+      "translation": "会随"
+    },
+    {
+      "key": "t_9f3c2753cf6e6b54e402",
+      "source": ". (2) Transaction costs",
+      "translation": "变化；（2）交易成本"
+    },
+    {
+      "key": "t_7ef0d93a5a5df4eb1a2f",
+      "source": "are non-differentiable at zero and changing with",
+      "translation": "在零点不可微，并且随"
+    },
+    {
+      "key": "t_dc8e31a277156fa7c2d5",
+      "source": ". (3) The objective function",
+      "translation": "变化；（3）目标函数"
+    },
+    {
+      "key": "t_50aeed15eaac5816f74c",
+      "source": "is not convex. Next, we will show how to calculate solutions without making use of any analytical property of the objective function (hence the generalized nature of this approach).",
+      "translation": "不是凸函数。下面将不利用目标函数的任何解析性质来求解，这也是该方法具有普适性的原因。"
+    },
+    {
+      "key": "t_2a74e72c32a51556c916",
+      "source": "21.5 An Integer Optimization Approach",
+      "translation": "21.5 整数优化方法"
+    },
+    {
+      "key": "t_ea3a70b47c574fc9ae5d",
+      "source": "The generality of this problem makes it intractable to standard convex optimization techniques. Our solution strategy is to discretize it so that it becomes amenable to integer optimization. This in turn allows us to use quantum computing technology to find the optimal solution.",
+      "translation": "这个问题太一般，标准凸优化技术无法处理。我们的策略是先把它离散化，转成整数优化问题，再利用量子计算技术寻找最优解。"
+    },
+    {
+      "key": "t_cf9f23f70037a2bf31ab",
+      "source": "21.5.1 Pigeonhole Partitions",
+      "translation": "21.5.1 隔板分配"
+    },
+    {
+      "key": "t_0839c101b3bee004a32f",
+      "source": "Suppose that we count the number of ways that",
+      "translation": "假设要计算把"
+    },
+    {
+      "key": "t_03d406307ab9ce98b7e8",
+      "source": "units of capital can be allocated among",
+      "translation": "个资金单位分配给"
+    },
+    {
+      "key": "t_452a6a465cb017631bb7",
+      "source": "assets, where we assume",
+      "translation": "项资产的方式数量，并假设"
+    },
+    {
+      "key": "t_ec41e953579535688688",
+      "source": ". This is equivalent to finding the number of non-negative integer solutions to",
+      "translation": "。这等价于求下式的非负整数解数量："
+    },
+    {
+      "key": "t_0af0ecc3425384f1a1fd",
+      "source": ", which has the nice combinatorial solution",
+      "translation": "；它有一个简洁的组合解"
+    },
+    {
+      "key": "t_206d2bcffaef10a481b4",
+      "source": ". This bears a similarity to the classic integer partitioning problem in number theory for which Hardy and Ramanujan (and later, Rademacher) proved an asymptotic expression (see Johansson",
+      "translation": "。这与数论中的经典整数分拆问题相似；Hardy 和 Ramanujan、以及后来的 Rademacher 为该问题证明了渐近表达式，参见 Johansson"
+    },
+    {
+      "key": "t_eb2694f6a0c80bb5b7c0",
+      "source": "). While order does not matter in the partition problem, order is very relevant to the problem we have at hand.",
+      "translation": "。普通整数分拆不考虑顺序，但本章的问题中，顺序非常重要。"
+    },
+    {
+      "key": "t_e3a695e2267c7a527f3d",
+      "source": "Figure 21.1: Partitions (1, 2, 3) and (3, 2, 1) must be treated as different",
+      "translation": "图 21.1：分配方式 (1, 2, 3) 与 (3, 2, 1) 必须视为不同结果"
+    },
+    {
+      "key": "t_0695b917e55eb3700773",
+      "source": "For example, if",
+      "translation": "例如，当"
+    },
+    {
+      "key": "t_7958e6bf36475119d2df",
+      "source": ", partitions",
+      "translation": "时，分配方式"
+    },
+    {
+      "key": "t_906bb65636b374a1d9b9",
+      "source": "must be treated as different (obviously",
+      "translation": "必须视为不同结果；显然，"
+    },
+    {
+      "key": "t_91d88cd7a29302191c43",
+      "source": "does not need to be permutated). Figure 21.1 illustrates how order is important when allocating 6 units of capital to 3 different assets. This means that we must consider all distinct permutations of each partition. Even though there is a nice combinatorial solution to find the number of such allocations, it may still be computationally intensive to find as",
+      "translation": "本身无须再做排列。图 21.1 展示了把 6 个资金单位分配给 3 项不同资产时，顺序为何重要。这意味着每种分拆的所有不同排列都必须纳入考虑。虽然这类配置数量有简洁的组合公式，但随着"
+    },
+    {
+      "key": "t_64cebfc0bba38d51cbec",
+      "source": "grow large. However, we can use Stirling's approximation to easily arrive at an estimate.",
+      "translation": "增大，逐个生成仍可能耗费大量计算。不过，可以用 Stirling 近似轻松估计其规模。"
+    },
+    {
+      "key": "t_8e3b3499139bdd09c6e0",
+      "source": "Snippet 21.1 provides an efficient algorithm to generate the set of all partitions,",
+      "translation": "代码清单 21.1 给出一个高效算法，用来生成全部分拆集合"
+    },
+    {
+      "key": "t_0e822fbcd02818d6c5e3",
+      "source": "are the natural numbers including zero (whole numbers).",
+      "translation": "表示包含零的自然数，也就是非负整数。"
+    },
+    {
+      "key": "t_4dfd6fc7eb5127cdacd8",
+      "source": "Snippet 21.1: Partitions of k Objects Into n Slots",
+      "translation": "代码清单 21.1：把 k 个对象分配到 n 个槽位"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_3a971db77e6c110168e1",
+      "source": "21.5.2 Feasible Static Solutions",
+      "translation": "21.5.2 可行的静态解"
+    },
+    {
+      "key": "t_a12ff15c863bf1635dfc",
+      "source": "We would like to compute the set of all feasible solutions at any given horizon",
+      "translation": "我们希望计算任意给定时间区间"
+    },
+    {
+      "key": "t_b8c4b09693d4e6d927a4",
+      "source": ", which we denote",
+      "translation": "上的全部可行解集合，记为"
+    },
+    {
+      "key": "t_f738e1ac0e8b5a74f3e4",
+      "source": ". Consider a partition set of",
+      "translation": "。考虑把"
+    },
+    {
+      "key": "t_a9dc36dd57bfdca82077",
+      "source": "units into",
+      "translation": "个单位分到"
+    },
+    {
+      "key": "t_a9229a1f27ee0fc18f68",
+      "source": "assets,",
+      "translation": "项资产所形成的分拆集合"
+    },
+    {
+      "key": "t_adb02401237b9aba1bf5",
+      "source": ". For each partition",
+      "translation": "。对每个分拆"
+    },
+    {
+      "key": "t_893aaff6e6765430fdb3",
+      "source": ", we can define a vector of absolute weights such that",
+      "translation": "，都可以定义一个绝对权重向量，使"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_b58ccfd21e313ae611a9",
+      "source": "(the full-investment constraint). This full-investment (without leverage) constraint implies that every weight can be either positive or negative, so for every vector of absolute weights",
+      "translation": "，即资金全部投入约束。这个不带杠杆的全额投资约束允许每个权重取正或负，因此对每个绝对权重向量"
+    },
+    {
+      "key": "t_70ed83fa344a6002c78f",
+      "source": "we can generate",
+      "translation": "，都可以生成"
+    },
+    {
+      "key": "t_e938db41ebf5012e5ec3",
+      "source": "vectors of (signed) weights. This is accomplished by multiplying the items in",
+      "translation": "个带符号权重向量。方法是把"
+    },
+    {
+      "key": "t_30c9f8a885a3dea2e40c",
+      "source": "with the items of the Cartesian product of",
+      "translation": "中的元素与以下笛卡儿积中的元素逐项相乘："
+    },
+    {
+      "key": "t_0695b563acde461fc2f8",
+      "source": "with",
+      "translation": "重复"
+    },
+    {
+      "key": "t_3cbceb11aee3b941375d",
+      "source": "repetitions. Snippet 21.2 shows how to generate the set",
+      "translation": "次。代码清单 21.2 展示怎样生成集合"
+    },
+    {
+      "key": "t_9255cecf953ad5ff935d",
+      "source": "of all vectors of weights associated with all partitions,",
+      "translation": "，它包含与所有分拆对应的全部权重向量"
+    },
+    {
+      "key": "t_777553904553bdb6e742",
+      "source": "Snippet 21.2: Set",
+      "translation": "代码清单 21.2：集合"
+    },
+    {
+      "key": "t_13a25f0c59bf760baefd",
+      "source": "of All Vectors Associated with All Partitions",
+      "translation": "——与所有分拆对应的全部向量"
+    },
+    {
+      "key": "t_7ec0648ad3d24b0a8886",
+      "source": "21.5.3 Evaluating Trajectories",
+      "translation": "21.5.3 评估交易轨迹"
+    },
+    {
+      "key": "t_c6e0c1cc5eabff277250",
+      "source": "Given the set of all vectors",
+      "translation": "给定全部权重向量的集合"
+    },
+    {
+      "key": "t_7e0c05df2913c26b5642",
+      "source": ", we define the set of all possible trajectories",
+      "translation": "，定义所有可能轨迹的集合"
+    },
+    {
+      "key": "t_cdd2c4cd3d780056d950",
+      "source": "as the Cartesian product of",
+      "translation": "；它是将集合"
+    },
+    {
+      "key": "t_1b7c49571ef1f9144c7f",
+      "source": "repetitions. Then, for every trajectory we can evaluate its transaction costs and",
+      "translation": "次做笛卡儿积得到的。随后，对每条轨迹计算交易成本和"
+    },
+    {
+      "key": "t_61bc6c03233f134ab707",
+      "source": ", and select the trajectory with optimal performance across",
+      "translation": "，并在"
+    },
+    {
+      "key": "t_b3aed1da1a39c3ac2d6e",
+      "source": ". Snippet 21.3 implements this functionality. The object",
+      "translation": "中选出表现最优的轨迹。代码清单 21.3 实现了这一功能。对象"
+    },
+    {
+      "key": "t_5c2ea6c7f454f86265ec",
+      "source": "is a list of dictionaries that contain the values of",
+      "translation": "是一个字典列表，其中保存以下参数的取值："
+    },
+    {
+      "key": "t_507f2e57a720a3d584e3",
+      "source": "Snippet 21.3: Evaluating All Trajectories",
+      "translation": "代码清单 21.3：评估所有交易轨迹"
+    },
+    {
+      "key": "t_afda31ad63e6a6ae9cff",
+      "source": "Note that this procedure selects a globally optimal trajectory without relying on convex optimization. A solution will be found even if the covariance matrices are ill-conditioned, transaction cost functions are non-smooth, etc. The price we pay for this generality is that calculating the solution is extremely computationally intensive. Indeed, evaluating all trajectories is similar to the traveling-salesman problem.",
+      "translation": "注意，这一过程不依赖凸优化，也能选出全局最优轨迹。即使协方差矩阵条件很差、交易成本函数不光滑等，仍然能找到解。获得这种普适性的代价，是计算量极其庞大。事实上，评估全部轨迹与旅行商问题很相似。"
+    },
+    {
+      "key": "t_b3e7a6b7726e139e86d8",
+      "source": "Digital computers are inadequate for this sort of NP-complete or NP-hard problems; however, quantum computers have the advantage of evaluating multiple solutions at once, thanks to the property of linear superposition. The approach presented in this chapter set the foundation for Rosenberg et al.",
+      "translation": "数字计算机不适合求解这类 NP 完全或 NP 难问题；量子计算机凭借线性叠加，可以同时评估多个解。本章方法为 Rosenberg 等人"
+    },
+    {
+      "key": "t_59d31e3d12fc581abc07",
+      "source": ", which solved the optimal trading trajectory problem using a quantum annealer. The same logic can be applied to a wide range on financial problems involving path dependency, such as a trading trajectory. Intractable ML algorithm can be discretized and translated into a brute force search, intended for a quantum computer.",
+      "translation": "的工作奠定了基础；他们使用量子退火器求解最优交易轨迹问题。同样的逻辑可以用于许多具有路径依赖性的金融问题，交易轨迹就是一例。难以直接求解的机器学习算法，也可以先离散化，再转换成面向量子计算机的暴力搜索。"
+    },
+    {
+      "key": "t_0354a3b7c9021f905d87",
+      "source": "21.6 A Numerical Example",
+      "translation": "21.6 数值示例"
+    },
+    {
+      "key": "t_ec96fe25be18815afbbc",
+      "source": "Below we illustrate how the global optimum can be found in practice, using a digital computer. A quantum computer would evaluate all trajectories at once, whereas the digital computer does this sequentially.",
+      "translation": "下面说明怎样使用数字计算机在实践中寻找全局最优解。量子计算机会同时评估全部轨迹，而数字计算机只能依次评估。"
+    },
+    {
+      "key": "t_2710108089e1e127543b",
+      "source": "21.6.1 Random Matrices",
+      "translation": "21.6.1 随机矩阵"
+    },
+    {
+      "key": "t_22b0f4843ee3302c6885",
+      "source": "Snippet 21.4 returns a random matrix of Gaussian values with known rank, which is useful in many applications (see exercises). You may want to consider this code the next time you want to execute multivariate Monte Carlo experiments, or scenario analyses.",
+      "translation": "代码清单 21.4 返回一个秩已知、元素服从高斯分布的随机矩阵，在许多应用中都很有用，见练习。下次进行多元蒙特卡洛实验或情景分析时，可以考虑使用这段代码。"
+    },
+    {
+      "key": "t_6a61700868227fdf4a1b",
+      "source": "Snippet 21.4: Produce a Random Matrix of a Given Rank",
+      "translation": "代码清单 21.4：生成指定秩的随机矩阵"
+    },
+    {
+      "key": "t_f5118e7aa8f78f2e99cd",
+      "source": "Snippet 21.5 generates",
+      "translation": "代码清单 21.5 生成"
+    },
+    {
+      "key": "t_a69be80cb56c7a778371",
+      "source": "vectors of means, covariance matrices, and transaction cost factors,",
+      "translation": "组参数，包括交易成本因子、均值向量和协方差矩阵，分别记为"
+    },
+    {
+      "key": "t_4ad24c596336609b399a",
+      "source": ". These variables are stored in a",
+      "translation": "。这些变量存储在一个"
+    },
+    {
+      "key": "t_cc8fd2559049489bff59",
+      "source": "list.",
+      "translation": "列表中。"
+    },
+    {
+      "key": "t_3cf5b14d2424a740dc06",
+      "source": "Snippet 21.5: Generate the Problem’s Parameters",
+      "translation": "代码清单 21.5：生成问题参数"
+    },
+    {
+      "key": "t_a6de36343f10991c56eb",
+      "source": "21.6.2 Static Solution",
+      "translation": "21.6.2 静态解"
+    },
+    {
+      "key": "t_aa45583df1f58eee6db6",
+      "source": "Snippet 21.6 computes the performance of the trajectory that results from local (static) optima.",
+      "translation": "代码清单 21.6 计算由局部静态最优解构成的交易轨迹表现。"
+    },
+    {
+      "key": "t_03477f88ff6d20b2e7c7",
+      "source": "Snippet 21.6: Compute and Evaluate the Static Solution",
+      "translation": "代码清单 21.6：计算并评估静态解"
+    },
+    {
+      "key": "t_875c365c8dce1514a859",
+      "source": "21.6.3 Dynamic Solution",
+      "translation": "21.6.3 动态解"
+    },
+    {
+      "key": "t_5bd134b4f3ff08512605",
+      "source": "Snippet 21.7 computes the performance associated with the globally dynamic optimal trajectory, applying the functions explained throughout the chapter.",
+      "translation": "代码清单 21.7 使用本章介绍的函数，计算全局动态最优轨迹对应的表现。"
+    },
+    {
+      "key": "t_8ce070d15d612adb442b",
+      "source": "Snippet 21.7: Compute and Evaluate the Dynamic Solution",
+      "translation": "代码清单 21.7：计算并评估动态解"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_38074aa5c026df717a1f",
+      "source": "Previous: Multiprocessing and Vectorization",
+      "translation": "上一章：多进程与向量化"
+    },
+    {
+      "key": "t_15722e6ecded0799fdf1",
+      "source": "Next: High-Performance Computational Intelligence and Forecasting Technologies",
+      "translation": "下一章：高性能计算智能与预测技术"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    }
+  ]
+}

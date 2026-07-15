@@ -167,6 +167,12 @@ def main() -> int:
             "refreshSelectionNoteHighlights",
             "applySelectionNoteHighlight",
             "openDialogForStoredNote",
+            "highlighted: isZh",
+            "selectionNoteRecord",
+            "pendingSelectionData",
+            "flushPendingSelectionNoteSave",
+            "SELECTION_DIALOG_OPEN_EVENT",
+            "announceSelectionDialogOpen",
             'button.className = "codex-selection-button selection-note-button"',
             'panel.className = "codex-selection-dialog selection-note-dialog"',
             'note.className = "codex-selection-question selection-note-textarea"',
@@ -177,6 +183,8 @@ def main() -> int:
         for disabled in ('DOMContentLoaded", installReaderNotes', "installReaderNotes();"):
             if disabled in js:
                 failures.append(f"assets/afml-book.js: chapter-wide notes should not auto-install `{disabled}`")
+        if "if (!dialog.panel.hidden) return;" in js:
+            failures.append("assets/afml-book.js: selection buttons should still refresh while dialogs are open")
         for expected in (
             "installCodexSelectionPrompt",
             "codex://new?",
