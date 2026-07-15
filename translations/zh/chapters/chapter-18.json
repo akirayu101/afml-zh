@@ -1,0 +1,1356 @@
+{
+  "chapter": "chapter-18",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_b09a53d7aaf4b01ade1f",
+      "source": "Entropy Features | Advances in Financial Machine Learning",
+      "translation": "熵特征｜金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_d0237e676a1fb137a4a6",
+      "source": "Part 4: Useful Financial Features",
+      "translation": "第四部分：实用金融特征"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_071c6b3b647e9153e276",
+      "source": "Entropy Features",
+      "translation": "熵特征"
+    },
+    {
+      "key": "t_16a7096edb421ee96c6f",
+      "source": "18.1 Motivation",
+      "translation": "18.1 动机"
+    },
+    {
+      "key": "t_2373bbe52def57a61325",
+      "source": "Price series convey information about demand and supply forces. In perfect markets, prices are unpredictable, because each observation transmits everything that is known about a product or service. When markets are not perfect, prices are formed with partial information, and as some agents know more than others, they can exploit that informational asymmetry. It would be helpful to estimate the informational content of price series, and form features on which ML algorithms can learn the likely outcomes. For example, the ML algorithm may find that momentum bets are more profitable when prices carry little information, and that mean-reversion bets are more profitable when prices carry a lot of information. In this chapter, we will explore ways to determine the amount of information contained in a price series.",
+      "translation": "价格序列反映了供需双方的力量。在完全市场中，价格不可预测，因为每个新观测都包含了当时关于该产品或服务的全部已知信息。市场不完全时，价格只能根据部分信息形成；一些参与者掌握的信息多于另一些参与者，就能利用这种信息不对称获利。因此，如果能估计价格序列的信息含量，并据此构造特征，机器学习算法就可以学习不同情形下最可能出现的结果。例如，算法可能发现：价格所含信息较少时，动量交易更有利可图；信息较多时，均值回归交易更有利可图。本章将介绍如何衡量价格序列中包含的信息量。"
+    },
+    {
+      "key": "t_ef85e3cc7b2db2fb70f5",
+      "source": "18.2 Shannon’s Entropy",
+      "translation": "18.2 Shannon 熵"
+    },
+    {
+      "key": "t_48c8a1c29e75eaea7dca",
+      "source": "In this section we will review a few concepts from information theory that will be useful in the remainder of the chapter. The reader can find a complete exposition in MacKay",
+      "translation": "本节回顾几个信息论概念，后文会反复用到。完整介绍可参见 MacKay"
+    },
+    {
+      "key": "t_db341c96ca50018b9a21",
+      "source": ". The father of information theory, Claude Shannon, defined entropy as the average amount of information (over long messages) produced by a stationary source of data. It is the smallest number of bits per character required to describe the message in a uniquely decodable way. Mathematically, Shannon",
+      "translation": "。信息论之父 Claude Shannon 把熵定义为：平稳数据源在长消息中产生的平均信息量。换一种说法，它是以唯一可解码方式描述一条消息时，每个字符至少需要的比特数。从数学上说，Shannon"
+    },
+    {
+      "key": "t_b2ead375c2377e6002b0",
+      "source": "defined the entropy of a discrete random variable",
+      "translation": "把离散随机变量"
+    },
+    {
+      "key": "t_043f45cf03fd125f1ca7",
+      "source": "with possible values",
+      "translation": "的熵定义如下。该变量的可能取值为"
+    },
+    {
+      "key": "t_f4bf9f7fcbedaba0392f",
+      "source": "as",
+      "translation": "，熵为"
+    },
+    {
+      "key": "t_0695b563acde461fc2f8",
+      "source": "with",
+      "translation": "相应地，有"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_4d8b96bf978a0bfd03d3",
+      "source": "is the probability of",
+      "translation": "表示下列结果出现的概率："
+    },
+    {
+      "key": "t_9d5ac1df1d771e98cbde",
+      "source": "for all",
+      "translation": "，对任意"
+    },
+    {
+      "key": "t_fa8fc1769d36b0c1526c",
+      "source": "; and",
+      "translation": "均成立；"
+    },
+    {
+      "key": "t_797f3050fd288af65eac",
+      "source": "is the size of the set",
+      "translation": "是集合"
+    },
+    {
+      "key": "t_cb24b5217f64078fdf0f",
+      "source": ". This can be interpreted as the probability weighted average of informational content in",
+      "translation": "的大小。也可以把它理解为"
+    },
+    {
+      "key": "t_36c4f88063e476710308",
+      "source": ", where the bits of information are measured as",
+      "translation": "中各结果信息量按概率加权后的平均值，其中信息量用"
+    },
+    {
+      "key": "t_cd4398000efe353500dd",
+      "source": ". The rationale for measuring information this way comes from the observation that low-probability outcomes reveal more information than high-probability outcomes. In other words, we learn when something unexpected happens. Similarly, redundancy is defined as",
+      "translation": "比特度量。之所以这样度量，是因为低概率结果比高概率结果带来的信息更多。也就是说，真正让我们获得新信息的，是意外事件。类似地，冗余度定义为"
+    },
+    {
+      "key": "t_537fda72c9e56862c821",
+      "source": ". Kolmogorov",
+      "translation": "。Kolmogorov"
+    },
+    {
+      "key": "t_a5fb033238dd7473cb11",
+      "source": "formalized the connection between redundancy and complexity of a Markov information source. The mutual information between two variables is defined as the Kullback-Leibler divergence from the joint probability density to the product of the marginal probability densities.",
+      "translation": "把冗余度与马尔可夫信息源的复杂度正式联系起来。两个变量的互信息，定义为联合概率密度相对于两个边缘概率密度乘积的 Kullback-Leibler 散度。"
+    },
+    {
+      "key": "t_f76c4ece0597d57ae7a6",
+      "source": "The mutual information (MI) is always non-negative, symmetric, and equals zero if and only if X and Y are independent. For normally distributed variables, the mutual information is closely related to the familiar Pearson correlation,",
+      "translation": "互信息（MI）始终非负并且对称；当且仅当 X 与 Y 独立时，互信息为零。对于服从正态分布的变量，互信息与熟悉的 Pearson 相关系数密切相关："
+    },
+    {
+      "key": "t_cebf1172f4bd79675b1b",
+      "source": "Therefore, mutual information is a natural measure of the association between variables, regardless of whether they are linear or nonlinear in nature (Hausser and Strimmer",
+      "translation": "因此，无论变量之间是线性关系还是非线性关系，互信息都是衡量关联程度的自然指标（Hausser 和 Strimmer"
+    },
+    {
+      "key": "t_1e1636c1e693f48d92ee",
+      "source": "). The normalized variation of information is a metric derived from mutual information. For several entropy estimators, see:",
+      "translation": "）。归一化信息变差是由互信息推导出的一个度量。其他熵估计量参见："
+    },
+    {
+      "key": "t_78500579bcf83179c454",
+      "source": "In R:",
+      "translation": "R 语言："
+    },
+    {
+      "key": "t_1b7af4d67328a6f63e7b",
+      "source": "In Python:",
+      "translation": "Python："
+    },
+    {
+      "key": "t_108a0a007b49ba5fd54e",
+      "source": "18.3 The Plug-In (Or Maximum Likelihood) Estimator",
+      "translation": "18.3 代入式（或最大似然）估计量"
+    },
+    {
+      "key": "t_6e253f472e29815e36e1",
+      "source": "In this section we will follow the exposition of entropy's maximum likelihood estimator in Gao et al.",
+      "translation": "本节沿用 Gao 等人"
+    },
+    {
+      "key": "t_568677c7baec9b4b18d7",
+      "source": ". The nomenclature may seem a bit peculiar at first (no pun intended), but once you become familiar with it you will find it convenient. Given a data sequence",
+      "translation": "对熵的最大似然估计量所作的说明。这套术语一开始可能显得有些特别，但熟悉之后会发现很方便。给定数据序列"
+    },
+    {
+      "key": "t_26116683ea7c92ddac83",
+      "source": ", comprising the string of values starting in position 1 and ending in position",
+      "translation": "，它是从位置 1 开始，到位置"
+    },
+    {
+      "key": "t_a295a43f822fe7250f39",
+      "source": ", we can form a dictionary of all words of length",
+      "translation": "结束的一串取值。我们可以建立该序列中所有长度为"
+    },
+    {
+      "key": "t_ce7b9b77d3d89a8f992b",
+      "source": "in that sequence,",
+      "translation": "的词所组成的词典"
+    },
+    {
+      "key": "t_583b917a1dda85d3e1ab",
+      "source": ". Consider an arbitrary word",
+      "translation": "。任取一个词"
+    },
+    {
+      "key": "t_d0bc09198f4c6d2b9267",
+      "source": "of length",
+      "translation": "，其长度为"
+    },
+    {
+      "key": "t_b8c9a244b8a304700c71",
+      "source": ". We denote",
+      "translation": "。用"
+    },
+    {
+      "key": "t_43c1701c9347c13756f7",
+      "source": "the empirical probability of the word",
+      "translation": "表示词"
+    },
+    {
+      "key": "t_582967534d0f909d196b",
+      "source": "in",
+      "translation": "在"
+    },
+    {
+      "key": "t_f0a3baea7d7fdafc44f9",
+      "source": ", which means that",
+      "translation": "中的经验概率，也就是说，"
+    },
+    {
+      "key": "t_78603594be6f2fee54ed",
+      "source": "is the frequency with which",
+      "translation": "等于词"
+    },
+    {
+      "key": "t_9fd5a7ff01780b3fa7f4",
+      "source": "appears in",
+      "translation": "在下列序列中的出现频率："
+    },
+    {
+      "key": "t_d03774dfcac76038f21d",
+      "source": "Assuming that the data is generated by a stationary and ergodic process, then the law of large numbers guarantees that, for a fixed",
+      "translation": "假设数据由平稳遍历过程生成，那么大数定律保证：固定"
+    },
+    {
+      "key": "t_a79e583c1a2b28f6f806",
+      "source": "and large",
+      "translation": "并令"
+    },
+    {
+      "key": "t_bb5de52a11b2d0f5e2ba",
+      "source": ", the empirical distribution",
+      "translation": "足够大时，经验分布"
+    },
+    {
+      "key": "t_97541ad21d6c6d62a9af",
+      "source": "will be close to the true distribution",
+      "translation": "会接近真实分布"
+    },
+    {
+      "key": "t_a6af4da1bffc0115b4f6",
+      "source": ". Under these circumstances, a natural estimator for the entropy rate (i.e., average entropy per bit) is",
+      "translation": "。在这些条件下，一个自然的熵率估计量，也就是平均每比特熵，可以写为"
+    },
+    {
+      "key": "t_c2bc5cdad346be60d929",
+      "source": "Since the empirical distribution is also the maximum likelihood estimate of the true distribution, this is also often referred to as the maximum likelihood entropy estimator. The value",
+      "translation": "由于经验分布同时也是真实分布的最大似然估计，因此该方法通常也称为最大似然熵估计量。取值"
+    },
+    {
+      "key": "t_a915c6ab5dea21dd4b84",
+      "source": "should be large enough for",
+      "translation": "应足够大，使"
+    },
+    {
+      "key": "t_607e51927755ee0fde10",
+      "source": "to be acceptably close to the true entropy",
+      "translation": "与真实熵"
+    },
+    {
+      "key": "t_4076786e55716e248df9",
+      "source": ". The value of",
+      "translation": "足够接近。取值"
+    },
+    {
+      "key": "t_c73a24609c8c314fc859",
+      "source": "needs to be much larger than",
+      "translation": "还应远大于"
+    },
+    {
+      "key": "t_6995829adb7d78570536",
+      "source": ", so that the empirical distribution of order",
+      "translation": "，这样"
+    },
+    {
+      "key": "t_1bfda713d2b7651046ee",
+      "source": "is close to the true distribution. Snippet 18.1 implements the plug-in entropy estimator.",
+      "translation": "阶经验分布才会接近真实分布。代码清单 18.1 实现了代入式熵估计量。"
+    },
+    {
+      "key": "t_2583ce38266cc956347c",
+      "source": "Snippet 18.1: Plug-in Entropy Estimator",
+      "translation": "代码清单 18.1：代入式熵估计量"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_7a1bac233cfc45acfab4",
+      "source": "18.4 Lempel-Ziv Estimators",
+      "translation": "18.4 Lempel-Ziv 估计量"
+    },
+    {
+      "key": "t_acee438be4ffdfe94ec0",
+      "source": "Entropy can be interpreted as a measure of complexity. A complex sequence contains more information than a regular (predictable) sequence. The Lempel-Ziv (LZ) algorithm efficiently decomposes a message into non-redundant substrings (Ziv and Lempel",
+      "translation": "熵可以理解为复杂度的度量。复杂序列比规律、可预测的序列包含更多信息。Lempel-Ziv（LZ）算法能高效地把消息拆成不重复的子串（Ziv 和 Lempel"
+    },
+    {
+      "key": "t_b05aa17328bc89adfb57",
+      "source": "). We can estimate the compression rate of a message as a function of the number of items in a Lempel-Ziv dictionary relative to the length of the message. The intuition here is that complex messages have high entropy, which will require large dictionaries relative to the length of the string to be transmitted. Snippet 18.2 shows an implementation of the LZ compression algorithm.",
+      "translation": "）。可以根据 Lempel-Ziv 词典中的元素数量与消息长度之比，估计消息的压缩率。直观上，复杂消息熵较高；要传输同样长度的字符串，就需要相对更大的词典。代码清单 18.2 给出了 LZ 压缩算法的实现。"
+    },
+    {
+      "key": "t_a07eddd9c82b9a3f561f",
+      "source": "Snippet 18.2: A Library Built Using the LZ Algorithm",
+      "translation": "代码清单 18.2：使用 LZ 算法构建词典"
+    },
+    {
+      "key": "t_333ac1cd11c3272ef31c",
+      "source": "Kontoyiannis",
+      "translation": "Kontoyiannis"
+    },
+    {
+      "key": "t_aaa6e224692b89f553fb",
+      "source": "attempts to make a more efficient use of the information available in a message. What follows is a faithful summary of the exposition in Gao et al.",
+      "translation": "试图更充分地利用消息中已有的信息。下面忠实概括 Gao 等人"
+    },
+    {
+      "key": "t_4d8a6287547c38fc4388",
+      "source": ". We will reproduce the steps in that paper, while complementing them with code snippets that implement their ideas. Let us define",
+      "translation": "的说明：我们会重现论文中的步骤，并补充实现这些思路的代码。定义"
+    },
+    {
+      "key": "t_8cdc366c7cf84bac1830",
+      "source": "as 1 plus the length of the longest match found in the",
+      "translation": "等于此前"
+    },
+    {
+      "key": "t_167189fae0a913908aa3",
+      "source": "bits prior to",
+      "translation": "个比特中能够找到的最长匹配长度再加 1；匹配位置为"
+    },
+    {
+      "key": "t_a38f521877e53e6c2563",
+      "source": "Snippet 18.3 implements the algorithm that determines the length of the longest match. A few notes worth mentioning:",
+      "translation": "代码清单 18.3 实现了寻找最长匹配长度的算法。这里有几点需要注意："
+    },
+    {
+      "key": "t_b4215363e52bd9194189",
+      "source": "The value",
+      "translation": "对于滑动窗口，"
+    },
+    {
+      "key": "t_beb48bc51dddaa218763",
+      "source": "is constant for a sliding window, and",
+      "translation": "保持不变；对于扩展窗口，"
+    },
+    {
+      "key": "t_dccf3049d11cf6f955d6",
+      "source": "for an expanding window.",
+      "translation": "则会变化。"
+    },
+    {
+      "key": "t_f035532aaeffefa2090a",
+      "source": "Computing",
+      "translation": "计算"
+    },
+    {
+      "key": "t_ef60dc74d985e45a619f",
+      "source": "requires data",
+      "translation": "需要使用数据"
+    },
+    {
+      "key": "t_30f98c3165647bebf55a",
+      "source": ". In other words, index",
+      "translation": "。换句话说，索引"
+    },
+    {
+      "key": "t_e63a3bb6889726ebc7b0",
+      "source": "must be at the center of the window. This is important in order to guarantee that both matching strings are of the same length. If they are not of the same length,",
+      "translation": "必须位于窗口中央。这样才能保证参与匹配的两个字符串长度相同。如果长度不同，"
+    },
+    {
+      "key": "t_39d1bcb863d06ce4b5df",
+      "source": "will have a limited range and its maximum will be underestimated.",
+      "translation": "的取值范围会受到限制，最大值也会被低估。"
+    },
+    {
+      "key": "t_e5a0adc677dad62b1523",
+      "source": "Some overlap between the two substrings is allowed, although obviously both cannot start at",
+      "translation": "两个子串可以有一部分重叠，但二者显然不能都从同一位置开始，即"
+    },
+    {
+      "key": "t_70f02590424a3c1f63dd",
+      "source": "Snippet 18.3: Function That Computes the Length of the Longest Match",
+      "translation": "代码清单 18.3：计算最长匹配长度的函数"
+    },
+    {
+      "key": "t_b66d6314cc6738233522",
+      "source": "Ornstein and Weiss [1993] formally established that",
+      "translation": "Ornstein 和 Weiss [1993] 严格证明了"
+    },
+    {
+      "key": "t_876a97bdd70a79d11601",
+      "source": "Kontoyiannis uses this result to estimate Shannon's entropy rate. He estimates the average of",
+      "translation": "Kontoyiannis 利用该结果估计 Shannon 熵率。他先计算"
+    },
+    {
+      "key": "t_3b3d304764aa47aeda49",
+      "source": ", and uses the reciprocal of that average to estimate",
+      "translation": "的平均值，再用该平均值的倒数估计"
+    },
+    {
+      "key": "t_b5f582f1d8c290fea674",
+      "source": ". The general intuition is, as we increase the available history, we expect that messages with high entropy will produce relatively shorter non-redundant substrings. In contrast, messages with low entropy will produce relatively longer non-redundant substrings as we parse through the message.",
+      "translation": "。直观上，随着可用历史增加，高熵消息产生的不重复子串会相对较短；低熵消息则会在解析过程中产生相对较长的不重复子串。"
+    },
+    {
+      "key": "t_51f38e3c81dd7eaaac46",
+      "source": "Given a data realization",
+      "translation": "给定一段数据实现"
+    },
+    {
+      "key": "t_3929aae51f977b6dcd75",
+      "source": ", a window length",
+      "translation": "、窗口长度"
+    },
+    {
+      "key": "t_7f1890639790585913b7",
+      "source": ", and a number of matches",
+      "translation": "和匹配次数"
+    },
+    {
+      "key": "t_ae80d02ec9509f41c740",
+      "source": ", the sliding-window LZ estimator",
+      "translation": "，滑动窗口 LZ 估计量"
+    },
+    {
+      "key": "t_d75c33c2567222d89e3c",
+      "source": "is defined by",
+      "translation": "定义为"
+    },
+    {
+      "key": "t_18087abe9bd61765da01",
+      "source": "Similarly, the increasing-window LZ estimator",
+      "translation": "类似地，扩展窗口 LZ 估计量"
+    },
+    {
+      "key": "t_feb00834930687c671a8",
+      "source": "The window size",
+      "translation": "窗口大小"
+    },
+    {
+      "key": "t_d5059f0a319fb7bdbaf7",
+      "source": "is constant when computing",
+      "translation": "保持不变，并用于计算"
+    },
+    {
+      "key": "t_1ab38411881b9b22a3fe",
+      "source": ", thus",
+      "translation": "；相应的匹配长度记作"
+    },
+    {
+      "key": "t_4a2b944e26436215d421",
+      "source": ". However, when computing",
+      "translation": "。但在计算"
+    },
+    {
+      "key": "t_91dbf4079c3bdb1d3cce",
+      "source": ", the window size increases with",
+      "translation": "时，窗口大小会取当前索引值"
+    },
+    {
+      "key": "t_5dc7680cacec826b738a",
+      "source": ", with",
+      "translation": "，且"
+    },
+    {
+      "key": "t_1147658fa5d7b90199a7",
+      "source": ". In this expanding-window case the length of the message",
+      "translation": "。在这种扩展窗口情形下，消息长度"
+    },
+    {
+      "key": "t_3f19ad6d54ea6a2a7591",
+      "source": "should be an even number to ensure that all bits are parsed (recall that",
+      "translation": "应为偶数，才能保证所有比特都被解析。请记住，"
+    },
+    {
+      "key": "t_348415f9d4e298365d6f",
+      "source": "is at the center, so for an odd-length message the last bit would not be read).",
+      "translation": "位于窗口中央，所以消息长度为奇数时，最后一个比特不会被读取。"
+    },
+    {
+      "key": "t_4a598a727b70ef59d7d2",
+      "source": "The above expressions have been derived under the assumptions of stationarity, ergodicity, finite-valued observations, and the Doeblin condition. Intuitively, this condition requires that, after a finite number of steps",
+      "translation": "上述表达式是在平稳、遍历、观测取值有限以及满足 Doeblin 条件的假设下推导的。直观地说，该条件要求：经过有限步"
+    },
+    {
+      "key": "t_1f8b41e57328567384d9",
+      "source": ", no matter what has occurred before, anything can happen with positive probability. It turns out that this Doeblin condition can be avoided altogether if we consider a modified version of the above estimators:",
+      "translation": "之后，无论此前发生过什么，任何结果都仍有正概率发生。实际上，只要采用上述估计量的修正版，就可以完全去掉 Doeblin 条件："
+    },
+    {
+      "key": "t_8a0d9811a121bc3ef656",
+      "source": "One practical question when estimating",
+      "translation": "估计"
+    },
+    {
+      "key": "t_d7686e649421bcbf6755",
+      "source": "is how to determine the window size",
+      "translation": "时，一个实际问题是如何确定窗口大小"
+    },
+    {
+      "key": "t_f39c40e3643ba40b9104",
+      "source": ". Gao et al.",
+      "translation": "。Gao 等人"
+    },
+    {
+      "key": "t_d45a4e73e60042cade09",
+      "source": "argue that",
+      "translation": "认为，"
+    },
+    {
+      "key": "t_2d63b78b02d1afaaeda0",
+      "source": "should be approximately equal to the message length. Considering that the bias of",
+      "translation": "应与消息长度大致相等。由于"
+    },
+    {
+      "key": "t_fb1076c0abdfe9c6b2b1",
+      "source": "is of order",
+      "translation": "的偏差阶数为"
+    },
+    {
+      "key": "t_74f2a3ddb41b37d0a7d9",
+      "source": "and the variance of",
+      "translation": "，而"
+    },
+    {
+      "key": "t_baa7283703155b92589f",
+      "source": "is order",
+      "translation": "的方差阶数为"
+    },
+    {
+      "key": "t_c6b14958ed0784b9ffa6",
+      "source": ", the bias/variance trade-off is balanced at around",
+      "translation": "，偏差与方差大约在"
+    },
+    {
+      "key": "t_8acf46381ae3bbfddf3c",
+      "source": ". That is,",
+      "translation": "处达到平衡。也就是说，"
+    },
+    {
+      "key": "t_7a98801738117dbeecee",
+      "source": "could be chosen such that",
+      "translation": "可以选择为满足"
+    },
+    {
+      "key": "t_25e04249d876266fea58",
+      "source": ". For example, for",
+      "translation": "的值。例如，当"
+    },
+    {
+      "key": "t_e8a537767497190377fb",
+      "source": ", a balanced bias/variance window size would be",
+      "translation": "时，平衡偏差与方差的窗口大小为"
+    },
+    {
+      "key": "t_79b30d5ef7ea599a9b13",
+      "source": ", in which case",
+      "translation": "，此时"
+    },
+    {
+      "key": "t_d10963ff43509b2d3a81",
+      "source": ". Kontoyiannis",
+      "translation": "。Kontoyiannis"
+    },
+    {
+      "key": "t_73722a2f59b066dfef6c",
+      "source": "proved that",
+      "translation": "证明，"
+    },
+    {
+      "key": "t_f40142435bb174231448",
+      "source": "converges to Shannon's entropy rate with probability 1 as",
+      "translation": "会随着"
+    },
+    {
+      "key": "t_1dc6f4140f4a0c3fd94a",
+      "source": "approaches infinity. Snippet 18.4 implements the ideas discussed in Gao et al.",
+      "translation": "趋于无穷而以概率 1 收敛到 Shannon 熵率。代码清单 18.4 实现了 Gao 等人"
+    },
+    {
+      "key": "t_f9afcedde78302d0b420",
+      "source": ", which improve on Kontoyiannis",
+      "translation": "讨论的思路；它在 Kontoyiannis"
+    },
+    {
+      "key": "t_665568bbe2c3a33e7175",
+      "source": "by looking for the maximum redundancy between two substrings of the same size.",
+      "translation": "方法的基础上，通过寻找两个等长子串之间的最大重复部分来改进估计。"
+    },
+    {
+      "key": "t_2a85e7adbdb169a0f5c1",
+      "source": "Snippet 18.4: Implementation of Algorithms Discussed in Gao Et Al. [2008]",
+      "translation": "代码清单 18.4：Gao 等人 [2008] 所讨论算法的实现"
+    },
+    {
+      "key": "t_bb886ce024c9a2a354b5",
+      "source": "One caveat of this method is that entropy rate is defined in the limit. In the words of Kontoyiannis, “we fix a large integer",
+      "translation": "这种方法的第一个注意事项是，熵率是在极限意义下定义的。借用 Kontoyiannis 的说法：“我们固定一个较大的整数"
+    },
+    {
+      "key": "t_eef2d44939bfe7156171",
+      "source": "as the size of our database.” The theorems used by Kontoyiannis' paper prove asymptotic convergence; however, nowhere is a monotonicity property claimed. When a message is short, a solution may be to repeat the same message multiple times.",
+      "translation": "作为数据库大小。”Kontoyiannis 论文使用的定理证明了渐近收敛，却没有声称估计值具有单调性。消息很短时，一种处理方法是把同一条消息重复多次。"
+    },
+    {
+      "key": "t_961a81c6faeecfa5390d",
+      "source": "A second caveat is that, because the window for matching must be symmetric (same length for the dictionary as for the substring being matched), the last bit is only considered for matching if the message's length corresponds to an even number. One solution is to remove the first bit of a message with odd length.",
+      "translation": "第二个注意事项是，匹配窗口必须对称，也就是词典与待匹配子串长度相同。因此，只有消息长度为偶数时，最后一个比特才会参与匹配。对奇数长度的消息，可以删除第一个比特。"
+    },
+    {
+      "key": "t_ff69d2c9ae03ddca0787",
+      "source": "A third caveat is that some final bits will be dismissed when preceded by irregular sequences. This is also a consequence of the symmetric matching window. For example, the entropy rate for “10000111” equals the entropy rate for “10000110,” meaning that the final bit is irrelevant due to the unmatchable “11” in the sixth and seventh bit. When the end of the message is particularly relevant, a good solution may be to analyze the entropy of the reversed message. This not only ensures that the final bits (i.e., the initial ones after the reversing) are used, but actually they will be used to potentially match every bit. Following the previous example, the entropy rate of “11100001” is 0.96, while the entropy rate for “01100001” is 0.84.",
+      "translation": "第三个注意事项是，如果前面出现不规则序列，末尾若干比特可能会被忽略，这同样是对称匹配窗口造成的。例如，“10000111”和“10000110”的熵率相同，说明第 6、7 位无法匹配的“11”使最后一位不起作用。如果消息末尾尤其重要，可以分析反转后的消息。这样不仅保证原来的末尾比特，也就是反转后的开头比特会被使用，而且它们还有机会参与每一个后续比特的匹配。沿用前例，“11100001”的熵率为 0.96，而“01100001”的熵率为 0.84。"
+    },
+    {
+      "key": "t_e7a977d1d2dab42ac2ce",
+      "source": "18.5 Encoding Schemes",
+      "translation": "18.5 编码方案"
+    },
+    {
+      "key": "t_2ad5c30b1c9eaf6d551a",
+      "source": "Estimating entropy requires the encoding of a message. In this section we will review a few encoding schemes used in the literature, which are based on returns. Although not discussed in what follows, it is advisable to encode information from fractionally (rather than integer) differentiated series (Chapter 4), as they still contain some memory.",
+      "translation": "估计熵之前必须先给消息编码。本节回顾文献中几种基于收益率的编码方案。虽然下文不展开讨论，但更建议对分数阶差分序列而不是整数阶差分序列中的信息进行编码，因为前者仍保留一部分记忆，见第 4 章。"
+    },
+    {
+      "key": "t_812eb1bb10dfbc967419",
+      "source": "18.5.1 Binary Encoding",
+      "translation": "18.5.1 二进制编码"
+    },
+    {
+      "key": "t_028a39a46785d358d17a",
+      "source": "Entropy rate estimation requires the discretization of a continuous variable, so that each value can be assigned a code from a finite alphabet. For example, a stream of returns",
+      "translation": "估计熵率需要把连续变量离散化，使每个取值都能映射到有限字母表中的一个代码。例如，收益率流"
+    },
+    {
+      "key": "t_1169466cff9a750fa7a6",
+      "source": "can be encoded according to the sign, 1 for",
+      "translation": "可以按符号编码：当"
+    },
+    {
+      "key": "t_905a1392856a4dcc9c9b",
+      "source": ", 0 for",
+      "translation": "时记为 1，当"
+    },
+    {
+      "key": "t_7272a40ce2f5f24fd838",
+      "source": ", removing cases where",
+      "translation": "时记为 0；等于零的观测则删除，即"
+    },
+    {
+      "key": "t_d3da869c23fd24aa7a0d",
+      "source": ". Binary encoding arises naturally in the case of returns series sampled from price bars (i.e., bars that contain prices fluctuating between two symmetric horizontal barriers, centered around the start price), because",
+      "translation": "。如果收益率序列是从价格条采样得到的，二进制编码会自然出现。价格条中的价格在两条以起始价为中心、上下对称的水平障碍之间波动，因此"
+    },
+    {
+      "key": "t_96a1ab5f207e3e31647b",
+      "source": "is approximately constant. When",
+      "translation": "近似为常数。当"
+    },
+    {
+      "key": "t_168c42613715ee497a81",
+      "source": "can adopt a wide range of outcomes, binary encoding discards potentially useful information. That is particularly the case when working with intraday time bars, which are affected by the heteroscedasticity that results from the inhomogeneous nature of tick data. One way to partially address this heteroscedasticity is to sample prices according to a subordinated stochastic process. Examples of that are trade bars and volume bars, which contain a fixed number of trades or trades for a fixed amount of volume (see Chapter 2). By operating in this non-chronological, market-driven clock, we sample more frequently during highly active periods, and less frequently during periods of less activity, hence regularizing the distribution of",
+      "translation": "可能取很宽的范围时，二进制编码会丢弃可能有用的信息。日内时间条尤其如此，因为逐笔数据的非均匀性会带来异方差。一种部分缓解方法，是按从属随机过程对价格采样。例如交易笔数条和成交量条：前者包含固定笔数的交易，后者包含固定成交量的交易，见第 2 章。使用这种非自然时间、由市场活动驱动的时钟后，活跃期采样更频繁，清淡期采样更少，从而让"
+    },
+    {
+      "key": "t_ce35a7202ff9f8c0b083",
+      "source": "and reducing the need for a large alphabet.",
+      "translation": "的分布更规整，并降低对大型字母表的需求。"
+    },
+    {
+      "key": "t_14a1b09b39c78aedcb84",
+      "source": "18.5.2 Quantile Encoding",
+      "translation": "18.5.2 分位数编码"
+    },
+    {
+      "key": "t_227e63c86a11462e9fb0",
+      "source": "Unless price bars are used, it is likely that more than two codes will be needed. One approach consists in assigning a code to each",
+      "translation": "除非使用价格条，否则通常需要两个以上的代码。一种做法是根据每个"
+    },
+    {
+      "key": "t_023a91b0d25a91c40c22",
+      "source": "according to the quantile it belongs to. The quantile boundaries are determined using an in-sample period (training set). There will be the same number of observations assigned to each letter for the overall in-sample, and close to the same number of observations per letter out-of-sample. When using the method, some codes span a greater fraction of",
+      "translation": "所属的分位数组为其分配代码。分位数边界由样本内时期，即训练集确定。整个样本内每个字母分到的观测数相同，样本外每个字母的观测数也会大致相同。使用这种方法时，有些代码覆盖的"
+    },
+    {
+      "key": "t_d363729307707deb5d99",
+      "source": "'s range than others. This uniform (in-sample) or close to uniform (out-of-sample) distribution of codes tends to increase entropy readings on average.",
+      "translation": "取值范围比其他代码更宽。代码在样本内均匀、样本外近似均匀的分布，通常会抬高平均熵估计。"
+    },
+    {
+      "key": "t_8200da376ef1d78dcf9a",
+      "source": "18.5.3 Sigma Encoding",
+      "translation": "18.5.3 Sigma 编码"
+    },
+    {
+      "key": "t_1c6a99a94293835a3839",
+      "source": "As an alternative approach, rather than fixing the number of codes, we could let the price stream determine the actual dictionary. Suppose we fix a discretization step,",
+      "translation": "另一种思路不是固定代码数量，而是让价格流决定实际词典。假设先固定离散化步长"
+    },
+    {
+      "key": "t_42236941a8b0512a1854",
+      "source": ". Then, we assign the value 0 to",
+      "translation": "。把取值"
+    },
+    {
+      "key": "t_51678e8cf0c8834b8152",
+      "source": ", 1 to",
+      "translation": "编码为 0，把"
+    },
+    {
+      "key": "t_2318f149f00c923c034f",
+      "source": ", and so on until every observation has been encoded with a total of",
+      "translation": "编码为 1，依此类推，直到全部观测都编码完毕。最终共有"
+    },
+    {
+      "key": "t_c2f2388c5083da2b3858",
+      "source": "codes, where",
+      "translation": "个代码，其中"
+    },
+    {
+      "key": "t_ea0e010ec67ecddec51d",
+      "source": "is the ceiling function. Unlike quantile encoding, now each code covers the same fraction of",
+      "translation": "为向上取整函数。与分位数编码不同，现在每个代码覆盖"
+    },
+    {
+      "key": "t_453e3e6e4ea6e0179cba",
+      "source": "'s range. Because codes are not uniformly distributed, entropy readings will tend to be smaller than in quantile encoding on average; however, the appearance of a rare code will cause spikes in entropy readings.",
+      "translation": "取值范围中相同比例的区间。由于代码并非均匀分布，平均熵估计往往小于分位数编码；但罕见代码一旦出现，会令熵估计突然升高。"
+    },
+    {
+      "key": "t_425031d928fbe9b5c764",
+      "source": "18.6 Entropy Of A Gaussian Process",
+      "translation": "18.6 高斯过程的熵"
+    },
+    {
+      "key": "t_94c39b5533f6b5826161",
+      "source": "The entropy of an IID Normal random process (see Norwich",
+      "translation": "独立同分布正态随机过程的熵（见 Norwich"
+    },
+    {
+      "key": "t_96324a3832f1ce969f49",
+      "source": ") can be derived as",
+      "translation": "）可推导为"
+    },
+    {
+      "key": "t_f5767ad6cdba2e1d20eb",
+      "source": "For the standard Normal,",
+      "translation": "对标准正态分布，"
+    },
+    {
+      "key": "t_19f7e779d0ee62d29120",
+      "source": ". There are at least two uses of this result. First, it allows us to benchmark the performance of an entropy estimator. We can draw samples from a standard normal distribution, and find what combination of estimator, message length, and encoding gives us an entropy estimate",
+      "translation": "。这个结果至少有两个用途。第一，它可以检验熵估计量的表现。我们可以从标准正态分布抽样，再寻找怎样的估计量、消息长度和编码组合，才能使熵估计"
+    },
+    {
+      "key": "t_7bf781c4666821aabc1b",
+      "source": "sufficiently close to the theoretically derived value",
+      "translation": "足够接近理论值"
+    },
+    {
+      "key": "t_25248eedb2244e294d3d",
+      "source": ". For example, Figure 18.1 plots the bootstrapped distributions of entropy estimates under 10, 7, 5, and 2 letter encodings, on messages of length 100, using Kontoyiannis' method. For alphabets of at least 10 letters, the algorithm in Snippet 18.4 delivers the correct answer. When alphabets are too small, information is discarded and entropy is underestimated. Second, we can use the above equation to connect entropy with volatility, by noting that",
+      "translation": "。例如，图 18.1 展示使用 Kontoyiannis 方法时，对长度为 100 的消息分别采用 10、7、5、2 个字母编码，并通过自助法得到的熵估计分布。字母表至少含 10 个字母时，代码清单 18.4 的算法能给出正确答案。字母表太小时，部分信息会被丢弃，熵也会被低估。第二，注意到"
+    },
+    {
+      "key": "t_8585b536b865964c7a6f",
+      "source": ". This gives us an entropy-implied volatility estimate, provided that returns are indeed drawn from a Normal distribution.",
+      "translation": "，便可以把熵与波动率联系起来。只要收益率确实来自正态分布，就能得到熵隐含波动率估计。"
+    },
+    {
+      "key": "t_fdcd0a93478d2f961cb7",
+      "source": "Figure 18.1: Distribution of entropy estimates under (a) 10, (b) 7, (c) 5, and (d) 2 letter encodings, on messages of length 100",
+      "translation": "图 18.1：长度为 100 的消息采用（a）10、（b）7、（c）5、（d）2 个字母编码时的熵估计分布"
+    },
+    {
+      "key": "t_c04024432cbd2cc4c7bb",
+      "source": "18.7 Entropy And The Generalized Mean",
+      "translation": "18.7 熵与广义均值"
+    },
+    {
+      "key": "t_7bfbb23a685d5f4c8338",
+      "source": "Here is an interesting way of thinking about entropy. Consider a set of real numbers",
+      "translation": "下面用一种有趣的方式理解熵。考虑一组实数"
+    },
+    {
+      "key": "t_ac3414066787da730306",
+      "source": "The generalized weighted mean of",
+      "translation": "向量"
+    },
+    {
+      "key": "t_18f53e9877db2c70bd3d",
+      "source": "with weights",
+      "translation": "在权重"
+    },
+    {
+      "key": "t_76f0edc33c670441aafa",
+      "source": "on a power",
+      "translation": "和幂指数"
+    },
+    {
+      "key": "t_5d70ca9f8736de5bb748",
+      "source": "is defined as",
+      "translation": "下的广义加权均值定义为"
+    },
+    {
+      "key": "t_ca15ebc05a3c5c134875",
+      "source": "For",
+      "translation": "当"
+    },
+    {
+      "key": "t_f706e97f20369c3cf06c",
+      "source": ", we must require that",
+      "translation": "时，必须要求"
+    },
+    {
+      "key": "t_1d017b24fb67b47c451f",
+      "source": ", for all",
+      "translation": "，对所有"
+    },
+    {
+      "key": "t_ef3ca03758cde805390b",
+      "source": ". The reason this is a generalized mean is that other means can be obtained as special cases:",
+      "translation": "都成立。它之所以叫广义均值，是因为多种常见均值都可作为其特例："
+    },
+    {
+      "key": "t_b8eb770534f229277f11",
+      "source": "Minimum:",
+      "translation": "最小值："
+    },
+    {
+      "key": "t_1fdaec0ffba01a1996ff",
+      "source": "Harmonic mean:",
+      "translation": "调和平均数："
+    },
+    {
+      "key": "t_fb54bcc7192e1126eee1",
+      "source": "Geometric mean:",
+      "translation": "几何平均数："
+    },
+    {
+      "key": "t_905d860f6745240ed544",
+      "source": "Arithmetic mean:",
+      "translation": "算术平均数："
+    },
+    {
+      "key": "t_fee15fa82136e76acbd8",
+      "source": "Weighted mean:",
+      "translation": "加权平均数："
+    },
+    {
+      "key": "t_32ba842eca8972141720",
+      "source": "Quadratic mean:",
+      "translation": "二次平均数（均方根）："
+    },
+    {
+      "key": "t_137156048622afce73e2",
+      "source": "Maximum:",
+      "translation": "最大值："
+    },
+    {
+      "key": "t_f053312a5b1acc6a7d5a",
+      "source": "In the context of information theory, an interesting special case is",
+      "translation": "在信息论语境中，一个有趣的特例是"
+    },
+    {
+      "key": "t_5b535aca40fe929b0466",
+      "source": ", hence",
+      "translation": "，于是"
+    },
+    {
+      "key": "t_4c12741f409ebdf0a73f",
+      "source": "Let us define the quantity",
+      "translation": "定义"
+    },
+    {
+      "key": "t_61776851978170534c93",
+      "source": ", for some",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_31fecff3b3bd53f39e67",
+      "source": ". Again, for",
+      "translation": "。同样，下面讨论"
+    },
+    {
+      "key": "t_7d0a20a315fab3db1286",
+      "source": ", we must have",
+      "translation": "中的情形，此时必须满足"
+    },
+    {
+      "key": "t_a0a323def95d4762ec3b",
+      "source": ". If",
+      "translation": "。设有"
+    },
+    {
+      "key": "t_10c22bcf4c768b515be4",
+      "source": "for",
+      "translation": "；条件为"
+    },
+    {
+      "key": "t_a05f7d685b3d61526a1d",
+      "source": "different indices and",
+      "translation": "，其中 k 表示取该值的不同下标数，而其他位置"
+    },
+    {
+      "key": "t_1976becad279c93b4555",
+      "source": "elsewhere, then the weight is spread evenly across",
+      "translation": "，那么权重就均匀分散在"
+    },
+    {
+      "key": "t_ca46953ad8a9022b9f08",
+      "source": "different items, and",
+      "translation": "个不同元素上，并且"
+    },
+    {
+      "key": "t_0cbac8c0d95c679cc184",
+      "source": ". In other words,",
+      "translation": "。换句话说，"
+    },
+    {
+      "key": "t_d4016ef60a7e7f9fc97b",
+      "source": "gives us the effective number or diversity of items in",
+      "translation": "给出了集合"
+    },
+    {
+      "key": "t_e48810aabda15e9f0912",
+      "source": ", according to some weighting scheme set by",
+      "translation": "中元素的有效数量，也就是多样性；对应的加权参数是"
+    },
+    {
+      "key": "t_a410fc6642f3fc9ba9df",
+      "source": "Using Jensen's inequality, we can prove that",
+      "translation": "利用 Jensen 不等式可以证明"
+    },
+    {
+      "key": "t_7131bf5c964e4363eb5e",
+      "source": "Smaller values of",
+      "translation": "较小的"
+    },
+    {
+      "key": "t_9122c9c65689a0c21afa",
+      "source": "assign a more uniform weight to elements of the partition, giving relatively more weight to less common elements, and",
+      "translation": "会给分区中的元素分配得更均匀，也就是相对提高少见元素的权重；而"
+    },
+    {
+      "key": "t_29d790750ef67327eab8",
+      "source": "is simply the total number of nonzero",
+      "translation": "就是非零分量的数量；这些分量记作"
+    },
+    {
+      "key": "t_5330d52da60886ab5ad6",
+      "source": "This shows that entropy can be interpreted as the logarithm of the effective number of items in a list",
+      "translation": "这说明，对于列表"
+    },
+    {
+      "key": "t_c5d413feac89fbd1df33",
+      "source": ". Figure 18.2 illustrates how the log effective numbers for a family of randomly generated",
+      "translation": "时，熵可以理解为其有效元素数量的对数。图 18.2 展示随机生成的一组"
+    },
+    {
+      "key": "t_98bffe372a29e67b4380",
+      "source": "arrays converge to Shannon's entropy as",
+      "translation": "数组，其有效数量的对数如何在"
+    },
+    {
+      "key": "t_41e0489119869f8eb870",
+      "source": "approaches 1.",
+      "translation": "趋近于 1 时收敛到 Shannon 熵。"
+    },
+    {
+      "key": "t_16cd9ba2da85de8a56eb",
+      "source": "Figure 18.2: Log effective numbers for a family of randomly generated p arrays",
+      "translation": "图 18.2：一组随机 p 数组的有效数量对数"
+    },
+    {
+      "key": "t_9c7ffcb0823f638c8546",
+      "source": "Notice, as well, how their behavior stabilizes as",
+      "translation": "还可以看到，随着"
+    },
+    {
+      "key": "t_394ef2bf1a57a6a574d3",
+      "source": "grows large. Intuitively, entropy measures information as the level of diversity contained in a random variable. This intuition is formalized through the notion of generalized mean. The implication is that Shannon's entropy is a special case of a diversity measure (hence its connection with volatility). We can now define and compute alternative measures of diversity, other than entropy, where",
+      "translation": "增大，这些曲线的行为逐渐稳定。直观上，熵通过随机变量所包含的多样性来衡量信息量；广义均值把这一认识正式表达出来。这意味着 Shannon 熵只是多样性度量的一个特例，因此也与波动率相关。现在我们可以定义并计算熵之外的其他多样性度量，其中"
+    },
+    {
+      "key": "t_748ef4e524cacd3b10b7",
+      "source": "18.8 A Few Financial Applications Of Entropy",
+      "translation": "18.8 熵在金融中的几个应用"
+    },
+    {
+      "key": "t_ff3e59f21279ff89494b",
+      "source": "In this section we will introduce a few applications of entropy to the modelling of financial markets.",
+      "translation": "本节介绍熵在金融市场建模中的几种应用。"
+    },
+    {
+      "key": "t_b933818e3ab9015bd1fa",
+      "source": "18.8.1 Market Efficiency",
+      "translation": "18.8.1 市场效率"
+    },
+    {
+      "key": "t_3388af5a7f18756f9831",
+      "source": "When arbitrage mechanisms exploit the complete set of opportunities, prices instantaneously reflect the full amount of available information, becoming unpredictable (i.e., a martingale), with no discernable patterns. Conversely, when arbitrage is not perfect, prices contain incomplete amounts of information, which gives rise to predictable patterns. Patterns occur when a string contains redundant information, which enables its compression. The entropy rate of a string determines its optimal compression rate. The higher the entropy, the lower the redundancy and the greater the informational content. Consequently, the entropy of a price string tells us the degree of market efficiency at a given point in time. A “decompressed” market is an efficient market, because price information is non-redundant. A “compressed” market is an inefficient market, because price information is redundant. Bubbles are formed in compressed (low entropy) markets.",
+      "translation": "如果套利机制能够利用全部机会，价格就会即时反映所有可用信息，因而不可预测，也就是成为鞅，不再留下明显模式。反过来，套利不充分时，价格只包含不完整的信息，于是会出现可预测模式。当字符串含有重复信息时就会形成模式，也因此可以被压缩。字符串的熵率决定其理论上的最优压缩率：熵越高，冗余越少，信息含量越大。因此，价格字符串在某一时点的熵，可以反映当时的市场效率。“未压缩”的市场是有效市场，因为价格信息没有冗余；“压缩”的市场则无效，因为价格信息重复。泡沫会在低熵、可压缩的市场中形成。"
+    },
+    {
+      "key": "t_fd55f65c757baff9483b",
+      "source": "18.8.2 Maximum Entropy Generation",
+      "translation": "18.8.2 最大熵生成"
+    },
+    {
+      "key": "t_0542391f1326d6b0a4fb",
+      "source": "In a series of papers, Fiedor [2014a, 2014b, 2014c] proposes to use Kontoyiannis",
+      "translation": "Fiedor [2014a, 2014b, 2014c] 在一系列论文中提出，使用 Kontoyiannis"
+    },
+    {
+      "key": "t_bb8e4533c1f185a07365",
+      "source": "to estimate the amount of entropy present in a price series. He argues that, out of the possible future outcomes, the one that maximizes entropy may be the most profitable, because it is the one that is least predictable by frequentist statistical models. It is the black swan scenario most likely to trigger stop losses, thus generating a feedback mechanism that will reinforce and exacerbate the move, resulting in runs in the signs of the returns time series.",
+      "translation": "方法估计价格序列中的熵。他认为，在各种可能的未来结果中，使熵最大化的结果可能最有利可图，因为频率学派统计模型最难预测它。这类黑天鹅情景最容易触发止损，继而形成强化并放大价格变化的反馈机制，最终使收益率符号连续朝同一方向运行。"
+    },
+    {
+      "key": "t_da388604bac2f8b977e7",
+      "source": "18.8.3 Portfolio Concentration",
+      "translation": "18.8.3 投资组合集中度"
+    },
+    {
+      "key": "t_b302c9f39ffd17742dbe",
+      "source": "Consider an",
+      "translation": "考虑一个"
+    },
+    {
+      "key": "t_d797a4fb06773632d649",
+      "source": "covariance matrix",
+      "translation": "阶收益率协方差矩阵"
+    },
+    {
+      "key": "t_c70ffe938cfd028383e6",
+      "source": ", computed on returns. First, we compute an eigenvalue decomposition of the matrix,",
+      "translation": "。第一步，对矩阵做特征值分解："
+    },
+    {
+      "key": "t_12ea337068b024d878cb",
+      "source": ". Second, we obtain the factor loadings vector as",
+      "translation": "。第二步，按下式计算因子暴露向量："
+    },
+    {
+      "key": "t_231bbffcaff64fccf9c5",
+      "source": "is the vector of allocations,",
+      "translation": "为配置权重向量。"
+    },
+    {
+      "key": "t_25f82d80a762ae3c1e59",
+      "source": "1 Alternatively, we could have worked with a vector of holdings, should the covariance matrix had been computed on price changes.",
+      "translation": "1 如果协方差矩阵基于价格变化计算，也可以使用持仓数量向量。"
+    },
+    {
+      "key": "t_8c2ab810c6953f08c22a",
+      "source": "Third, we derive the portion of risk contributed by each principal component (Bailey and López de Prado",
+      "translation": "第三步，计算每个主成分贡献的风险比例（Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_1d260636393cd57276e6",
+      "source": ") as",
+      "translation": "）："
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "其中"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "，并且"
+    },
+    {
+      "key": "t_9a09e39fcc844fba2bc6",
+      "source": ". Fourth, Meucci",
+      "translation": "。第四步，Meucci"
+    },
+    {
+      "key": "t_a7bb57ce8f28e1c5a9ea",
+      "source": "proposed the following entropy-inspired definition of portfolio concentration,",
+      "translation": "提出下面这个受熵启发的投资组合集中度定义："
+    },
+    {
+      "key": "t_5efa0a9d6e2ec165f531",
+      "source": "At first, this definition of portfolio concentration may sound striking, because",
+      "translation": "乍看之下，这个集中度定义可能令人意外，因为"
+    },
+    {
+      "key": "t_b4824021352b306d19ff",
+      "source": "is not a probability. The connection between this notion of concentration and entropy is due to the generalized mean, which we discussed in Chapter 18, Section 18.7.",
+      "translation": "并不是概率。这个集中度概念之所以与熵有关，原因在于第 18.7 节讨论的广义均值。"
+    },
+    {
+      "key": "t_3a32270feef82342528a",
+      "source": "18.8.4 Market Microstructure",
+      "translation": "18.8.4 市场微观结构"
+    },
+    {
+      "key": "t_e887e288a6da814ce229",
+      "source": "Easley et al. [1996, 1997] showed that, when the odds of good news / bad news are even, the probability of informed trading (PIN) can be derived as",
+      "translation": "Easley 等人 [1996, 1997] 证明，当利好与利空消息出现的概率相同，知情交易概率（PIN）可写为"
+    },
+    {
+      "key": "t_b23d92a12cfdae0590b3",
+      "source": "is the rate of arrival of informed traders,",
+      "translation": "表示知情交易者的到达率，"
+    },
+    {
+      "key": "t_73f1ba523b90f54c5bff",
+      "source": "is the rate of arrival of uninformed traders, and",
+      "translation": "是非知情交易者的到达率，"
+    },
+    {
+      "key": "t_49d4e32aa9012c641aaf",
+      "source": "is the probability of an informational event. PIN can be interpreted as the fraction of orders that arise from informed traders relative to the overall order flow. Within a volume bar of size",
+      "translation": "是信息事件发生的概率。PIN 可以理解为知情交易者发出的订单占全部订单流的比例。对于大小为"
+    },
+    {
+      "key": "t_c15703f38f0ccdd6ea54",
+      "source": ", we can classify ticks as buy or sell according to some algorithm, such as the tick rule or the Lee-Ready algorithm. Let",
+      "translation": "的成交量条，可以使用报价变动规则（tick rule）或 Lee-Ready 算法，把其中的逐笔成交分为买方发起和卖方发起。令"
+    },
+    {
+      "key": "t_bf2c7d3d5f36a059e0cb",
+      "source": "be the sum of the volumes from buy ticks included in volume bar",
+      "translation": "表示买方发起成交量之和；对应的成交量条编号为"
+    },
+    {
+      "key": "t_c03ae5bf25758e995043",
+      "source": "the sum of the volumes from sell ticks within volume bar",
+      "translation": "表示卖方发起成交量之和；对应的成交量条编号同样为"
+    },
+    {
+      "key": "t_0147a507ad8fd2931cfa",
+      "source": ". Easley et al. [2012a, 2012b] note that",
+      "translation": "。Easley 等人 [2012a, 2012b] 指出，"
+    },
+    {
+      "key": "t_6d2127d854b82a715cae",
+      "source": "and that the expected total volume is",
+      "translation": "，而预期总成交量为"
+    },
+    {
+      "key": "t_ddfbb62cfeafd93068c5",
+      "source": ". By using a volume clock (Easley et al.",
+      "translation": "。采用成交量时钟（Easley 等人"
+    },
+    {
+      "key": "t_602fb8034d09b8fc18a5",
+      "source": "), we can set the value of",
+      "translation": "）后，可以从外部设定"
+    },
+    {
+      "key": "t_f0ab774dcccf8429dd5c",
+      "source": "exogenously. This means that, under a volume clock, PIN reduces to",
+      "translation": "的值。这意味着在成交量时钟下，PIN 可简化为"
+    },
+    {
+      "key": "t_ae0de057522c237eac79",
+      "source": ". Note that",
+      "translation": "。注意，"
+    },
+    {
+      "key": "t_56e62ecbb3b710e5ad87",
+      "source": "represents the order flow imbalance,",
+      "translation": "表示订单流不平衡"
+    },
+    {
+      "key": "t_f00c079a7eb6efd2035d",
+      "source": ", which is a bounded real-valued variable, where",
+      "translation": "，它是有界实值变量，并满足"
+    },
+    {
+      "key": "t_5f6c05c1adecb5a9fd81",
+      "source": ". The VPIN theory thus provides a formal link between the probability of informed trading (PIN) and the persistency of order flow imbalances under a volume clock. See Chapter 19 for further details on this microstructural theory.",
+      "translation": "。因此，VPIN 理论把成交量时钟下的知情交易概率（PIN）与订单流不平衡的持续性正式联系起来。关于这套市场微观结构理论的更多内容，见第 19 章。"
+    },
+    {
+      "key": "t_c0d876c17ed3060698ea",
+      "source": "Persistent order flow imbalance is a necessary, non-sufficient condition for adverse selection. For market makers to provide liquidity to informed traders, that order flow imbalance",
+      "translation": "持续的订单流不平衡是逆向选择的必要条件，但不是充分条件。做市商向知情交易者提供流动性而遭受逆向选择，还要求该订单流不平衡"
+    },
+    {
+      "key": "t_298dc4cc46be94397d74",
+      "source": "must also have been relatively unpredictable. In other words, market makers are not adversely selected when their prediction of order flow imbalance is accurate, even if",
+      "translation": "此前相对难以预测。换句话说，即使"
+    },
+    {
+      "key": "t_d451fe47f9048961d3b0",
+      "source": ". In order to determine the probability of adverse selection, we must determine how unpredictable the order flow imbalance is. We can determine this by applying information theory.",
+      "translation": "，只要做市商准确预测了订单流不平衡，就没有遭受逆向选择。要确定逆向选择的概率，必须先衡量订单流不平衡有多难预测，而信息论可以做到这一点。"
+    },
+    {
+      "key": "t_104c0739c4c98fc0bc71",
+      "source": "Consider a long sequence of symbols. When that sequence contains few redundant patterns, it encompasses a level of complexity that makes it hard to describe and predict. Kolmogorov",
+      "translation": "考虑一长串符号。如果序列中很少出现重复模式，其复杂度就会较高，难以描述和预测。Kolmogorov"
+    },
+    {
+      "key": "t_f8707886e9573f81948b",
+      "source": "formulated this connection between redundancy and complexity. In information theory, lossless compression is the task of perfectly describing a sequence with as few bits as possible. The more redundancies a sequence contains, the greater compression rates can be achieved. Entropy characterizes the redundancy of a source, hence its Kolmogorov complexity and its predictability. We can use this connection between the redundancy of a sequence and its unpredictability (by market makers) to derive the probability of adverse selection.",
+      "translation": "把冗余度与复杂度之间的关系形式化。在信息论中，无损压缩的任务是用尽可能少的比特完整描述一条序列。序列越冗余，可达到的压缩率越高。熵刻画了信息源的冗余度，也因而刻画其 Kolmogorov 复杂度和可预测性。利用序列冗余与做市商所面对的不可预测性之间的联系，可以推导逆向选择概率。"
+    },
+    {
+      "key": "t_cff97c374bd83267e4d9",
+      "source": "Here we will discuss one particular procedure that derives the probability of adverse selection as a function of the complexity ingrained in the order flow imbalance. First, given a sequence of volume bars indexed by",
+      "translation": "下面介绍一种具体流程，用订单流不平衡中蕴含的复杂度推导逆向选择概率。第一步，给定一组索引为"
+    },
+    {
+      "key": "t_f334b080cf7bd65bbd63",
+      "source": ", each bar of size",
+      "translation": "、每条大小为"
+    },
+    {
+      "key": "t_eeba40cc717d49869544",
+      "source": ", we determine the portion of volume classified as buy,",
+      "translation": "的成交量条，计算其中被归为买方发起的成交量比例"
+    },
+    {
+      "key": "t_f68ee5020fb0b098b2e3",
+      "source": ". Second, we compute the",
+      "translation": "。第二步，计算"
+    },
+    {
+      "key": "t_edf705c80044975ec449",
+      "source": "-quantiles on",
+      "translation": "个分位点，对"
+    },
+    {
+      "key": "t_5669d08060c7e48b273b",
+      "source": "that define a set",
+      "translation": "进行划分，并由此定义集合"
+    },
+    {
+      "key": "t_28391d3bc64ec15cbb09",
+      "source": "of",
+      "translation": "；它包含"
+    },
+    {
+      "key": "t_7fb84bd93a57d6a7849d",
+      "source": "disjoint subsets,",
+      "translation": "个互不相交的子集："
+    },
+    {
+      "key": "t_a12a3fb8f239b9a5666b",
+      "source": ". Third, we produce a mapping from each",
+      "translation": "。第三步，建立从每个"
+    },
+    {
+      "key": "t_da3d8c873153ebd3819a",
+      "source": "to one of the disjoint subsets,",
+      "translation": "到这些互不相交子集之一的映射"
+    },
+    {
+      "key": "t_34a636b1650e0e80a967",
+      "source": ". Fourth, we quantize",
+      "translation": "。第四步，把"
+    },
+    {
+      "key": "t_662d89ad1810d972b259",
+      "source": "by assigning to each value",
+      "translation": "量化：对每个取值"
+    },
+    {
+      "key": "t_77ac59895c463db6835d",
+      "source": "the index of the subset",
+      "translation": "，赋予它所属子集"
+    },
+    {
+      "key": "t_4505e451e0971c9f5c64",
+      "source": "it belongs to,",
+      "translation": "的索引"
+    },
+    {
+      "key": "t_90bab6b5710eb2a2d1db",
+      "source": ". This results in a translation of the set of order imbalances",
+      "translation": "。这样就把订单流不平衡集合"
+    },
+    {
+      "key": "t_1b278c9f706bdd2ec1ae",
+      "source": "into a quantized message",
+      "translation": "转换成量化消息"
+    },
+    {
+      "key": "t_fff48027d17e055e5e8c",
+      "source": ". Fifth, we estimate the entropy",
+      "translation": "。第五步，使用 Kontoyiannis 的 Lempel-Ziv 算法估计熵"
+    },
+    {
+      "key": "t_49a819f179487bf6110d",
+      "source": "using Kontoyiannis' Lempel-Ziv algorithm. Sixth, we derive the cumulative distribution function,",
+      "translation": "。第六步，推导累积分布函数"
+    },
+    {
+      "key": "t_3a5c4158edf4adf4a625",
+      "source": ", and use the time series",
+      "translation": "，并把时间序列"
+    },
+    {
+      "key": "t_29ddb11cfd9bc556b183",
+      "source": "as a feature to predict adverse selection.",
+      "translation": "作为预测逆向选择的特征。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_94bcceecb048ff77aba0",
+      "source": "Previous: Structural Breaks",
+      "translation": "上一章：结构突变"
+    },
+    {
+      "key": "t_a301af4f27404fe333b2",
+      "source": "Next: Microstructural Features",
+      "translation": "下一章：市场微观结构特征"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_e66a594b0c114c200f02",
+      "source": "Figure 18.1: Distribution of entropy estimates under (a) 10, (b) 7, (c) 5, and (d) 2 letter encodings, on messages of length 100 panels (a) and (b)",
+      "translation": "图 18.1：长度为 100 的消息采用（a）10、（b）7、（c）5、（d）2 个字母编码时的熵估计分布，面板（a）和（b）"
+    },
+    {
+      "key": "t_77453e352f4eb70b45a7",
+      "source": "Figure 18.1: Distribution of entropy estimates under (a) 10, (b) 7, (c) 5, and (d) 2 letter encodings, on messages of length 100 panels (c) and (d)",
+      "translation": "图 18.1：长度为 100 的消息采用（a）10、（b）7、（c）5、（d）2 个字母编码时的熵估计分布，面板（c）和（d）"
+    }
+  ]
+}

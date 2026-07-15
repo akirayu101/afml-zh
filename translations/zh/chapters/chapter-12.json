@@ -1,0 +1,871 @@
+{
+  "chapter": "chapter-12",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_4ec55973196c1aaab5aa",
+      "source": "Backtesting through Cross-Validation | Advances in Financial Machine Learning",
+      "translation": "通过交叉验证进行回测 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_6c97bca7afd7fe168b80",
+      "source": "Part 3: Backtesting",
+      "translation": "第三部分：回测"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_2c2478daa5e1c1fb1dbe",
+      "source": "Backtesting through Cross-Validation",
+      "translation": "通过交叉验证进行回测"
+    },
+    {
+      "key": "t_a387b80d7adf74fed324",
+      "source": "12.1 Motivation",
+      "translation": "12.1 动机"
+    },
+    {
+      "key": "t_6fb79dc3308b7d7e5674",
+      "source": "A backtest evaluates out-of-sample the performance of an investment strategy using past observations. These past observations can be used in two ways: (1) in a narrow sense, to simulate the historical performance of an investment strategy, as if it had been run in the past; and (2) in a broader sense, to simulate scenarios that did not happen in the past. The first (narrow) approach, also known as walk-forward, is so prevalent that, in fact, the term “backtest” has become a de facto synonym for “historical simulation.” The second (broader) approach is far less known, and in this chapter we will introduce some novel ways to carry it out. Each approach has its pros and cons, and each should be given careful consideration.",
+      "translation": "回测利用过去的观测，在样本外评估投资策略的表现。过去数据有两种用法：（1）狭义上，模拟策略仿佛在过去实际运行时的历史表现；（2）广义上，模拟历史中没有真正发生的情景。第一种狭义方法又称滚动前推，应用极其普遍，以至于“回测”事实上成了“历史模拟”的同义词。第二种广义方法远没有那么广为人知，本章将介绍几种新的实现方式。两种方法各有优缺点，都值得认真考虑。"
+    },
+    {
+      "key": "t_c990c15f026a9e63c4f2",
+      "source": "12.2 The Walk-Forward Method",
+      "translation": "12.2 滚动前推法"
+    },
+    {
+      "key": "t_cedf18b5b9d79002616f",
+      "source": "The most common backtest method in the literature is the walk-forward (WF) approach. WF is a historical simulation of how the strategy would have performed in past. Each strategy decision is based on observations that predate that decision. As we saw in Chapter 11, carrying out a flawless WF simulation is a daunting task that requires extreme knowledge of the data sources, market microstructure, risk management, performance measurement standards (e.g., GIPS), multiple testing methods, experimental mathematics, etc. Unfortunately, there is no generic recipe to conduct a backtest. To be accurate and representative, each backtest must be customized to evaluate the assumptions of a particular strategy. WF enjoys two key advantages: (1) WF has a clear historical interpretation. Its performance can be reconciled with paper trading. (2) History is a filtration; hence, using trailing data guarantees that the testing set is out-of-sample (no leakage), as long as purging has been properly implemented (see Chapter 7, Section 7.4.1). It is a",
+      "translation": "文献中最常见的回测方法是滚动前推（WF）。WF 模拟策略在过去本会有怎样的表现，每次策略决策都只依据该决策之前的观测。第 11 章已经说明，要做一份无懈可击的 WF 模拟非常困难，需要深入了解数据来源、市场微观结构、风险管理、绩效衡量标准（如 GIPS）、多重检验方法和实验数学等。遗憾的是，回测没有通用配方。要让结果准确且有代表性，每次回测都必须围绕具体策略的假设定制。WF 有两个主要优点：（1）历史含义清楚，结果可以和模拟交易核对；（2）历史信息会随时间逐步累积。因此，只要正确清除了重叠样本（见第 7 章第 7.4.1 节），并且只使用决策之前的数据，就能保证测试集处于样本外，避免信息泄漏。不过，WF 回测仍常见以下信息泄漏错误。"
+    },
+    {
+      "key": "t_9fe87c19c4060725f0b4",
+      "source": "common mistake to find leakage in WF backtests, where t1.index falls within the training set, but t1.values fall within the testing set (see Chapter 3). Embargoing is not needed in WF backtests, because the training set always predates the testing set.",
+      "translation": "具体来说，t1.index 落在训练集中，t1.values 却落在测试集中（见第 3 章）。WF 回测无需设置禁运期，因为训练集始终早于测试集。"
+    },
+    {
+      "key": "t_2e13457eb46cd8eb55f5",
+      "source": "12.2.1 Pitfalls of the Walk-Forward Method",
+      "translation": "12.2.1 滚动前推法的陷阱"
+    },
+    {
+      "key": "t_c9c08f13b15188875e6d",
+      "source": "WF suffers from three major disadvantages: First, a single scenario is tested (the historical path), which can be easily overfit (Bailey et al.",
+      "translation": "WF 有三个主要缺点。第一，它只测试单一情景，也就是历史路径，因此很容易过拟合（Bailey 等人"
+    },
+    {
+      "key": "t_3aff77a5adb891752df7",
+      "source": "). Second, WF is not necessarily representative of future performance, as results can be biased by the particular sequence of data points. Proponents of the WF method typically argue that predicting the past would lead to overly optimistic performance estimates. And yet, very often fitting an outperforming model on the reversed sequence of observations will lead to an underperforming WF backtest. The truth is, it is as easy to overfit a walk-forward backtest as to overfit a walk-backward backtest, and the fact that changing the sequence of observations yields inconsistent outcomes is evidence of that overfitting. If proponents of WF were right, we should observe that walk-backward backtests systematically outperform their walk-forward counterparts. That is not the case, hence the main argument in favor of WF is rather weak.",
+      "translation": "）。第二，结果会受数据点具体顺序影响，所以 WF 未必能代表未来表现。WF 的支持者通常认为，反向预测过去会让绩效估计过于乐观；但现实中，在倒序观测上拟合出表现优异的模型，常常会在 WF 回测中表现不佳。事实上，滚动前推回测和反向滚动回测同样容易过拟合。改变观测顺序就得到不一致结果，本身正是过拟合的证据。如果 WF 支持者的说法成立，反向滚动回测应当系统性胜过对应的滚动前推回测，但事实并非如此，因此支持 WF 的主要论据并不牢靠。"
+    },
+    {
+      "key": "t_e77f5032afda2c808e90",
+      "source": "To make this second disadvantage clearer, suppose an equity strategy that is backtested with a WF on S&P 500 data, starting January 1, 2007. Until March 15, 2009, the mix of rallies and sell-offs will train the strategy to be market neutral, with low confidence on every position. After that, the long rally will dominate the dataset, and by January 1, 2017, buy forecasts will prevail over sell forecasts. The performance would be very different had we played the information backwards, from January 1, 2017 to January 1, 2007. By exploiting a particular sequence, a strategy selected by WF may set us up for a debacle.",
+      "translation": "为了更清楚地说明第二个缺点，假设从 2007 年 1 月 1 日起，用标普 500 数据对一个股票策略做 WF 回测。到 2009 年 3 月 15 日之前，涨跌行情交替，会把策略训练成市场中性，对每个仓位都信心不足。此后的长期上涨会主导数据集；到 2017 年 1 月 1 日，买入预测将多于卖出预测。如果把信息从 2017 年 1 月 1 日倒放到 2007 年 1 月 1 日，结果会截然不同。WF 选中的策略可能只是利用了特定数据顺序，最终让我们遭遇惨败。"
+    },
+    {
+      "key": "t_5c4d2f22b6f900ece830",
+      "source": "The third disadvantage of WF is that the initial decisions are made on a smaller portion of the total sample. Even if a warm-up period is set, most of the information is used by only a small portion of the decisions. Consider a strategy with a warm-up period that uses",
+      "translation": "WF 的第三个缺点是，早期决策只能使用总样本的一小部分。即使设置预热期，大多数信息也只有少部分决策能够用到。假设某策略的预热期使用了"
+    },
+    {
+      "key": "t_be40f12efc870bb500a5",
+      "source": "observations out of",
+      "translation": "个观测，总样本数为"
+    },
+    {
+      "key": "t_19bb60649895f9e78032",
+      "source": ". This strategy makes half of its decisions,",
+      "translation": "。该策略有一半的决策，即"
+    },
+    {
+      "key": "t_5d91ae9c95ca3a030c7f",
+      "source": ", on an average number of data points,",
+      "translation": "，平均只使用如下数量的数据点："
+    },
+    {
+      "key": "t_c686ae933b99af384880",
+      "source": "which is only",
+      "translation": "这个平均数据量仅占全部观测的"
+    },
+    {
+      "key": "t_0411c91657ab9a16c545",
+      "source": "fraction of the observations. Although this problem is attenuated by increasing the warm-up period, doing so also reduces the length of the backtest.",
+      "translation": "。延长预热期可以缓解这个问题，但也会缩短回测区间。"
+    },
+    {
+      "key": "t_36423c8bd07e455df19d",
+      "source": "12.3 The Cross-Validation Method",
+      "translation": "12.3 交叉验证法"
+    },
+    {
+      "key": "t_79755fd8a09f67fd5111",
+      "source": "Investors often ask how a strategy would perform if subjected to a stress scenario as unforeseeable as the 2008 crisis, or the dot-com bubble, or the taper tantrum, or the China scare of 2015-2016, etc. One way to answer is to split the observations into two sets, one with the period we wish to test (testing set), and one with the rest (training set). For example, a classifier would be trained on the period January 1, 2009-January 1, 2017, then tested on the period January 1, 2008-December 31, 2008. The performance we will obtain for 2008 is not historically accurate, since the classifier was trained on data that was only available after 2008. But historical accuracy was not the goal of the test. The objective of the test was to subject a strategy ignorant of 2008 to a stress scenario such as 2008.",
+      "translation": "投资者经常问：如果策略遭遇像 2008 年危机、互联网泡沫、缩减购债恐慌或 2015～2016 年中国市场动荡这样无法预见的压力情景，会表现如何？一种回答方法是把观测分成两组：希望测试的时期作为测试集，其余时期作为训练集。例如，可以用 2009 年 1 月 1 日至 2017 年 1 月 1 日的数据训练分类器，再用 2008 年 1 月 1 日至 12 月 31 日的数据测试。这样得到的 2008 年绩效并不符合真实历史，因为分类器使用了 2008 年之后才出现的数据。但测试目标本来就不是还原历史，而是让一个“不知道 2008 年”的策略经受类似 2008 年的压力情景。"
+    },
+    {
+      "key": "t_9247e58fad287a8fe86d",
+      "source": "The goal of backtesting through cross-validation (CV) is not to derive historically accurate performance, but to infer future performance from a number of out-of-sample scenarios. For each period of the backtest, we simulate the performance of a classifier that knew everything except for that period.",
+      "translation": "通过交叉验证（CV）回测的目的，不是得到符合真实历史的绩效，而是从多个样本外情景推断未来表现。对回测中的每个时期，我们都模拟一个“知道其他所有时期、唯独不知道该时期”的分类器。"
+    },
+    {
+      "key": "t_e3eeb9d298e0a6835d20",
+      "source": "the classifier was trained on data that was only available after 2008. But historical accuracy was not the goal of the test. The objective of the test was to subject a strategy ignorant of 2008 to a stress scenario such as 2008. The goal of backtesting through cross-validation (CV) is not to derive historically accurate performance, but to infer future performance from a number of out-of-sample scenarios. For each period of the backtest, we simulate the performance of a classifier that knew everything except for that period.",
+      "translation": "分类器使用了 2008 年之后才出现的数据。但测试目标不是还原历史，而是让一个“不知道 2008 年”的策略经受类似 2008 年的压力情景。通过交叉验证（CV）回测的目的，也不是得到符合真实历史的绩效，而是从多个样本外情景推断未来表现。对回测中的每个时期，我们都模拟一个知道其他所有时期、唯独不知道该时期的分类器。"
+    },
+    {
+      "key": "t_3392adf56de6a7ec1ba6",
+      "source": "Advantages",
+      "translation": "优点"
+    },
+    {
+      "key": "t_b17a6774baacb4329c2e",
+      "source": "The test is not the result of a particular (historical) scenario. In fact, CV tests k alternative scenarios, of which only one corresponds with the historical sequence.",
+      "translation": "测试结果不依赖某一个特定历史情景。事实上，CV 会测试 k 个替代情景，其中只有一个对应真实历史顺序。"
+    },
+    {
+      "key": "t_0b31b2da7c88e24bff3b",
+      "source": "Every decision is made on sets of equal size. This makes outcomes comparable across periods, in terms of the amount of information used to make those decisions.",
+      "translation": "每次决策使用的集合大小相同。这样，各时期的结果就可以按决策所用信息量进行公平比较。"
+    },
+    {
+      "key": "t_27c6a578e6b9c14c8f0a",
+      "source": "Every observation is part of one and only one testing set. There is no warm-up subset, thereby achieving the longest possible out-of-sample simulation.",
+      "translation": "每个观测只属于一个测试集。没有预热子集，因此可以得到尽可能长的样本外模拟。"
+    },
+    {
+      "key": "t_fc15c5c90d2aea33cbd2",
+      "source": "Disadvantages",
+      "translation": "缺点"
+    },
+    {
+      "key": "t_bf7cd40675a4b247be35",
+      "source": "Like WF, a single backtest path is simulated (although not the historical one). There is one and only one forecast generated per observation.",
+      "translation": "与 WF 一样，它只模拟一条回测路径，尽管不是历史路径；每个观测也只会生成一个预测。"
+    },
+    {
+      "key": "t_85e18feb3da545ef7e7e",
+      "source": "CV has no clear historical interpretation. The output does not simulate how the strategy would have performed in the past, but how it may perform in the future under various stress scenarios (a useful result in its own right).",
+      "translation": "CV 没有清楚的历史解释。输出并非模拟策略过去会有怎样的表现，而是它未来在不同压力情景下可能怎样表现；这个结果本身仍很有价值。"
+    },
+    {
+      "key": "t_96cb4507780691425810",
+      "source": "Because the training set does not trail the testing set, leakage is possible. Extreme care must be taken to avoid leaking testing information into the training set. See Chapter 7 for a discussion on how purging and embargoing can help prevent informational leakage in the context of CV.",
+      "translation": "训练集并不总是在测试集之前，因此可能发生泄漏。必须格外小心，避免测试信息流入训练集。第 7 章讨论了在 CV 中如何通过清除重叠样本和设置禁运期来防止信息泄漏。"
+    },
+    {
+      "key": "t_0276b43750b24a2c8040",
+      "source": "12.4 The Combinatorial Purged Cross-Validation Method",
+      "translation": "12.4 组合式清除交叉验证法"
+    },
+    {
+      "key": "t_610898bfe05bf01159ed",
+      "source": "In this section I will present a new method, which addresses the main drawback of the WF and CV methods, namely that those schemes test a single path. I call it the “combinatorial purged cross-validation” (CPCV) method. Given a number",
+      "translation": "本节介绍一种新方法，用来解决 WF 和 CV 的主要缺点：它们都只测试一条路径。我把它称为“组合式清除交叉验证”（CPCV）。给定研究人员希望得到的回测路径数量"
+    },
+    {
+      "key": "t_11ed4ec838aab2177146",
+      "source": "of backtest paths targeted by the researcher, CPCV generates the precise number of combinations of training/testing sets needed to generate those paths, while purging training observations that contain leaked information.",
+      "translation": "，CPCV 会构造恰好足以生成这些路径的训练/测试集组合，同时从训练集中清除含有泄漏信息的观测。"
+    },
+    {
+      "key": "t_13688ce9ad0e00d455b9",
+      "source": "Figure 12.1: Paths generated for",
+      "translation": "图 12.1：路径生成参数为"
+    },
+    {
+      "key": "t_34ca0e76608842ff3e7d",
+      "source": "Group",
+      "translation": "组别"
+    },
+    {
+      "key": "t_3696ad59777e09d5f2da",
+      "source": "S1",
+      "translation": "S1"
+    },
+    {
+      "key": "t_adfa2b24c2d924fe6383",
+      "source": "S2",
+      "translation": "S2"
+    },
+    {
+      "key": "t_44d6a8a73eddb284d497",
+      "source": "S3",
+      "translation": "S3"
+    },
+    {
+      "key": "t_b1d3eb8f32936fa9cf89",
+      "source": "S4",
+      "translation": "S4"
+    },
+    {
+      "key": "t_1cdcbd57e7e20491d8be",
+      "source": "S5",
+      "translation": "S5"
+    },
+    {
+      "key": "t_b12f76a4b782e4ae7f03",
+      "source": "S6",
+      "translation": "S6"
+    },
+    {
+      "key": "t_d53d113e9c01f4388af3",
+      "source": "S7",
+      "translation": "S7"
+    },
+    {
+      "key": "t_9206ef16552ccd926e44",
+      "source": "S8",
+      "translation": "S8"
+    },
+    {
+      "key": "t_00468253c62551acfe27",
+      "source": "S9",
+      "translation": "S9"
+    },
+    {
+      "key": "t_3d16e90141e88e7233af",
+      "source": "S10",
+      "translation": "S10"
+    },
+    {
+      "key": "t_4a1bcaec718f10edcd25",
+      "source": "S11",
+      "translation": "S11"
+    },
+    {
+      "key": "t_d30b6fedc77faaf5199d",
+      "source": "S12",
+      "translation": "S12"
+    },
+    {
+      "key": "t_02cfcc7e2872c6366adc",
+      "source": "S13",
+      "translation": "S13"
+    },
+    {
+      "key": "t_ec546f04a3d6c0118e8d",
+      "source": "S14",
+      "translation": "S14"
+    },
+    {
+      "key": "t_dca468ba69cda6650ce0",
+      "source": "S15",
+      "translation": "S15"
+    },
+    {
+      "key": "t_9c7995b5bc817bc83ea1",
+      "source": "Paths",
+      "translation": "路径"
+    },
+    {
+      "key": "t_7b778e4c1d1f33c90c61",
+      "source": "G1",
+      "translation": "G1"
+    },
+    {
+      "key": "t_2d711642b726b0440162",
+      "source": "x",
+      "translation": "×"
+    },
+    {
+      "key": "t_48c6e3d042649ef6adca",
+      "source": "G2",
+      "translation": "G2"
+    },
+    {
+      "key": "t_0df036b638077d4b8612",
+      "source": "G3",
+      "translation": "G3"
+    },
+    {
+      "key": "t_978425f807853d5b45aa",
+      "source": "G4",
+      "translation": "G4"
+    },
+    {
+      "key": "t_441853c2c81e65e2b34e",
+      "source": "G5",
+      "translation": "G5"
+    },
+    {
+      "key": "t_780d558be6960a54064f",
+      "source": "G6",
+      "translation": "G6"
+    },
+    {
+      "key": "t_f8327d3553de2ddb2104",
+      "source": "12.4.1 Combinatorial Splits",
+      "translation": "12.4.1 组合划分"
+    },
+    {
+      "key": "t_75db2abbd2a1b5b4e5e1",
+      "source": "Consider",
+      "translation": "设有"
+    },
+    {
+      "key": "t_3e64ae681625cd68c1fb",
+      "source": "observations partitioned into",
+      "translation": "个观测，不打乱顺序地分成"
+    },
+    {
+      "key": "t_3ace9b95200605f48acd",
+      "source": "groups without shuffling, where groups",
+      "translation": "组，其中编号为"
+    },
+    {
+      "key": "t_e55da09d85c1bee8106c",
+      "source": "are of size",
+      "translation": "的组大小为"
+    },
+    {
+      "key": "t_3538a0b69856ece9aeb2",
+      "source": ", the",
+      "translation": "；第"
+    },
+    {
+      "key": "t_32a887eae8027c2956c1",
+      "source": "th group is of size",
+      "translation": "组大小为"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "，而"
+    },
+    {
+      "key": "t_330afec0a62a598c2380",
+      "source": "is the floor or integer function. For a testing set of size",
+      "translation": "表示向下取整函数。若测试集包含"
+    },
+    {
+      "key": "t_4329745488a5e62a4d79",
+      "source": "groups, the number of possible training/testing splits is",
+      "translation": "个组，可能的训练/测试划分数为："
+    },
+    {
+      "key": "t_fd38a99df9937a76817d",
+      "source": "Since each combination involves",
+      "translation": "每个组合都包含"
+    },
+    {
+      "key": "t_e467adfd5aa314cd2838",
+      "source": "tested groups, the total number of tested groups is",
+      "translation": "个测试组，因此测试组出现的总次数为"
+    },
+    {
+      "key": "t_edf0d3f40e9ae87441e3",
+      "source": ". And since we have computed all possible combinations, these tested groups are uniformly distributed across all",
+      "translation": "。由于已经计算了所有可能组合，这些测试组会均匀分布在全部"
+    },
+    {
+      "key": "t_349d71f2abaaef201e09",
+      "source": "groups. The implication is that from",
+      "translation": "个组中。因此，在"
+    },
+    {
+      "key": "t_55b0284a8cfc86b0317e",
+      "source": "-sized testing sets on",
+      "translation": "个组组成测试集、总计"
+    },
+    {
+      "key": "t_2cb5044e622bafb51791",
+      "source": "groups we can backtest a total number of paths",
+      "translation": "个组的情况下，可回测的路径总数为"
+    },
+    {
+      "key": "t_d7c21673774b42e46bb3",
+      "source": "Figure 12.1 illustrates the composition of train/test splits for",
+      "translation": "图 12.1 展示了以下参数下训练/测试划分的组成："
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "和"
+    },
+    {
+      "key": "t_2fd868ca5bf171504194",
+      "source": ". There are",
+      "translation": "。共有"
+    },
+    {
+      "key": "t_b75c0da7afcfc21db398",
+      "source": "splits, indexed as",
+      "translation": "个划分，编号为"
+    },
+    {
+      "key": "t_f0f6842741a52c945614",
+      "source": ". For each split, the figure marks with a cross (x) the groups included in the testing set, and leaves unmarked the groups that form the training set. Each group forms part of",
+      "translation": "。对每个划分，图中用叉号（×）标出属于测试集的组，未标记的组构成训练集。每个组会出现在"
+    },
+    {
+      "key": "t_ed3ddfed41dbbc4d823c",
+      "source": "testing sets, therefore this train/test split scheme allows us to compute 5 backtest paths.",
+      "translation": "个测试集中，因此这种训练/测试划分方案可以计算 5 条回测路径。"
+    },
+    {
+      "key": "t_89efdced257557aac9d3",
+      "source": "Figure 12.2 shows the assignment of each tested group to one backtest path.",
+      "translation": "图 12.2 展示了怎样把每个测试组分配到一条回测路径。"
+    },
+    {
+      "key": "t_c876b144549544448b9d",
+      "source": "Figure 12.2: Assignment of testing groups to each of the 5 paths",
+      "translation": "图 12.2：把测试组分配到 5 条路径"
+    },
+    {
+      "key": "t_adffc0b8bf1c1f87424b",
+      "source": "For example, the first two paths combine forecasts from the following testing groups:",
+      "translation": "例如，前两条路径组合了以下测试组的预测："
+    },
+    {
+      "key": "t_e6ffa1af692e9fda9eb2",
+      "source": "and so on.",
+      "translation": "依此类推。"
+    },
+    {
+      "key": "t_c26815a666a1ee5063be",
+      "source": "These paths are generated by training the classifier on a portion",
+      "translation": "生成这些路径时，每个组合都用以下比例的数据训练分类器："
+    },
+    {
+      "key": "t_8315a8ed164c2960d735",
+      "source": "of the data for each combination. Although it is theoretically possible to train on a portion",
+      "translation": "。理论上，每个组合用于训练的数据比例可以是"
+    },
+    {
+      "key": "t_9717e2d544e0f1565395",
+      "source": ", in practice we will assume that",
+      "translation": "，但实践中假设"
+    },
+    {
+      "key": "t_00150e2b93778421ebae",
+      "source": ". The portion of data in the training set",
+      "translation": "。训练集占数据的比例"
+    },
+    {
+      "key": "t_ec54bbd98be1561aa66c",
+      "source": "increases with",
+      "translation": "会在"
+    },
+    {
+      "key": "t_f4bb76d7284d468a2eb3",
+      "source": "but it decreases with",
+      "translation": "时增大；当"
+    },
+    {
+      "key": "t_65a3c1eb0e3fd429816d",
+      "source": ". The number of paths",
+      "translation": "时减小。路径数量"
+    },
+    {
+      "key": "t_9bb49cdbf05c10224581",
+      "source": "and with",
+      "translation": "时增大；当"
+    },
+    {
+      "key": "t_bc29f0f61539d215dbea",
+      "source": ". In the limit, the largest number of paths is achieved by setting",
+      "translation": "时也增大。极限情况下，令"
+    },
+    {
+      "key": "t_a4be29e2c30ed95d0504",
+      "source": ", at the expense of training the classifier on only half of the data for each combination",
+      "translation": "，可以得到最多路径，代价是每个组合只用一半数据训练分类器"
+    },
+    {
+      "key": "t_ff1c3122809c4b679755",
+      "source": "12.4.2 The Combinatorial Purged Cross-Validation Backtesting Algorithm",
+      "translation": "12.4.2 组合式清除交叉验证回测算法"
+    },
+    {
+      "key": "t_3f0e776bef7fce3e3941",
+      "source": "In Chapter 7 we introduced the concepts of purging and embargoing in the context of CV. We will now use these concepts for backtesting through CV. The CPCV backtesting algorithm proceeds as follows:",
+      "translation": "第 7 章在 CV 场景中介绍了清除重叠样本和设置禁运期。现在把这些概念用于通过 CV 进行回测。CPCV 回测算法步骤如下："
+    },
+    {
+      "key": "t_4dbdd221e957eff27cc4",
+      "source": "Partition",
+      "translation": "把"
+    },
+    {
+      "key": "t_8d5bfe54bf3d6f566066",
+      "source": "observations into",
+      "translation": "个观测不打乱顺序地分成"
+    },
+    {
+      "key": "t_c2f9c9e00efba271b0d1",
+      "source": ", and the",
+      "translation": "；第"
+    },
+    {
+      "key": "t_b4ebf68e82f7a9bd0701",
+      "source": "Compute all possible training/testing splits, where for each split",
+      "translation": "计算所有可能的训练/测试划分。对每个划分，"
+    },
+    {
+      "key": "t_fbe90615fb534e6abc62",
+      "source": "groups constitute the training set and",
+      "translation": "个组构成训练集，"
+    },
+    {
+      "key": "t_d71bebf1f53387b56bce",
+      "source": "groups constitute the testing set.",
+      "translation": "个组构成测试集。"
+    },
+    {
+      "key": "t_bc577a658c38eb26e8d9",
+      "source": "For any pair of labels",
+      "translation": "考虑任意一对标签"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_f94c74e1040017c5a839",
+      "source": "belongs to the training set and",
+      "translation": "属于训练集，"
+    },
+    {
+      "key": "t_610096cd4093d7ac76a5",
+      "source": "belongs to the testing set, apply the",
+      "translation": "属于测试集。使用"
+    },
+    {
+      "key": "t_721dc09288920263e349",
+      "source": "class to purge",
+      "translation": "类清除"
+    },
+    {
+      "key": "t_935f68319d4f227e02bf",
+      "source": "if",
+      "translation": "的条件是"
+    },
+    {
+      "key": "t_ee00243df48e45035dfe",
+      "source": "spans over a period used to determine label",
+      "translation": "跨越了用于确定标签"
+    },
+    {
+      "key": "t_a5754b544639a54ad5c1",
+      "source": ". This class will also apply an embargo, should some testing samples predate some training samples.",
+      "translation": "的时间区间。如果某些测试样本早于某些训练样本，该类还会设置禁运期。"
+    },
+    {
+      "key": "t_f80674312d5880543758",
+      "source": "Fit classifiers on the",
+      "translation": "在"
+    },
+    {
+      "key": "t_59af71e5ca9decd31510",
+      "source": "training sets, and produce forecasts on the respective",
+      "translation": "个训练集上拟合分类器，并分别对相应的"
+    },
+    {
+      "key": "t_6632b044efd3a96a4178",
+      "source": "testing sets.",
+      "translation": "个测试集生成预测。"
+    },
+    {
+      "key": "t_df1c4fd28e67114ebe55",
+      "source": "Compute the",
+      "translation": "计算"
+    },
+    {
+      "key": "t_976b813750aaac59fad7",
+      "source": "backtest paths. You can calculate one Sharpe ratio from each path, and from that derive the empirical distribution of the strategy's Sharpe ratio, rather than a single Sharpe ratio like WF or CV.",
+      "translation": "条回测路径。每条路径都能计算一个夏普比率，由此得到策略夏普比率的经验分布，而不是像 WF 或 CV 那样只得到一个夏普比率。"
+    },
+    {
+      "key": "t_908a8cd3abc40b41166c",
+      "source": "12.4.3 A Few Examples",
+      "translation": "12.4.3 几个例子"
+    },
+    {
+      "key": "t_ca15ebc05a3c5c134875",
+      "source": "For",
+      "translation": "当"
+    },
+    {
+      "key": "t_7fde4459376db356014a",
+      "source": ", we will obtain",
+      "translation": "时，得到"
+    },
+    {
+      "key": "t_2842b826791b9e7de4ac",
+      "source": "path, in which case CPCV reduces to CV. Thus, CPCV can be understood as a generalization of CV for",
+      "translation": "条路径，此时 CPCV 退化为 CV。因此，CPCV 可以理解为广义 CV，其适用范围是"
+    },
+    {
+      "key": "t_f028d39e76d50c907e13",
+      "source": "paths. This is a particularly interesting case, because while training the classifier on a large portion of the data,",
+      "translation": "条路径。这种情况尤其有意思：分类器可以用很大比例的数据训练，即"
+    },
+    {
+      "key": "t_4de50c120116138d882d",
+      "source": ", we can generate almost as many backtest paths as the number of groups,",
+      "translation": "，同时生成接近组数的回测路径，即"
+    },
+    {
+      "key": "t_496bee386d6e2a396cde",
+      "source": ". An easy rule of thumb is to partition the data into",
+      "translation": "。一个简单经验法则是把数据分成"
+    },
+    {
+      "key": "t_a0ae7a86c2f0491638ff",
+      "source": "groups, where",
+      "translation": "个组，其中"
+    },
+    {
+      "key": "t_ff35e5577af90745e2cc",
+      "source": "is the number of paths we target, and then form",
+      "translation": "是目标路径数，然后构造"
+    },
+    {
+      "key": "t_a69863d6a1d1bfcbaeba",
+      "source": "combinations. In the limit, we can assign one group per observation,",
+      "translation": "个组合。极限情况下，可以让每个观测单独成组，即"
+    },
+    {
+      "key": "t_521db3310c90e1781502",
+      "source": ", and generate",
+      "translation": "，并生成"
+    },
+    {
+      "key": "t_9e7c51facfb80287f237",
+      "source": "paths, while training the classifier on a portion",
+      "translation": "条路径，同时每个组合用以下比例的数据训练分类器："
+    },
+    {
+      "key": "t_e7f5c50f12dbd625e5db",
+      "source": "of the data per combination.",
+      "translation": "。"
+    },
+    {
+      "key": "t_14ba70ae5a6338685150",
+      "source": "If even more paths are needed, we can increase",
+      "translation": "如果需要更多路径，可以增大"
+    },
+    {
+      "key": "t_959f1e68535f4bc6e5c7",
+      "source": ", but as explained earlier that will come at the cost of using a smaller portion of the dataset for training. In practice,",
+      "translation": "，但正如前面所述，代价是训练时只能使用更小比例的数据。实践中，"
+    },
+    {
+      "key": "t_56c748c1c74282b5b43a",
+      "source": "is often enough to generate the needed",
+      "translation": "通常足以生成所需的"
+    },
+    {
+      "key": "t_4d38e3c82f452a54201d",
+      "source": "paths, by setting",
+      "translation": "条路径，只需设置"
+    },
+    {
+      "key": "t_936d64a5babc664c6f6d",
+      "source": "12.5 How Combinatorial Purged Cross-Validation Addresses Backtest Overfitting",
+      "translation": "12.5 CPCV 如何应对回测过拟合"
+    },
+    {
+      "key": "t_3a8465d50439ab23d584",
+      "source": "Given a sample of IID random variables,",
+      "translation": "给定一组独立同分布（IID）的随机变量样本，"
+    },
+    {
+      "key": "t_da6a38c09518d03ddd7b",
+      "source": "is the standard Normal distribution, the expected maximum of that sample can be approximated as",
+      "translation": "为标准正态分布，该样本最大值的期望可近似为："
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "其中，"
+    },
+    {
+      "key": "t_4bf4191166bdf73f6c40",
+      "source": "is the inverse of the CDF of",
+      "translation": "表示标准正态分布的 CDF 反函数，该分布记作"
+    },
+    {
+      "key": "t_43c964eef29eefacffb7",
+      "source": "is the Euler-Mascheroni constant, and",
+      "translation": "是 Euler–Mascheroni 常数，且"
+    },
+    {
+      "key": "t_a76756f1c26e06d7c09d",
+      "source": "(see Bailey et al.",
+      "translation": "（证明见 Bailey 等人"
+    },
+    {
+      "key": "t_fe667ddd64b0a906b0b7",
+      "source": "for a proof). Now suppose that a researcher backtests",
+      "translation": "）。现在假设研究人员在一个表现近似鞅的金融工具上回测"
+    },
+    {
+      "key": "t_c17afe8aaebc7c7c7746",
+      "source": "strategies on an instrument that behaves like a martingale, with Sharpe ratios",
+      "translation": "个策略，其夏普比率为"
+    },
+    {
+      "key": "t_0d7ad32efe472677004c",
+      "source": ". Even though the true Sharpe ratio is zero, we expect to find one strategy with a Sharpe ratio of",
+      "translation": "。即使真实夏普比率为 0，我们仍预期至少会找到一个夏普比率达到下式的策略："
+    },
+    {
+      "key": "t_92a6812e178997005547",
+      "source": "WF backtests exhibit high variance,",
+      "translation": "WF 回测的方差很高，"
+    },
+    {
+      "key": "t_659e75774b5619fff57e",
+      "source": ", for at least one reason: A large portion of the decisions are based on a small portion of the dataset. A few observations will have a large weight on the Sharpe ratio. Using a warm-up period will reduce the backtest length, which may contribute to making the variance even higher. WF's high variance leads to false discoveries, because researchers will select the backtest with the maximum estimated Sharpe ratio, even if the true Sharpe ratio is zero. That is the reason it is imperative to control for the number of trials",
+      "translation": "，至少有一个原因：大量决策只依据数据集的一小部分，少数观测会对夏普比率产生很大权重。设置预热期又会缩短回测区间，可能使方差进一步升高。WF 的高方差会导致虚假发现，因为即使真实夏普比率为 0，研究人员仍会选择估计夏普比率最高的回测。因此，做 WF 回测时必须控制试验次数"
+    },
+    {
+      "key": "t_a0035fbde1f8f5fd52e7",
+      "source": "in the context of WF backtesting. Without this information, it is not possible to determine the Family-Wise Error Rate (FWER), False Discovery Rate (FDR), Probability of Backtest Overfitting (PBO, see Chapter 11) or similar model assessment statistic.",
+      "translation": "。没有这项信息，就无法计算族错误率（FWER）、错误发现率（FDR）、回测过拟合概率（PBO，见第 11 章）或类似的模型评估统计量。"
+    },
+    {
+      "key": "t_9b269429f3be2ce41753",
+      "source": "CV backtests (Section 12.3) address that source of variance by training each classifier on equal and large portions of the dataset. Although CV leads to fewer false discoveries than WF, both approaches still estimate the Sharpe ratio from a single path for a strategy",
+      "translation": "CV 回测（第 12.3 节）通过让每个分类器都使用同样大比例的数据训练，缓解了上述方差来源。虽然 CV 的虚假发现少于 WF，但两种方法仍然只能通过单一路径估计某个策略（编号为"
+    },
+    {
+      "key": "t_587eeb63336a1919e586",
+      "source": ", and that estimation may be highly volatile. In contrast, CPCV derives the distribution of Sharpe ratios from a large number of paths,",
+      "translation": "为其夏普比率），这个估计可能非常不稳定。相比之下，CPCV 从大量路径"
+    },
+    {
+      "key": "t_93748a5cf58ed0bc6c50",
+      "source": ", with mean",
+      "translation": "得到夏普比率分布，其均值为"
+    },
+    {
+      "key": "t_720ebabc0d25489c585a",
+      "source": "and variance",
+      "translation": "，方差为"
+    },
+    {
+      "key": "t_850dc741d71912d9f91e",
+      "source": ". The variance of the sample mean of CPCV paths is",
+      "translation": "。这些路径夏普比率的样本均值具有如下方差："
+    },
+    {
+      "key": "t_05d2e1a1175b523e5edf",
+      "source": "is the variance of the Sharpe ratios across paths for strategy",
+      "translation": "表示该策略在各路径上的夏普比率方差；策略编号为"
+    },
+    {
+      "key": "t_8d634b5bd1dfe0993725",
+      "source": "is the average off-diagonal correlation among",
+      "translation": "表示各路径夏普比率相关矩阵中非对角元素的平均值；各路径的夏普比率为"
+    },
+    {
+      "key": "t_0e795bf8f691779e0121",
+      "source": ". CPCV leads to fewer false discoveries than CV and WF, because",
+      "translation": "。CPCV 的虚假发现少于 CV 和 WF，因为"
+    },
+    {
+      "key": "t_2545effb6e0ad31de9b4",
+      "source": "implies that the variance of the sample mean is lower than the variance of the sample,",
+      "translation": "意味着样本均值的方差低于样本本身的方差："
+    },
+    {
+      "key": "t_c553dfd2007dd8a87aab",
+      "source": "The more uncorrelated the paths are,",
+      "translation": "路径之间的相关性越低，"
+    },
+    {
+      "key": "t_ad6d887b8ae4b7757c5e",
+      "source": ", the lower CPCV's variance will be, and in the limit CPCV will report the true Sharpe ratio",
+      "translation": "，CPCV 的方差就越小；在极限情况下，CPCV 会报告真实夏普比率"
+    },
+    {
+      "key": "t_8eebe0ce053959c3129f",
+      "source": "with zero variance,",
+      "translation": "，且方差为 0，即"
+    },
+    {
+      "key": "t_a09ba30daef4816f9c8b",
+      "source": ". There will not be selection bias, because the strategy selected out of",
+      "translation": "。此时不会产生选择偏差，因为从"
+    },
+    {
+      "key": "t_bf46b414d88bfb83361f",
+      "source": "will be the one with the highest true Sharpe ratio.",
+      "translation": "中选出的策略就是拥有最高真实夏普比率的策略。"
+    },
+    {
+      "key": "t_986a4b9882c6c0fd4d0f",
+      "source": "Of course, we know that zero variance is unachievable, since",
+      "translation": "当然，方差不可能真正降为 0，因为"
+    },
+    {
+      "key": "t_c980de297e4714d7496f",
+      "source": "has an upper bound,",
+      "translation": "存在上限："
+    },
+    {
+      "key": "t_54617011578fb01d85b5",
+      "source": ". Still, for a large enough number of paths",
+      "translation": "。不过，只要路径数"
+    },
+    {
+      "key": "t_b600f76d5ae8ad157f56",
+      "source": ", CPCV could make the variance of the backtest so small as to make the probability of a false discovery negligible.",
+      "translation": "足够大，CPCV 就能把回测方差压得很低，使虚假发现概率可以忽略不计。"
+    },
+    {
+      "key": "t_a954a871c38f47bd193a",
+      "source": "In Chapter 11, we argued that backtest overfitting may be the most important open problem in all of mathematical finance. Let us see how CPCV helps address this problem in practice. Suppose that a researcher submits a strategy to a journal, supported by an overfit WF backtest, selected from a large number of undisclosed trials. The journal could ask the researcher to repeat his experiments using a CPCV for a given",
+      "translation": "第 11 章指出，回测过拟合可能是整个数理金融中最重要的开放问题。下面看看 CPCV 在实践中如何应对它。假设研究人员向期刊提交一个策略，依据的是从大量未披露试验中选出的、已经过拟合的 WF 回测。期刊可以要求研究人员按指定的"
+    },
+    {
+      "key": "t_b29ce35633fa38929dda",
+      "source": ". Because the researcher did not know in advance the number and characteristics of the paths to be backtested, his overfitting efforts will be easily defeated. The paper will be rejected or withdrawn from consideration. Hopefully CPCV will be used to reduce the number of false discoveries published in journals and elsewhere.",
+      "translation": "重新使用 CPCV 做实验。由于研究人员事先不知道要回测的路径数量和特征，原有的过拟合手段很容易失效，论文也会被拒绝或撤回。希望 CPCV 能减少期刊及其他渠道发表的虚假发现。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_64e6c5716ad9d6154697",
+      "source": "Previous: The Dangers of Backtesting",
+      "translation": "上一章：回测的危险"
+    },
+    {
+      "key": "t_898a42b6660d52b5e1fc",
+      "source": "Next: Backtesting on Synthetic Data",
+      "translation": "下一章：使用合成数据回测"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    }
+  ]
+}

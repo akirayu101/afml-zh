@@ -1,0 +1,541 @@
+{
+  "chapter": "chapter-09",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_b4820305c47375d342c8",
+      "source": "Hyper-Parameter Tuning with Cross-Validation | Advances in Financial Machine Learning",
+      "translation": "使用交叉验证调优超参数 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_da8dfe259f6c4e21d93c",
+      "source": "Part 2: Modelling",
+      "translation": "第二部分：建模"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_ef022119395a2b2e7691",
+      "source": "Hyper-Parameter Tuning with Cross-Validation",
+      "translation": "使用交叉验证调优超参数"
+    },
+    {
+      "key": "t_d469fbf078f974f66423",
+      "source": "9.1 Motivation",
+      "translation": "9.1 动机"
+    },
+    {
+      "key": "t_072d91a8b70ba1f53815",
+      "source": "Hyper-parameter tuning is an essential step in fitting an ML algorithm. When this is not done properly, the algorithm is likely to overfit, and live performance will disappoint. The ML literature places special attention on cross-validating any tuned hyper-parameter. As we have seen in Chapter 7, cross-validation (CV) in finance is an especially difficult problem, where solutions from other fields are likely to fail. In this chapter we will discuss how to tune hyper-parameters using the purged k-fold CV method. The references section lists studies that propose alternative methods that may be useful in specific problems.",
+      "translation": "超参数调优是拟合 ML 算法的关键步骤。调优不当时，算法很容易过拟合，实盘表现也会令人失望。因此，ML 文献特别强调：所有调过的超参数都要经过交叉验证。第 7 章已经说明，金融领域的交叉验证（CV）尤其困难，其他领域的常规方案往往会失效。本章将讨论如何用清除式 K 折 CV 调优超参数。参考文献还列出了其他方法，它们可能适合某些特定问题。"
+    },
+    {
+      "key": "t_4de1f0ea36884c59ea6a",
+      "source": "9.2 Grid Search Cross-Validation",
+      "translation": "9.2 网格搜索交叉验证"
+    },
+    {
+      "key": "t_717efa3e43941aff1656",
+      "source": "Grid search cross-validation conducts an exhaustive search for the combination of parameters that maximizes the CV performance, according to some user-defined score function. When we do not know much about the underlying structure of the data, this is a reasonable first approach. Scikit-learn has implemented this logic in the function",
+      "translation": "网格搜索交叉验证会穷举参数组合，并根据用户指定的评分函数，找出 CV 表现最佳的一组参数。如果我们对数据的底层结构了解不多，这是一个合理的起点。scikit-learn 通过函数"
+    },
+    {
+      "key": "t_99aa93a4b1b97033b3e2",
+      "source": ", which accepts a CV generator as an argument. For the reasons explained in Chapter 7, we need to pass our",
+      "translation": "实现了这套逻辑，该函数可接收 CV 生成器作为参数。出于第 7 章所述原因，我们必须传入自己的"
+    },
+    {
+      "key": "t_7e698b645eff2e0ded97",
+      "source": "class (Snippet 7.3) in order to prevent that",
+      "translation": "类（代码清单 7.3），以免"
+    },
+    {
+      "key": "t_1bee33be56a77da11956",
+      "source": "overfits the ML estimator to leaked information.",
+      "translation": "利用泄漏的信息让 ML 估计器过拟合。"
+    },
+    {
+      "key": "t_d0972e7fe4e0539daa4e",
+      "source": "Snippet 9.1: Grid Search with Purged K-fold Cross-validation",
+      "translation": "代码清单 9.1：采用清除式 K 折交叉验证的网格搜索"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_323f484861a720fe67f3",
+      "source": "Snippet 9.1 lists function",
+      "translation": "代码清单 9.1 给出了函数"
+    },
+    {
+      "key": "t_e94f981c22465719899d",
+      "source": ", which implements a purged",
+      "translation": "，它实现了经过清除处理的"
+    },
+    {
+      "key": "t_2802d58eb570dc058e9c",
+      "source": ". The argument",
+      "translation": "。参数"
+    },
+    {
+      "key": "t_f04e81485ba90acfa3e2",
+      "source": "can be used to pass",
+      "translation": "可用于传入"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "，而"
+    },
+    {
+      "key": "t_5d18a9fbc6c6d4495c7a",
+      "source": "contains the values that will be combined into a grid. In addition, this function allows for the bagging of the tuned estimator. Bagging an estimator is generally a good idea for the reasons explained in Chapter 6, and the above function incorporates logic to that purpose.",
+      "translation": "包含用于组成参数网格的取值。此外，该函数还允许对调优后的估计器使用 bagging。第 6 章已经说明，对估计器采用 bagging 通常是个好主意；上述函数也加入了相应逻辑。"
+    },
+    {
+      "key": "t_8ad57000ac80207a462f",
+      "source": "I advise you to use",
+      "translation": "在元标签应用中，我建议使用"
+    },
+    {
+      "key": "t_f9da8aa6b1d1f275885a",
+      "source": "in the context of meta-labeling applications, for the following reason. Suppose a sample with a very large number of negative (i.e., label '0') cases. A classifier that predicts all cases to be negative will achieve high",
+      "translation": "。原因如下：假设样本里有大量负类，即标签为“0”的样本。如果分类器把所有样本都预测为负类，仍会得到很高的"
+    },
+    {
+      "key": "t_7175517a370b5cd2e664",
+      "source": "or",
+      "translation": "或"
+    },
+    {
+      "key": "t_bab15c524a710f958b4e",
+      "source": ", even though it has not learned from the features how to discriminate between cases. In fact, such a model achieves zero recall and undefined precision (see Chapter 3, Section 3.7). The",
+      "translation": "，尽管它根本没有从特征中学会区分不同类别。事实上，这种模型的召回率为 0，精确率没有定义（见第 3 章第 3.7 节）。"
+    },
+    {
+      "key": "t_ba4a9ef728ea6415b6be",
+      "source": "score corrects for that performance inflation by scoring the classifier in terms of precision and recall (see Chapter 14, Section 14.8).",
+      "translation": "评分同时考虑精确率和召回率，可以纠正这种虚高的表现（见第 14 章第 14.8 节）。"
+    },
+    {
+      "key": "t_db55d806e4bfe077ac9f",
+      "source": "For other (non-meta-labeling) applications, it is fine to use",
+      "translation": "对于其他非元标签应用，可以使用"
+    },
+    {
+      "key": "t_0d8ef8abd88a7b3f1fda",
+      "source": ", because we are equally interested in predicting all cases. Note that a relabeling of cases has no impact on",
+      "translation": "，因为我们同样关心所有类别的预测。注意，重新编码类别不会影响"
+    },
+    {
+      "key": "t_0b2949833b59f223419f",
+      "source": ", however it will have an impact on",
+      "translation": "，但会影响"
+    },
+    {
+      "key": "t_68d561658b17a6cb242a",
+      "source": "This example introduces nicely one limitation of",
+      "translation": "这个例子恰好说明"
+    },
+    {
+      "key": "t_ed333967d4e2529de059",
+      "source": "'s Pipelines: Their",
+      "translation": "的 Pipeline 有一项局限：它的"
+    },
+    {
+      "key": "t_ea3888bc4b63243abeae",
+      "source": "method does not expect a",
+      "translation": "方法不接收"
+    },
+    {
+      "key": "t_d4b826599e55ca434370",
+      "source": "argument. Instead, it expects a",
+      "translation": "参数，而是接收一个"
+    },
+    {
+      "key": "t_03730a1dea430b7386cc",
+      "source": "keyworded argument. That is a bug that has been reported in GitHub; however, it may take some time to fix it, as it involves rewriting and testing much functionality. Until then, feel free to use the workaround in Snippet 9.2.",
+      "translation": "关键字参数。这一缺陷已经在 GitHub 上报告，但修复它需要重写并测试许多功能，可能要等一段时间。在此之前，可以使用代码清单 9.2 中的变通方案。"
+    },
+    {
+      "key": "t_2a36d493c90e38ccc639",
+      "source": "Snippet 9.2 creates a new class, called",
+      "translation": "代码清单 9.2 创建了一个名为"
+    },
+    {
+      "key": "t_601b351c704bbe11ff10",
+      "source": ", which inherits all methods from",
+      "translation": "的新类，它继承自"
+    },
+    {
+      "key": "t_edc00d4db80ddc3e9178",
+      "source": "'s",
+      "translation": "的"
+    },
+    {
+      "key": "t_ed3153ef8c5fe0a725ad",
+      "source": ". It overwrites the inherited",
+      "translation": "类，并重写"
+    },
+    {
+      "key": "t_9f5cf72dbb417f2a307e",
+      "source": "method with a new one that handles the argument",
+      "translation": "方法来处理参数"
+    },
+    {
+      "key": "t_0872a06ab2faf3b61e1a",
+      "source": ", after which it redirects to the parent class.",
+      "translation": "，随后调用父类实现。"
+    },
+    {
+      "key": "t_0a36ff6d1bf0d6e1ff76",
+      "source": "Snippet 9.2: An Enhanced Pipeline Class",
+      "translation": "代码清单 9.2：增强版 Pipeline 类"
+    },
+    {
+      "key": "t_3eedc8d9877f6e167982",
+      "source": "If you are not familiar with this technique for expanding classes, you may want to read this introductory Stack Overflow post:",
+      "translation": "如果你不熟悉这种扩展类的技巧，可以阅读下面这篇 Stack Overflow 入门文章："
+    },
+    {
+      "key": "t_e7c50b8580dbb1a921e0",
+      "source": "9.3 Randomized Search Cross-Validation",
+      "translation": "9.3 随机搜索交叉验证"
+    },
+    {
+      "key": "t_8d38f5f03c2728e5d294",
+      "source": "For ML algorithms with a large number of parameters, a grid search cross-validation (CV) becomes computationally intractable. In this case, an alternative with good statistical properties is to sample each parameter from a distribution (Bergstra et al. [2011, 2012]). This has two benefits: First, we can control for the number of combinations we will search for, regardless of the dimensionality of the problem (the equivalent to a computational budget). Second, having parameters that are relatively irrelevant performance-wise will not substantially increase our search time, as would be the case with grid search CV.",
+      "translation": "如果 ML 算法有大量参数，网格搜索交叉验证（CV）的计算量会变得难以承受。此时可以从各参数的分布中抽样；这种替代方法具有良好的统计性质（Bergstra 等人 [2011, 2012]）。它有两个优点：第一，无论问题维度多高，都能直接控制要搜索的组合数量，相当于设定计算预算；第二，那些对性能影响很小的参数不会像网格搜索 CV 那样显著增加搜索时间。"
+    },
+    {
+      "key": "t_7d6df0c199f799ba102e",
+      "source": "Rather than writing a new function to work with",
+      "translation": "不必另写一个函数来配合"
+    },
+    {
+      "key": "t_b3a9547e9085651b70c7",
+      "source": ", let us expand Snippet 9.1 to incorporate an option to this purpose. A possible implementation is Snippet 9.3.",
+      "translation": "，我们可以扩展代码清单 9.1，加入随机搜索选项。代码清单 9.3 给出了一种实现。"
+    },
+    {
+      "key": "t_8c3fe1111bad1a5f06b5",
+      "source": "Snippet 9.3: Randomized Search with Purged K-fold CV",
+      "translation": "代码清单 9.3：采用清除式 K 折 CV 的随机搜索"
+    },
+    {
+      "key": "t_1fc835f8edbaa0bfc3d4",
+      "source": "9.3.1 Log-Uniform Distribution",
+      "translation": "9.3.1 对数均匀分布"
+    },
+    {
+      "key": "t_baf5e68643272152a2c9",
+      "source": "It is common for some ML algorithms to accept non-negative hyper-parameters only. That is the case of some very popular parameters, such as",
+      "translation": "有些 ML 算法只接受非负超参数，许多常用参数都是如此，例如参数"
+    },
+    {
+      "key": "t_866ab23f02991a070ef7",
+      "source": "in the",
+      "translation": "（位于"
+    },
+    {
+      "key": "t_f44e5c7589036e5ac715",
+      "source": "classifier and",
+      "translation": "分类器中）和参数"
+    },
+    {
+      "key": "t_8a7d6fdc512ab753d42c",
+      "source": "in the RBF kernel.",
+      "translation": "（位于 RBF 核中）。"
+    },
+    {
+      "key": "t_153ee424fb8405ecf385",
+      "source": "We could draw random numbers from a uniform distribution bounded between 0 and some large value, say 100. That would mean that 99% of the values would be expected to be greater than 1. That is not necessarily the most effective way of exploring the feasibility region of parameters whose functions do not respond linearly. For example, an",
+      "translation": "可以从 0 到某个较大值（比如 100）之间的均匀分布中抽取随机数，但这样预计有 99% 的取值会大于 1。对于响应并非线性的参数，这未必是探索可行区域的最高效方法。例如，"
+    },
+    {
+      "key": "t_8e570f0914e5db814a87",
+      "source": "can be as responsive to an increase in",
+      "translation": "对参数"
+    },
+    {
+      "key": "t_c543f2a29b84f0abdcfa",
+      "source": "from 0.01 to 1 as to an increase in",
+      "translation": "从 0.01 增至 1 的敏感程度，可能与参数"
+    },
+    {
+      "key": "t_f0a7594488cc6aae9ce8",
+      "source": "from 1 to 100.",
+      "translation": "从 1 增至 100 相当。"
+    },
+    {
+      "key": "t_bfb0dd6dcae462397764",
+      "source": "So sampling",
+      "translation": "因此，参数"
+    },
+    {
+      "key": "t_950aac73896c95c117c9",
+      "source": "from a",
+      "translation": "若服从"
+    },
+    {
+      "key": "t_1475c42cbc2ff1e474b0",
+      "source": "distribution will be inefficient. In those instances, it seems more effective to draw values from a distribution where the logarithm of those draws will be distributed uniformly. I call that a log-uniform distribution, and since I could not find it in the literature, I must define it properly.",
+      "translation": "分布，抽样会很低效。在这种情况下，更有效的做法是从一个分布中抽样，使样本取对数后服从均匀分布。我把它称为对数均匀分布。由于没有在文献中找到现成定义，下面给出严格定义。"
+    },
+    {
+      "key": "t_f92400183ad2bce258b5",
+      "source": "A random variable",
+      "translation": "随机变量"
+    },
+    {
+      "key": "t_b696f19a19de34b5e9ff",
+      "source": "follows a log-uniform distribution between",
+      "translation": "服从区间"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "到"
+    },
+    {
+      "key": "t_ebdb88b1bfed1328981b",
+      "source": "if and only if",
+      "translation": "上的对数均匀分布，当且仅当"
+    },
+    {
+      "key": "t_7b0636c1a34a57438708",
+      "source": ". This distribution has a CDF:",
+      "translation": "。该分布的累积分布函数（CDF）为："
+    },
+    {
+      "key": "t_08b7d4ed4b2acf03a40d",
+      "source": "From this, we derive a PDF:",
+      "translation": "由此可得概率密度函数（PDF）："
+    },
+    {
+      "key": "t_9f323ba6639f3f08b9d2",
+      "source": "Note that the CDF is invariant to the base of the logarithm, since",
+      "translation": "注意，CDF 不随对数底数变化，因为"
+    },
+    {
+      "key": "t_4d6eee60d09e169fa122",
+      "source": "for any base",
+      "translation": "对任意底数"
+    },
+    {
+      "key": "t_786c0463832dd9a1f10e",
+      "source": ", thus the random variable is not a function of",
+      "translation": "都成立。因此，该随机变量并不依赖"
+    },
+    {
+      "key": "t_b63736d23433e22cba2a",
+      "source": ". Snippet 9.4 implements (and tests) in",
+      "translation": "。代码清单 9.4 在"
+    },
+    {
+      "key": "t_d89d2d46bea365cda484",
+      "source": "a random variable where",
+      "translation": "中实现并测试了一个随机变量，其中"
+    },
+    {
+      "key": "t_5b535aca40fe929b0466",
+      "source": ", hence",
+      "translation": "，所以"
+    },
+    {
+      "key": "t_9d90d93fe817f680237d",
+      "source": ". Figure 9.1 illustrates the uniformity of the samples in log-scale.",
+      "translation": "。图 9.1 展示了样本在对数尺度上的均匀性。"
+    },
+    {
+      "key": "t_62a5b7accda836b07d12",
+      "source": "Figure 9.1: Result from testing the logUniform_gen class",
+      "translation": "图 9.1：logUniform_gen 类的测试结果"
+    },
+    {
+      "key": "t_b78ac449d93c54a28955",
+      "source": "Snippet 9.4: The logUniform_gen Class",
+      "translation": "代码清单 9.4：logUniform_gen 类"
+    },
+    {
+      "key": "t_f10eb2500bf7bf754f83",
+      "source": "9.4 Scoring and Hyper-Parameter Tuning",
+      "translation": "9.4 评分与超参数调优"
+    },
+    {
+      "key": "t_73dbd50f5aab267bb6a9",
+      "source": "Snippets 9.1 and 9.3 set",
+      "translation": "代码清单 9.1 和 9.3 在元标签应用中设置"
+    },
+    {
+      "key": "t_8f14f131fc396c4fce15",
+      "source": "for meta-labeling applications. For other applications, they set",
+      "translation": "；在其他应用中，则设置"
+    },
+    {
+      "key": "t_3e3079f8a37b01c99a45",
+      "source": "rather than the standard",
+      "translation": "，而不是默认的"
+    },
+    {
+      "key": "t_db62e528a949ea78b268",
+      "source": ". Although accuracy has a more intuitive interpretation, I suggest that you use",
+      "translation": "。虽然准确率更容易直观理解，但调优投资策略的超参数时，我建议使用"
+    },
+    {
+      "key": "t_76ead441ff23434a5f02",
+      "source": "when you are tuning hyper-parameters for an investment strategy. Let me explain my reasoning.",
+      "translation": "。下面解释原因。"
+    },
+    {
+      "key": "t_17c102acf335cde69745",
+      "source": "Suppose that your ML investment strategy predicts that you should buy a security, with high probability. You will enter a large long position, as a function of the strategy's confidence. If the prediction was erroneous, and the market sells off instead, you will lose a lot of money. And yet, accuracy accounts equally for an erroneous buy prediction with high probability and for an erroneous buy prediction with low probability. Moreover, accuracy can offset a miss with high probability with a hit with low probability.",
+      "translation": "假设你的 ML 投资策略以很高概率预测应当买入某只证券。仓位会随策略信心提高，因此你会建立较大的多头仓位。如果预测错误，市场反而下跌，你就会损失很多钱。然而，无论错误买入预测的概率高还是低，准确率都把它们同等对待；而且，准确率还可能让一次低置信度的正确预测抵消一次高置信度的错误预测。"
+    },
+    {
+      "key": "t_de35d23c339910ff868f",
+      "source": "Investment strategies profit from predicting the right label with high confidence. Gains from good predictions with low confidence will not suffice to offset the losses from bad predictions with high confidence. For this reason, accuracy does not provide a realistic scoring of the classifier's performance. Conversely, log loss",
+      "translation": "投资策略依靠“高置信度地预测正确标签”赚钱。低置信度正确预测带来的收益，不足以弥补高置信度错误预测造成的损失。因此，准确率无法真实衡量分类器表现。相比之下，对数损失"
+    },
+    {
+      "key": "t_70a4a45a75231817556f",
+      "source": "(aka cross-entropy loss) computes the log-likelihood of the classifier given the true label, which takes predictions' probabilities into account. Log loss can be estimated as follows:",
+      "translation": "（又称交叉熵损失）会在真实标签给定时计算分类器的对数似然，从而把预测概率纳入考量。对数损失可估计为："
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "其中："
+    },
+    {
+      "key": "t_ba9093bd47a581587e69",
+      "source": "is the probability associated with prediction",
+      "translation": "表示分类器把第"
+    },
+    {
+      "key": "t_b331e7629a78930e849c",
+      "source": "of label",
+      "translation": "个观测预测为某一标签的概率，该标签为"
+    },
+    {
+      "key": "t_67453fc4e6b4f9a67a43",
+      "source": "is a 1-of-",
+      "translation": "是一个 one-hot 二元指示矩阵，共有"
+    },
+    {
+      "key": "t_2a27fd7ee076835f2b17",
+      "source": "binary indicator matrix, such that",
+      "translation": "个可能标签，并满足"
+    },
+    {
+      "key": "t_ca34c1c047a8ba9f00b1",
+      "source": "when observation",
+      "translation": "，当且仅当观测"
+    },
+    {
+      "key": "t_a4bc10daae7de204de6d",
+      "source": "was assigned label",
+      "translation": "被分配标签"
+    },
+    {
+      "key": "t_a5a21861848babbf10ad",
+      "source": "out of",
+      "translation": "（"
+    },
+    {
+      "key": "t_0ee5962cdfecce28ea2b",
+      "source": "possible labels, and 0 otherwise.",
+      "translation": "个可能标签之一）；否则为 0。"
+    },
+    {
+      "key": "t_f8cb8757e85c13f850b1",
+      "source": "Suppose that a classifier predicts two 1s, where the true labels are 1 and 0. The first prediction is a hit and the second prediction is a miss, thus accuracy is 50%. Figure 9.2 plots the cross-entropy loss when these predictions come from probabilities ranging",
+      "translation": "假设分类器两次都预测为 1，而真实标签分别是 1 和 0。第一次预测正确，第二次预测错误，所以准确率为 50%。图 9.2 绘制了预测概率处于"
+    },
+    {
+      "key": "t_86fd88d4015d2f9032eb",
+      "source": ". One can observe that on the right side of the figure, log loss is large due to misses with high probability, even though the accuracy is 50% in all cases.",
+      "translation": "时的交叉熵损失。可以看到，在图的右侧，高概率错误预测使对数损失很大，尽管所有情况下的准确率都是 50%。"
+    },
+    {
+      "key": "t_52114528c437eb679238",
+      "source": "There is a second reason to prefer cross-entropy loss over accuracy. CV scores a classifier by applying sample weights (see Chapter 7, Section 7.5). As you may recall from Chapter 4, observation weights were determined as a function of the observation's absolute return. The implication is that sample weighted cross-entropy loss estimates the classifier's performance in terms of variables involved in a PnL (mark-to-market profit and losses) calculation: It uses the correct label for the side, probability for the position size, and sample weight for the observation's return/outcome. That is the right ML performance metric for hyper-parameter tuning of financial applications, not accuracy.",
+      "translation": "相比准确率，更应使用交叉熵损失还有第二个原因。CV 会结合样本权重为分类器评分（见第 7 章第 7.5 节）。第 4 章讲过，观测权重由观测的绝对收益率决定。这意味着，加权交叉熵损失会用计算盯市损益（PnL）时涉及的变量来评估分类器：正确标签决定交易方向，预测概率决定仓位大小，样本权重代表该观测的收益或结果。对金融应用的超参数调优而言，这才是合适的 ML 性能指标，而不是准确率。"
+    },
+    {
+      "key": "t_990f9ab56ab684ff1393",
+      "source": "Figure 9.2: Log loss as a function of predicted probabilities of hit and miss",
+      "translation": "图 9.2：对数损失随正确和错误预测概率的变化"
+    },
+    {
+      "key": "t_26ea73a1949c24df6297",
+      "source": "When we use log loss as a scoring statistic, we often prefer to change its sign, hence referring to",
+      "translation": "使用对数损失作为评分统计量时，通常会把符号取反，记作"
+    },
+    {
+      "key": "t_422eb95c8f484e9009a8",
+      "source": ". The reason for this change is cosmetic, driven by intuition: A high neg log loss value is preferred to a low neg log loss value, just as with accuracy. Keep in mind this",
+      "translation": "。这样做只是为了让结果更符合直觉：和准确率一样，负对数损失越高越好。请注意这个"
+    },
+    {
+      "key": "t_87374b45667b925df7fb",
+      "source": "bug when you use",
+      "translation": "缺陷，尤其是在使用"
+    },
+    {
+      "key": "t_4bee02a417af33194ff2",
+      "source": ". To circumvent this bug, you should use the",
+      "translation": "。为绕过该缺陷，应使用第 7 章给出的"
+    },
+    {
+      "key": "t_8b8e3947a455249eb17b",
+      "source": "function presented in Chapter 7.",
+      "translation": "函数。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_26bea02ab818287206b5",
+      "source": "Previous: Feature Importance",
+      "translation": "上一章：特征重要性"
+    },
+    {
+      "key": "t_6278cdf00fae4be99504",
+      "source": "Next: Bet Sizing",
+      "translation": "下一章：仓位规模"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    }
+  ]
+}

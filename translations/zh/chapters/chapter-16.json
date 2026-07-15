@@ -1,0 +1,1246 @@
+{
+  "chapter": "chapter-16",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_6210fa73a94536f72fd6",
+      "source": "Machine Learning Asset Allocation | Advances in Financial Machine Learning",
+      "translation": "机器学习资产配置｜金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_6c97bca7afd7fe168b80",
+      "source": "Part 3: Backtesting",
+      "translation": "第三部分：回测"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_1c8ea90c3e49f176cf4c",
+      "source": "Machine Learning Asset Allocation",
+      "translation": "机器学习资产配置"
+    },
+    {
+      "key": "t_2912b15f185ce5d44f9d",
+      "source": "16.1 Motivation",
+      "translation": "16.1 动机"
+    },
+    {
+      "key": "t_483b917060312edec60e",
+      "source": "This chapter introduces the Hierarchical Risk Parity (HRP) approach.1 HRP portfolios address three major concerns of quadratic optimizers in general and Markowitz’s Critical Line Algorithm (CLA) in particular: instability, concentration, and underperformance. HRP applies modern mathematics (graph theory and machine learning techniques) to build a diversified portfolio based on the information contained in the covariance matrix. However, unlike quadratic optimizers, HRP does not require the invertibility of the covariance matrix. In fact, HRP can compute a portfolio on an ill-degenerated or even a singular covariance matrix, an impossible feat for quadratic optimizers. Monte Carlo experiments show that HRP delivers lower out-of-sample variance than CLA, even though minimum-variance is CLA’s optimization objective. HRP produces less risky portfolios out-of-sample compared to traditional risk parity methods. Historical analyses have also shown that HRP would have performed better than standard approaches (Kolanovic et al.",
+      "translation": "本章介绍分层风险平价（Hierarchical Risk Parity，HRP）方法。HRP 组合着力解决二次优化器普遍存在、在马科维茨临界线算法（CLA）中尤其突出的三类问题：不稳定、持仓过度集中，以及样本外表现不佳。HRP 运用图论和机器学习等现代数学工具，根据协方差矩阵中的信息构建分散化组合。与二次优化器不同，HRP 不要求协方差矩阵可逆；即使矩阵严重退化甚至奇异，也能计算出组合，而二次优化器做不到这一点。蒙特卡洛实验表明，尽管最小化方差正是 CLA 的优化目标，HRP 的样本外方差仍然更低。与传统风险平价方法相比，HRP 得到的组合在样本外也更稳健。历史分析同样显示，HRP 的表现可能优于标准方法（Kolanovic 等人"
+    },
+    {
+      "key": "t_c5ab24b993d5a600d8fa",
+      "source": ", Raffinot",
+      "translation": "、Raffinot"
+    },
+    {
+      "key": "t_903002d98cd7342f6f3c",
+      "source": "). A practical application of HRP is to determine allocations across multiple machine learning (ML) strategies.",
+      "translation": "）。HRP 的一个实际用途，是在多种机器学习（ML）策略之间分配资金。"
+    },
+    {
+      "key": "t_bef2965538d541148307",
+      "source": "16.2 The Problem With Convex Portfolio Optimization",
+      "translation": "16.2 凸优化在投资组合构建中的问题"
+    },
+    {
+      "key": "t_a9101c96c6fb46624ea8",
+      "source": "Portfolio construction is perhaps the most recurrent financial problem. On a daily basis, investment managers must build portfolios that incorporate their views and forecasts on risks and returns. This is the primordial question that 24-year-old Harry Markowitz attempted to answer more than six decades ago. His monumental insight",
+      "translation": "构建投资组合也许是金融领域最常遇到的问题。投资经理每天都要把自己对风险和收益的判断、预测转化为持仓。六十多年前，24 岁的 Harry Markowitz 试图回答的正是这个根本问题。他最重要的洞见"
+    },
+    {
+      "key": "t_3921809675d0547b3f8e",
+      "source": "1 A short version of this chapter appeared in the Journal of Portfolio Management, Vol. 42, No. 4, pp. 59-69, Summer of 2016.",
+      "translation": "本章的简版曾发表于 2016 年夏季的《Journal of Portfolio Management》，第 42 卷第 4 期，第 59—69 页。"
+    },
+    {
+      "key": "t_a29dda79791d9ad0868e",
+      "source": "was to recognize that various levels of risk are associated with different optimal portfolios in terms of risk-adjusted returns, hence the notion of “efficient frontier” (Markowitz",
+      "translation": "是认识到：不同风险水平对应着不同的风险调整后收益最优组合，由此产生了“有效前沿”的概念（Markowitz"
+    },
+    {
+      "key": "t_d2dac887204fb85b29fc",
+      "source": "). One implication is that it is rarely optimal to allocate all assets to the investments with highest expected returns. Instead, we should take into account the correlations across alternative investments in order to build a diversified portfolio. Before earning his PhD in 1954, Markowitz left academia to work for the RAND Corporation, where he developed the Critical Line Algorithm. CLA is a quadratic optimization procedure specifically designed for inequality-constrained portfolio optimization problems. This algorithm is notable in that it guarantees that the exact solution is found after a known number of iterations, and that it ingeniously circumvents the Karush-Kuhn-Tucker conditions (Kuhn and Tucker",
+      "translation": "）。这意味着，把全部资金投向预期收益最高的资产通常并非最优选择；构建分散化组合时，还要考虑不同投资之间的相关性。Markowitz 在 1954 年获得博士学位前离开学术界，加入兰德公司，并在那里开发出临界线算法（CLA）。CLA 是专门求解带不等式约束的投资组合问题的二次优化方法。它的突出之处在于：能保证在已知迭代次数后找到精确解，并巧妙地绕开 Karush-Kuhn-Tucker 条件（Kuhn 和 Tucker"
+    },
+    {
+      "key": "t_ff3f095c24bd96011818",
+      "source": "). A description and open-source implementation of this algorithm can be found in Bailey and López de Prado",
+      "translation": "）。Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_ac5470b70b213cc3cc46",
+      "source": ". Surprisingly, most financial practitioners still seem unaware of CLA, as they often rely on generic-purpose quadratic programming methods that do not guarantee the correct solution or a stopping time. Despite of the brilliance of Markowitz’s theory, a number of practical problems make CLA solutions somewhat unreliable. A major caveat is that small deviations in the forecasted returns will cause CLA to produce very different portfolios (Michaud",
+      "translation": "给出了该算法的说明和开源实现。令人意外的是，许多金融从业者至今似乎仍不了解 CLA，常常使用通用二次规划方法，而这些方法既不保证找到正确解，也不保证何时停止。Markowitz 理论虽然精彩，CLA 在实践中却有若干问题，导致解不够可靠。一个主要缺陷是：预期收益只要略有变化，CLA 就可能生成截然不同的组合（Michaud"
+    },
+    {
+      "key": "t_90937f21a85ab2c70400",
+      "source": "). Given that returns can rarely be forecasted with sufficient accuracy, many authors have opted for dropping them altogether and focusing on the covariance matrix. This has led to risk-based asset allocation approaches, of which “risk parity” is a prominent example (Jurczenko",
+      "translation": "）。由于收益几乎不可能预测得足够准确，许多研究者干脆不再使用收益预测，只关注协方差矩阵。这催生了基于风险的资产配置方法，其中最知名的是“风险平价”（Jurczenko"
+    },
+    {
+      "key": "t_d0c5904e30d3a9ebd3cd",
+      "source": "). Dropping the forecasts on returns improves but does not prevent the instability issues. The reason is that quadratic programming methods require the inversion of a positive-definite covariance matrix (all eigenvalues must be positive). This inversion is prone to large errors when the covariance matrix is numerically ill-conditioned, that is, when it has a high condition number (Bailey and López de Prado",
+      "translation": "）。去掉收益预测虽然有所改善，却不能消除不稳定性。原因在于，二次规划需要对正定协方差矩阵求逆，也就是所有特征值都必须为正。当协方差矩阵的数值条件很差、条件数很高时，求逆会放大误差（Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_0ade50d9d6d3e0002b5b",
+      "source": "16.3 Markowitz’S Curse",
+      "translation": "16.3 马科维茨诅咒"
+    },
+    {
+      "key": "t_5ad29d10713e99ce3d11",
+      "source": "The condition number of a covariance, correlation (or normal, thus diagonalizable) matrix is the absolute value of the ratio between its maximal and minimal (by moduli) eigenvalues. Figure 16.1 plots the sorted eigenvalues of several correlation matrices, where the condition number is the ratio between the first and last values of each line. This number is lowest for a diagonal correlation matrix, which is its own inverse. As we add correlated (multicollinear) investments, the condition number grows. At some point, the condition number is so high that numerical errors make the inverse matrix too unstable: A small change on any entry will lead to a very different inverse. This is Markowitz's curse: The more correlated the investments, the greater the need for diversification, and yet the more likely we will receive unstable solutions. The benefits of diversification often are more than offset by estimation errors.",
+      "translation": "协方差矩阵、相关矩阵（或一般可对角化的正规矩阵）的条件数，是模最大的特征值与模最小的特征值之比的绝对值。图 16.1 展示了若干相关矩阵按大小排序后的特征值；每条曲线首尾两点之比就是条件数。对角相关矩阵的条件数最低，而且它就是自己的逆矩阵。随着更多相关、即存在多重共线性的投资加入，条件数不断增大。条件数高到一定程度后，数值误差会使逆矩阵极不稳定：任一元素的微小变化，都可能让逆矩阵面目全非。这就是“马科维茨诅咒”：投资之间越相关，越需要分散配置；但与此同时，优化解也越不稳定。分散化带来的好处常常会被估计误差抵消，甚至反超。"
+    },
+    {
+      "key": "t_03f72cfbdd37e6b118d0",
+      "source": "Increasing the size of the covariance matrix will only make matters worse, as each covariance coefficient is estimated with fewer degrees of freedom. In general, we need at least",
+      "translation": "扩大协方差矩阵只会让问题更严重，因为每个协方差系数可用来估计的自由度更少。一般而言，至少需要"
+    },
+    {
+      "key": "t_f21835e06b1058fa43a9",
+      "source": "independent and identically distributed (IID) observations in order",
+      "translation": "个独立同分布（IID）观测，才能"
+    },
+    {
+      "key": "t_317bb2d601a900a3b891",
+      "source": "Figure 16.1: Visualization of Markowitz’s curse",
+      "translation": "图 16.1：马科维茨诅咒示意图"
+    },
+    {
+      "key": "t_04048a0ef9e98523c66f",
+      "source": "A diagonal correlation matrix has the lowest condition number. As we add correlated investments, the maximum eigenvalue is greater and the minimum eigenvalue is lower. The condition number rises quickly, leading to unstable inverse correlation matrices. At some point, the benefits of diversification are more than offset by estimation errors.",
+      "translation": "对角相关矩阵的条件数最低。加入相关资产后，最大特征值上升、最小特征值下降，条件数会迅速增大，使相关矩阵的逆变得不稳定。最终，估计误差会超过分散化带来的收益。"
+    },
+    {
+      "key": "t_6c311311a5ad103142e5",
+      "source": "to estimate a covariance matrix of size N that is not singular. For example, estimating an invertible covariance matrix of size 50 requires, at the very least, 5 years of daily IID data. As most investors know, correlation structures do not remain invariant over such long periods by any reasonable confidence level. The severity of these challenges is epitomized by the fact that even naı̈ve (equally-weighted) portfolios have been shown to beat mean-variance and risk-based optimization out-of-sample (De Miguel et al.",
+      "translation": "估计出一个非奇异的 N 阶协方差矩阵。例如，要估计一个可逆的 50 阶协方差矩阵，至少需要 5 年的日频 IID 数据。投资者都知道，在如此长的时间里，相关结构不可能以合理的置信程度保持不变。问题的严重性可以从一个事实看出：即使是朴素的等权组合，样本外表现也被证明优于均值—方差优化和基于风险的优化方法（De Miguel 等人"
+    },
+    {
+      "key": "t_0a87691d711323c01a50",
+      "source": "16.4 From Geometric To Hierarchical Relationships",
+      "translation": "16.4 从几何关系转向层次关系"
+    },
+    {
+      "key": "t_107b768b57ed5710f0a3",
+      "source": "These instability concerns have received substantial attention in recent years, as Kolm et al.",
+      "translation": "近年来，这些不稳定性问题受到广泛关注，Kolm 等人"
+    },
+    {
+      "key": "t_3d6ffe2d1268d4dfd0ef",
+      "source": "have carefully documented. Most alternatives attempt to achieve robustness by incorporating additional constraints (Clarke et al.",
+      "translation": "对此做过系统梳理。多数替代方法通过增加约束（Clarke 等人"
+    },
+    {
+      "key": "t_7081d5770ef504f4de10",
+      "source": "), introducing Bayesian priors (Black and Litterman",
+      "translation": "）、引入贝叶斯先验（Black 和 Litterman"
+    },
+    {
+      "key": "t_dcbd0e7b86b9c3902b15",
+      "source": "), or improving the numerical stability of the covariance matrix’s inverse (Ledoit and Wolf",
+      "translation": "），或提高协方差矩阵求逆时的数值稳定性（Ledoit 和 Wolf"
+    },
+    {
+      "key": "t_dab2ead1bcb11e9a7c61",
+      "source": "). All the methods discussed so far, although published in recent years, are derived from (very) classical areas of mathematics: geometry, linear algebra, and calculus. A correlation matrix is a linear algebra object that measures the cosines of the angles",
+      "translation": "）来增强稳健性。以上方法虽然大多近年才发表，根基却仍是很传统的数学领域：几何、线性代数和微积分。相关矩阵是线性代数对象，用来度量"
+    },
+    {
+      "key": "t_5e10b18206cf0e66cd4d",
+      "source": "between any two vectors in the vector space formed by the returns series (see Calkin and López de Prado [2014a, 2015b]). One reason for the instability of quadratic optimizers is that the vector space is modelled as a complete (fully connected) graph, where every node is a potential candidate to substitute another. In algorithmic terms, inverting the matrix means evaluating the partial correlations across the complete graph. Figure 16.2(a) visualizes the relationships implied by a covariance matrix of 50 × 50, that is 50 nodes and 1225 edges. This complex structure magnifies small estimation errors, leading to incorrect solutions. Intuitively, it would be desirable to drop unnecessary edges. Let us consider for a moment the practical implications of such a topological structure. Suppose that an investor wishes to build a diversified portfolio of securities, including hundreds of stocks, bonds, hedge funds, real estate, private placements, etc. Some investments seem closer substitutes of one another, and other investments seem complementary to one another. For example, stocks could be grouped in terms of liquidity, size, industry, and region, where stocks within a given group compete for allocations. In deciding the allocation to a large publicly traded U.S. financial stock like J. P. Morgan, we will consider adding or reducing the allocation to another large publicly traded U.S. bank like Goldman Sachs, rather than a small community bank in Switzerland, or a real estate holding in the Caribbean. Yet, to a correlation matrix, all investments are potential substitutes to one another. In other words, correlation matrices lack the notion of hierarchy. This lack of hierarchical structure allows weights to vary freely in unintended ways, which is a root cause of CLA’s instability. Figure 16.2(b) visualizes a hierarchical structure known as a tree. A tree structure introduces two desirable features: (1) It has only N − 1 edges to connect N nodes, so the weights only rebalance among peers at various hierarchical levels; and (2) the weights are distributed top-down, consistent with how many asset managers build their portfolios (e.g., from asset class to sectors to individual securities). For these reasons, hierarchical structures are better designed to give not only stable but also intuitive results. In this chapter we will study a new portfolio construction method that addresses CLA’s pitfalls using modern mathematics: graph theory and machine learning. This Hierarchical Risk Parity method uses the information contained in the covariance matrix without requiring its inversion or positive-definitiveness. HRP can even compute a portfolio based on a singular covariance matrix. The algorithm operates in three stages: tree clustering, quasi-diagonalization, and recursive bisection.",
+      "translation": "收益率序列构成的向量空间中，任意两个向量夹角的余弦（见 Calkin 和 López de Prado [2014a, 2015b]）。二次优化器不稳定的一个原因，是它把向量空间建模为完全图，即每个节点都和其他节点相连，每项投资都被视为其他投资的潜在替代品。从算法角度说，矩阵求逆就是在整张完全图上评估偏相关。图 16.2(a) 展示了一个 50×50 协方差矩阵所隐含的关系：50 个节点、1225 条边。如此复杂的结构会放大细小的估计误差，进而给出错误解。直观上，我们应当删去不必要的边。想想这种拓扑结构在现实中的含义：投资者要在数百种股票、债券、对冲基金、房地产和私募资产之间构建分散化组合。有些投资彼此更像替代品，另一些则更具互补性。例如，股票可以按流动性、规模、行业和地区分组，同组股票争夺资金份额。在决定是否增减摩根大通这类美国大型上市金融股时，我们更可能拿它与高盛这类美国大型上市银行比较，而不是与瑞士的小型社区银行或加勒比地区的房地产项目比较。但在相关矩阵里，所有投资都可能彼此替代。换句话说，相关矩阵没有“层次”概念。缺少层次结构，会让权重以并非设计本意的方式自由摆动，这是 CLA 不稳定的根源之一。图 16.2(b) 展示了一种称为“树”的层次结构。树结构有两个理想特性：（1）连接 N 个节点只需 N−1 条边，权重只会在不同层级的同类对象之间重新分配；（2）权重自上而下分配，符合许多资产管理人的实际构建流程，例如先分资产类别，再分行业，最后分到具体证券。因此，层次结构不仅更稳定，结果也更直观。本章将用图论和机器学习这些现代数学方法，介绍一种克服 CLA 缺陷的组合构建方法：分层风险平价（HRP）。HRP 使用协方差矩阵的信息，却不需要矩阵可逆或正定；即使协方差矩阵奇异，也能计算组合。算法分为三个阶段：树聚类、准对角化和递归二分。"
+    },
+    {
+      "key": "t_9ed78785931fe86b1529",
+      "source": "16.4.1 Tree Clustering",
+      "translation": "16.4.1 树聚类"
+    },
+    {
+      "key": "t_7b4367da78a81e0ceda9",
+      "source": "Consider a",
+      "translation": "考虑一个"
+    },
+    {
+      "key": "t_1a41c58dcb467117ca9c",
+      "source": "matrix of observations",
+      "translation": "观测矩阵"
+    },
+    {
+      "key": "t_8991b12975d9e0fd5af3",
+      "source": ", such as returns series of",
+      "translation": "，例如由"
+    },
+    {
+      "key": "t_1e8bcffd06a547dfdd7e",
+      "source": "variables over",
+      "translation": "个变量在"
+    },
+    {
+      "key": "t_9d6c3f0513a5ca244a68",
+      "source": "periods. We would like to combine these",
+      "translation": "个时期上的收益率序列构成。我们希望把这"
+    },
+    {
+      "key": "t_2d704369685349be22e1",
+      "source": "column-vectors into a hierarchical structure of clusters, so that allocations can flow downstream through a tree graph.",
+      "translation": "个列向量组织成层次化的簇，使资金能够沿树图自上而下分配。"
+    },
+    {
+      "key": "t_90c04890b0c6870071f7",
+      "source": "First, we compute an",
+      "translation": "第一步，计算"
+    },
+    {
+      "key": "t_c3be6f1d5a6802ea5c91",
+      "source": "correlation matrix with entries",
+      "translation": "相关矩阵，其元素为"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_b0c05777ccd6da586647",
+      "source": ". We define the distance measure",
+      "translation": "。定义距离度量"
+    },
+    {
+      "key": "t_a7e2d26e8d15814dd9c6",
+      "source": "by",
+      "translation": "如下："
+    },
+    {
+      "key": "t_be5b6e50112f57c1d7a5",
+      "source": "is the Cartesian product of items in",
+      "translation": "表示"
+    },
+    {
+      "key": "t_b31a0fec5b22282c9f1a",
+      "source": ". This allows us to compute an",
+      "translation": "中元素的笛卡儿积。由此可计算"
+    },
+    {
+      "key": "t_5958c60636e1c3f2426d",
+      "source": "distance matrix",
+      "translation": "距离矩阵"
+    },
+    {
+      "key": "t_21d1694d7a89ac14b6f6",
+      "source": ". Matrix",
+      "translation": "。矩阵"
+    },
+    {
+      "key": "t_84eeca6146bd25d05140",
+      "source": "is a proper metric space (see Appendix 16.A.1 for a proof), in the sense that",
+      "translation": "构成严格的度量空间（证明见附录 16.A.1），因为它满足"
+    },
+    {
+      "key": "t_0ed2e5d37140f8d99038",
+      "source": "(non-negativity),",
+      "translation": "非负性、"
+    },
+    {
+      "key": "t_150f50c25b7d44bc5237",
+      "source": "(coincidence),",
+      "translation": "同一性、"
+    },
+    {
+      "key": "t_67c473ee7096e296ef0c",
+      "source": "(symmetry), and",
+      "translation": "对称性，以及"
+    },
+    {
+      "key": "t_94536044ffa5c3c61ece",
+      "source": "(sub-additivity). See Example 16.1.",
+      "translation": "次可加性。见示例 16.1。"
+    },
+    {
+      "key": "t_2b1d788b0ec61c35f7b3",
+      "source": "Figure 16.2: The complete-graph (top) and the tree-graph (bottom) structures",
+      "translation": "图 16.2：完全图结构（上）与树图结构（下）"
+    },
+    {
+      "key": "t_7ce406de60209cf6fda2",
+      "source": "Correlation matrices can be represented as complete graphs, which lack the notion of hierarchy: Each investment is substitutable with another. In contrast, tree structures incorporate hierarchical relationships.",
+      "translation": "相关矩阵可以表示成完全图，它不包含层次概念：每项投资都可被另一项替代。树结构则能表达层次关系。"
+    },
+    {
+      "key": "t_6c8b426f5f393b110753",
+      "source": "Example 16.1 Encoding a correlation matrix",
+      "translation": "示例 16.1 把相关矩阵"
+    },
+    {
+      "key": "t_486707517e148e14cf8d",
+      "source": "as a distance matrix",
+      "translation": "编码为距离矩阵"
+    },
+    {
+      "key": "t_2145059d6e3f84c8d0ba",
+      "source": "Second, we compute the Euclidean distance between any two column-vectors of",
+      "translation": "第二步，对于矩阵"
+    },
+    {
+      "key": "t_0695b563acde461fc2f8",
+      "source": "with",
+      "translation": "表示其中任意两个列向量之间的欧氏距离，并满足"
+    },
+    {
+      "key": "t_c386dbb86af8afc0daea",
+      "source": "Note the difference between distance metrics",
+      "translation": "注意距离度量"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "与"
+    },
+    {
+      "key": "t_ad953d93cceeaef9283d",
+      "source": ". Whereas",
+      "translation": "的区别。"
+    },
+    {
+      "key": "t_cfc195c10cfe2da8e9f3",
+      "source": "is defined on column-vectors of",
+      "translation": "定义在下列对象的列向量上，即"
+    },
+    {
+      "key": "t_48c0f4ac60427c2b6ae3",
+      "source": "(a distance of distances). Therefore,",
+      "translation": "，也就是“距离之间的距离”。因此，"
+    },
+    {
+      "key": "t_1e0838d8b4baf6f66576",
+      "source": "is a distance defined over the entire metric space",
+      "translation": "是定义在整个度量空间"
+    },
+    {
+      "key": "t_5a4a2a78492b811e8fe6",
+      "source": ", as each",
+      "translation": "上的距离，因为每个"
+    },
+    {
+      "key": "t_b09ab08663d9aaf6a617",
+      "source": "is a function of the entire correlation matrix (rather than a particular cross-correlation pair). See Example 16.2.",
+      "translation": "都由完整的相关矩阵决定，而不是只由某一对交叉相关系数决定。见示例 16.2。"
+    },
+    {
+      "key": "t_581e94b35cc5ba7a0538",
+      "source": "Example 16.2 Euclidean distance of correlation distances",
+      "translation": "示例 16.2 相关距离的欧氏距离"
+    },
+    {
+      "key": "t_a08af0afa16c2b1e7c66",
+      "source": "Third, we cluster together the pair of columns",
+      "translation": "第三步，考察一对列"
+    },
+    {
+      "key": "t_4f2634aaa64272a68265",
+      "source": "such that",
+      "translation": "，如果"
+    },
+    {
+      "key": "t_5296bf0f16bc66594c9f",
+      "source": ", and denote this cluster as",
+      "translation": "，就把它们聚为一簇，记为"
+    },
+    {
+      "key": "t_cbdd705d8facb55e6eeb",
+      "source": ". See Example 16.3.",
+      "translation": "。见示例 16.3。"
+    },
+    {
+      "key": "t_a929240336e56067f2a1",
+      "source": "Example 16.3 Clustering items",
+      "translation": "示例 16.3 对元素进行聚类"
+    },
+    {
+      "key": "t_da577d33c234dba6f5c2",
+      "source": "Fourth, we need to define the distance between a newly formed cluster",
+      "translation": "第四步，需要定义新簇"
+    },
+    {
+      "key": "t_969665a0ac2d025d9170",
+      "source": "and the single (unclustered) items, so that",
+      "translation": "与尚未聚类的单个元素之间的距离，以便更新"
+    },
+    {
+      "key": "t_518b7c11ff8581b33900",
+      "source": "may be updated. In hierarchical clustering analysis, this is known as the linkage criterion. For example, we can define the distance between an item",
+      "translation": "。在层次聚类中，这叫作连接准则。例如，可以把元素"
+    },
+    {
+      "key": "t_28391d3bc64ec15cbb09",
+      "source": "of",
+      "translation": "（位于距离矩阵"
+    },
+    {
+      "key": "t_17e2d19a525e8a14279f",
+      "source": "and the new cluster",
+      "translation": "）到新簇"
+    },
+    {
+      "key": "t_f4bf9f7fcbedaba0392f",
+      "source": "as",
+      "translation": "的距离定义如下："
+    },
+    {
+      "key": "t_6765c588e6116006b61a",
+      "source": "(the nearest point algorithm). See Example 16.4.",
+      "translation": "，即最近点算法。见示例 16.4。"
+    },
+    {
+      "key": "t_37d0dadd1061ddc8b0df",
+      "source": "Example 16.4 Updating matrix",
+      "translation": "示例 16.4 更新矩阵"
+    },
+    {
+      "key": "t_e1e176e0843e167f132f",
+      "source": "with the new cluster",
+      "translation": "：加入新簇"
+    },
+    {
+      "key": "t_b3ab3106d9881bfc3d0d",
+      "source": "Fifth, matrix",
+      "translation": "第五步，更新矩阵"
+    },
+    {
+      "key": "t_e767b531cd514f453e17",
+      "source": "is updated by appending",
+      "translation": "：追加"
+    },
+    {
+      "key": "t_dcdd2f3773d92ebdd64b",
+      "source": "and dropping the clustered columns and rows",
+      "translation": "，并删除已经聚类的行和列"
+    },
+    {
+      "key": "t_4d7f3542e3ced7008fe9",
+      "source": ". See Example 16.5.",
+      "translation": "。见示例 16.5。"
+    },
+    {
+      "key": "t_ddf43d5892a83b2e7082",
+      "source": "Example 16.5 Updating matrix",
+      "translation": "示例 16.5 更新矩阵"
+    },
+    {
+      "key": "t_8d92a1ff0b7b4d74a9ad",
+      "source": "Sixth, applied recursively, steps 3, 4, and 5 allow us to append",
+      "translation": "第六步，递归执行第 3、4、5 步，可以把"
+    },
+    {
+      "key": "t_62aa565fc8c320bb9d02",
+      "source": "such clusters to matrix",
+      "translation": "个这样的簇追加到矩阵"
+    },
+    {
+      "key": "t_484234111cc765c1cbf1",
+      "source": ", at which point the final cluster contains all of the original items, and the clustering algorithm stops. See Example 16.6.",
+      "translation": "；当最终簇包含所有原始元素时，聚类算法停止。见示例 16.6。"
+    },
+    {
+      "key": "t_8d553c3c6f9652c02a83",
+      "source": "Example 16.6 Recursion in search of remaining clusters",
+      "translation": "示例 16.6 递归寻找剩余簇"
+    },
+    {
+      "key": "t_58fb73f86cffef0889ad",
+      "source": "Figure 16.3 displays the clusters formed at each iteration for this example, as well as the distances",
+      "translation": "图 16.3 展示了本例每轮形成的簇，以及"
+    },
+    {
+      "key": "t_f7e770fad20f1272abb4",
+      "source": "that triggered every cluster (third step). This procedure can be applied to a wide array of distance metrics",
+      "translation": "触发各次聚合的距离（第三步）。这一过程可以使用多种距离度量"
+    },
+    {
+      "key": "t_bf527473d2f64100318b",
+      "source": ", beyond those illustrated in this chapter. See Rokach and Maimon",
+      "translation": "，不限于本章演示的形式。其他度量可参见 Rokach 和 Maimon"
+    },
+    {
+      "key": "t_8b73870b94a5c7a8be50",
+      "source": "for alternative metrics, the discussion on Fiedler's vector and Stewart's spectral clustering method in Brualdi",
+      "translation": "，也可参见 Brualdi"
+    },
+    {
+      "key": "t_323ca56b781edfc843f4",
+      "source": ", as well as algorithms in the scipy library.",
+      "translation": "对 Fiedler 向量和 Stewart 谱聚类方法的讨论，以及 SciPy 库中的算法。"
+    },
+    {
+      "key": "t_2815255a17b6cc41b14d",
+      "source": "Snippet 16.1 provides an example of tree clustering using scipy functionality.",
+      "translation": "代码清单 16.1 演示了如何使用 SciPy 进行树聚类。"
+    },
+    {
+      "key": "t_4ff47a0457d00d504383",
+      "source": "Figure 16.3: Sequence of cluster formation",
+      "translation": "图 16.3：簇的形成顺序"
+    },
+    {
+      "key": "t_54eb961c8ba292329cc7",
+      "source": "A tree structure derived from our numerical example, here plotted as a dendogram. The y-axis measures the distance between the two merging leaves.",
+      "translation": "这是根据数值示例得到的树结构，以树状图呈现。纵轴表示两条合并分支之间的距离。"
+    },
+    {
+      "key": "t_ee7048d09cf84a33926c",
+      "source": "Snippet 16.1: Tree Clustering Using Scipy Functionality",
+      "translation": "代码清单 16.1：使用 SciPy 进行树聚类"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_f5a74c38e28d7e066140",
+      "source": "This stage allows us to define a linkage matrix as an",
+      "translation": "这一阶段可以定义一个"
+    },
+    {
+      "key": "t_5fb8dca8d1e3f0cb1b4a",
+      "source": "matrix with structure",
+      "translation": "阶连接矩阵，其结构为"
+    },
+    {
+      "key": "t_fef7090f3c052409f8f7",
+      "source": "(i.e., with one 4-tuple per cluster). Items",
+      "translation": "，即每个簇对应一个四元组。元素"
+    },
+    {
+      "key": "t_81da93508a8d88f837e4",
+      "source": "report the constituents. Item",
+      "translation": "给出簇的组成；元素"
+    },
+    {
+      "key": "t_a808bda8576996be3ef3",
+      "source": "reports the distance between",
+      "translation": "给出"
+    },
+    {
+      "key": "t_214a2307330ad303f35f",
+      "source": ", that is",
+      "translation": "之间的距离，即"
+    },
+    {
+      "key": "t_3c8cbbe3fe0735c7b38f",
+      "source": ". Item",
+      "translation": "。元素"
+    },
+    {
+      "key": "t_65e259a57ab0cdd8cc4d",
+      "source": "reports the number of original items included in cluster",
+      "translation": "给出相应簇所含的原始元素个数，簇编号为"
+    },
+    {
+      "key": "t_8df865599b1db5196569",
+      "source": "2 For additional metrics see:",
+      "translation": "2 更多距离度量参见："
+    },
+    {
+      "key": "t_8427eda3ed42b6b25b83",
+      "source": "16.4.2 Quasi-Diagonalization",
+      "translation": "16.4.2 准对角化"
+    },
+    {
+      "key": "t_2ca553a450de32056aef",
+      "source": "This stage reorganizes the rows and columns of the covariance matrix, so that the largest values lie along the diagonal. This quasi-diagonalization of the covariance matrix (without requiring a change of basis) renders a useful property: Similar investments are placed together, and dissimilar investments are placed far apart (see Figures 16.5 and 16.6 for an example). The algorithm works as follows: We know that each row of the linkage matrix merges two branches into one. We replace clusters in",
+      "translation": "这一阶段重新排列协方差矩阵的行和列，让较大的数值尽量靠近主对角线。协方差矩阵经过这种准对角化后，无须更换基底，就会呈现一个很有用的性质：相似的投资排在一起，不相似的投资相距较远（示例见图 16.5 和图 16.6）。算法如下：连接矩阵的每一行都会把两个分支合成一个。我们在"
+    },
+    {
+      "key": "t_552ed5c003edc8b59dfb",
+      "source": "with their constituents recursively, until no clusters remain. These replacements preserve the order of the clustering. The output is a sorted list of original (unclustered) items. This logic is implemented in Snippet 16.2.",
+      "translation": "中递归地用簇的组成元素替换该簇，直到不再剩下任何簇。替换过程保留聚类次序，最终输出排好序的原始元素列表。代码清单 16.2 实现了这一逻辑。"
+    },
+    {
+      "key": "t_47413611a0097cf0b3f8",
+      "source": "Snippet 16.2: Quasi-diagonalization",
+      "translation": "代码清单 16.2：准对角化"
+    },
+    {
+      "key": "t_4cb0f22bb480635eea34",
+      "source": "16.4.3 Recursive Bisection",
+      "translation": "16.4.3 递归二分"
+    },
+    {
+      "key": "t_6eeae44c6c12b5f343b7",
+      "source": "Stage 2 has delivered a quasi-diagonal matrix. The inverse-variance allocation is optimal for a diagonal covariance matrix (see Appendix 16.A.2 for a proof). We can take advantage of these facts in two different ways: (1) bottom-up, to define the variance of a contiguous subset as the variance of an inverse-variance allocation; or (2) top-down, to split allocations between adjacent subsets in inverse proportion to their aggregated variances. The following algorithm formalizes this idea:",
+      "translation": "阶段 2 已得到准对角矩阵。对于对角协方差矩阵，逆方差配置是最优的，证明见附录 16.A.2。我们可以从两个方向利用这一点：（1）自下而上，把某个连续子集的方差定义为其逆方差组合的方差；（2）自上而下，按相邻子集聚合方差的倒数比例分配权重。下面的算法把这一思路形式化。"
+    },
+    {
+      "key": "t_f1f6518bc61140e0a0a2",
+      "source": "The algorithm is initialized by:",
+      "translation": "算法初始化如下："
+    },
+    {
+      "key": "t_711f8831fc2c6ea29dbe",
+      "source": "Setting the list of items:",
+      "translation": "建立元素列表："
+    },
+    {
+      "key": "t_5dc7680cacec826b738a",
+      "source": ", with",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_11a60071ba2ecad0528c",
+      "source": "Assigning a unit weight to all items:",
+      "translation": "为所有元素赋予单位权重："
+    },
+    {
+      "key": "t_1e3abf61a37e3cad36b1",
+      "source": "If",
+      "translation": "如果"
+    },
+    {
+      "key": "t_ddeef23f550a64b21eeb",
+      "source": ", then stop.",
+      "translation": "，则停止。"
+    },
+    {
+      "key": "t_8f23adb215aef584c52b",
+      "source": "For each",
+      "translation": "对每个"
+    },
+    {
+      "key": "t_846e108d130566f367dd",
+      "source": "Bisect",
+      "translation": "执行二分：把"
+    },
+    {
+      "key": "t_fce2da23d739c3924524",
+      "source": "into two subsets,",
+      "translation": "分成两个子集"
+    },
+    {
+      "key": "t_6df03a04152f987b0f35",
+      "source": ", and the order is preserved.",
+      "translation": "，并保持原有顺序。"
+    },
+    {
+      "key": "t_c7358aac8d63bf67abe3",
+      "source": "Define the variance of",
+      "translation": "把"
+    },
+    {
+      "key": "t_703716ce8c15e3c73973",
+      "source": ", as the quadratic form",
+      "translation": "的方差定义为二次型"
+    },
+    {
+      "key": "t_29fa474e2020cb1a86ea",
+      "source": "is the covariance matrix between the constituents of the",
+      "translation": "是二分子集"
+    },
+    {
+      "key": "t_f796a1ed4a10c14510f0",
+      "source": "bisection, and",
+      "translation": "各组成元素之间的协方差矩阵；对应的逆方差权重为"
+    },
+    {
+      "key": "t_004764175c1403b056e3",
+      "source": "are the diagonal and trace operators.",
+      "translation": "分别表示取对角线和求迹运算。"
+    },
+    {
+      "key": "t_21eb841115723736c6f4",
+      "source": "Compute the split factor:",
+      "translation": "计算分配系数："
+    },
+    {
+      "key": "t_d5e0d48a59bd06a473eb",
+      "source": ", so that",
+      "translation": "，使得"
+    },
+    {
+      "key": "t_bf8b768d3805c0f48c07",
+      "source": "Re-scale allocations",
+      "translation": "把配置权重"
+    },
+    {
+      "key": "t_819bae5fd204eb6516f4",
+      "source": "by a factor of",
+      "translation": "乘以下列缩放系数："
+    },
+    {
+      "key": "t_9c6dfeb603917a7d9446",
+      "source": "Loop to step 2.",
+      "translation": "回到第 2 步循环。"
+    },
+    {
+      "key": "t_541fb9235b98c58d93f0",
+      "source": "Step 3b takes advantage of the quasi-diagonalization bottom-up, because it defines the variance of the partition",
+      "translation": "步骤 3b 自下而上利用准对角化结果：它定义分区"
+    },
+    {
+      "key": "t_a0d9f7147eb1ba1d86f8",
+      "source": "using inverse-variance weightings",
+      "translation": "的方差，所用逆方差权重为"
+    },
+    {
+      "key": "t_58324d40c0a7f1710a7e",
+      "source": ". Step 3c takes advantage of the quasi-diagonalization top-down, because it splits the weight in inverse proportion to the cluster's variance. This algorithm guarantees that",
+      "translation": "。步骤 3c 则自上而下利用准对角化结果，按簇方差的倒数比例拆分权重。该算法保证"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "，并且"
+    },
+    {
+      "key": "t_cb0c15432e6d25ab0b78",
+      "source": ", because at each iteration we are splitting the weights received from higher hierarchical levels. Constraints can be easily introduced in this stage, by replacing the equations in steps 3c, 3d, and 3e according to the user's preferences. Stage 3 is implemented in Snippet 16.3.",
+      "translation": "；原因是每轮迭代都只拆分从更高层继承下来的权重。在这一阶段很容易加入约束：只需根据使用者的偏好替换步骤 3c、3d 和 3e 中的方程。阶段 3 的实现见代码清单 16.3。"
+    },
+    {
+      "key": "t_4904baf859a5291e3656",
+      "source": "Snippet 16.3: Recursive Bisection",
+      "translation": "代码清单 16.3：递归二分"
+    },
+    {
+      "key": "t_0f65fb978a7568fc56f6",
+      "source": "This concludes a first description of the HRP algorithm, which solves the allocation problem in best-case deterministic logarithmic time,",
+      "translation": "至此，HRP 算法的基本说明已经完成。它求解配置问题时，最好情形下具有确定性的对数时间复杂度"
+    },
+    {
+      "key": "t_baec9e3916a5f73ae3fc",
+      "source": ", and worst-case deterministic linear time,",
+      "translation": "，最坏情形下具有确定性的线性时间复杂度"
+    },
+    {
+      "key": "t_004686d05a4f97fda0be",
+      "source": ". Next, we will put to practice what we have learned, and evaluate the method's accuracy out-of-sample.",
+      "translation": "。接下来将把这些方法用于实践，并评估其样本外准确性。"
+    },
+    {
+      "key": "t_3330842e1d10a1189526",
+      "source": "16.5 A Numerical Example",
+      "translation": "16.5 数值示例"
+    },
+    {
+      "key": "t_a7d33ed35052c7d4624e",
+      "source": "We begin by simulating a matrix of observations",
+      "translation": "首先模拟一个观测矩阵"
+    },
+    {
+      "key": "t_e57525df8724373cdb97",
+      "source": ", of order",
+      "translation": "，其维度为"
+    },
+    {
+      "key": "t_345c29c6da0cb4238ac7",
+      "source": ". The correlation matrix is visualized in Figure 16.4 as a heatmap. Figure 16.5 displays the dendogram of the resulting clusters (stage 1). Figure 16.6 shows the same correlation matrix, reorganized in blocks according to the identified clusters (stage 2). Appendix 16.A.3 provides the code used to generate this numerical example. On this random data, we compute HRP's allocations (stage 3), and compare them to the allocations from two competing methodologies: (1) Quadratic optimization, as represented by CLA's minimum-variance portfolio (the only portfolio of the efficient frontier that does not depend on returns' means); and (2) traditional risk parity, exemplified by the Inverse-Variance Portfolio (IVP). See Bailey and López de Prado",
+      "translation": "。图 16.4 用热力图展示相关矩阵；图 16.5 展示阶段 1 得到的簇的树状图；图 16.6 则按照识别出的簇重新排列同一相关矩阵，使其呈块状，也就是阶段 2。附录 16.A.3 给出了生成本数值示例的代码。我们在这组随机数据上计算 HRP 的配置权重（阶段 3），并与两种方法比较：（1）以 CLA 的最小方差组合代表二次优化；它是有效前沿上唯一不依赖平均收益的组合；（2）以逆方差组合（IVP）代表传统风险平价。CLA 的完整实现见 Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_3363159dd917044fcdd1",
+      "source": "for a comprehensive implementation of CLA, and Appendix 16.A.2 for a derivation of IVP.",
+      "translation": "，IVP 的推导见附录 16.A.2。"
+    },
+    {
+      "key": "t_e55ff80cd00de118b59f",
+      "source": "Figure 16.4: Heat-map of original covariance matrix",
+      "translation": "图 16.4：原始协方差矩阵热力图"
+    },
+    {
+      "key": "t_b7d37d073db3b28f6d26",
+      "source": "This correlation matrix has been computed using function generateData from snippet 16.4 (see Section 16.A.3). The last five columns are partially correlated to some of the first five series.",
+      "translation": "该相关矩阵由代码清单 16.4（见第 16.A.3 节）中的 generateData 函数生成。最后 5 列与前 5 个序列中的一部分存在相关性。"
+    },
+    {
+      "key": "t_e864484236d758862392",
+      "source": "Figure 16.5: Dendogram of cluster formation",
+      "translation": "图 16.5：簇形成过程的树状图"
+    },
+    {
+      "key": "t_c2f5b57aea0455be040b",
+      "source": "The clustering procedure has correctly identified that series 9 and 10 were perturbations of series 2, hence (9, 2, 10) are clustered together. Similarly, 7 is a perturbation of 1, 6 is a perturbation of 3, and 8 is a perturbation of 5. The only original item that was not perturbated is 4, and that is the one item for which the clustering algorithm found no similarity.",
+      "translation": "聚类过程正确识别出序列 9 和 10 是序列 2 的扰动版本，因此把 9、2、10 聚在一起。类似地，7 是 1 的扰动，6 是 3 的扰动，8 是 5 的扰动。唯一未受扰动的原始序列是 4，聚类算法也确实没有找到与它相似的序列。"
+    },
+    {
+      "key": "t_0f93cb9082e6ac520ce5",
+      "source": "We apply the standard constraints",
+      "translation": "我们采用标准约束"
+    },
+    {
+      "key": "t_1583549ff4addb435957",
+      "source": "(full investment). Incidentally, the condition number for the covariance matrix in this example is only 150.9324, not particularly high and therefore not unfavorable to CLA.",
+      "translation": "，即资金全部投入。顺便说一下，本例协方差矩阵的条件数只有 150.9324，并不算高，因此没有特别不利于 CLA。"
+    },
+    {
+      "key": "t_b927947b92c97c470e47",
+      "source": "From the allocations in Table 16.1, we can appreciate a few stylized features: First, CLA concentrates 92.66% of the allocation on the top-5 holdings, while HRP concentrates only 62.57%. Second, CLA assigns zero weight to 3 investments (without the",
+      "translation": "从表 16.1 的配置可以看到几个典型特征。第一，CLA 把 92.66% 的资金集中在前 5 大持仓，而 HRP 只有 62.57%。第二，CLA 给 3 项投资分配了零权重；如果不施加"
+    },
+    {
+      "key": "t_51f9a8b8cee46b17370f",
+      "source": "constraint, the allocation would have been negative). Third, HRP seems to find a compromise between CLA's concentrated solution and traditional risk parity's IVP allocation. The reader can use the code in Appendix 16.A.3 to verify that these findings generally hold for alternative random covariance matrices.",
+      "translation": "约束，这些权重会为负。第三，HRP 似乎在 CLA 的集中配置与传统风险平价的 IVP 配置之间找到了折中。读者可以使用附录 16.A.3 的代码验证：换用其他随机协方差矩阵时，这些结论通常仍然成立。"
+    },
+    {
+      "key": "t_166306df7911a04b66a9",
+      "source": "What drives CLA's extreme concentration is its goal of minimizing the portfolio's risk. And yet both portfolios have a very similar standard deviation (",
+      "translation": "CLA 之所以极度集中，是因为它以最小化组合风险为目标。然而两个组合的标准差非常接近（"
+    },
+    {
+      "key": "t_7fd140702365fa5ea138",
+      "source": "). So CLA has discarded half of the investment universe in favor of a minor risk reduction. The reality of course is that CLA's portfolio is deceitfully diversified, because any distress situation affecting the top-5 allocations will have a much greater negative impact on CLA's than on HRP's portfolio.",
+      "translation": "）。也就是说，CLA 为了很小的风险降幅，舍弃了一半投资范围。事实上，CLA 的组合只是表面上分散：一旦前 5 大持仓受到冲击，CLA 组合遭受的负面影响会远大于 HRP 组合。"
+    },
+    {
+      "key": "t_d3c22886c51f816a08e7",
+      "source": "Figure 16.6: Clustered covariance matrix",
+      "translation": "图 16.6：按簇重排后的协方差矩阵"
+    },
+    {
+      "key": "t_c80d7a97ffe2ac6389a5",
+      "source": "Stage 2 quasi-diagonalizes the correlation matrix, in the sense that the largest values lie along the diagonal. However, unlike PCA or similar procedures, HRP does not require a change of basis. HRP solves the allocation problem robustly, while working with the original investments.",
+      "translation": "阶段 2 对相关矩阵做准对角化，使较大的数值集中在主对角线附近。但与 PCA 等方法不同，HRP 不需要更换基底；它直接在原始投资上稳健地求解配置问题。"
+    },
+    {
+      "key": "t_b36478dcc9dfbb71dd9f",
+      "source": "Table 16.1: A Comparison of Three Allocations",
+      "translation": "表 16.1：三种配置方法的比较"
+    },
+    {
+      "key": "t_7d5f02001397420a1a14",
+      "source": "Weight #",
+      "translation": "权重编号"
+    },
+    {
+      "key": "t_509ce44dacde34f8e04d",
+      "source": "CLA",
+      "translation": "CLA"
+    },
+    {
+      "key": "t_5fb7fcf3f762cfefe5c5",
+      "source": "HRP",
+      "translation": "HRP"
+    },
+    {
+      "key": "t_78b609aa2109f4d92527",
+      "source": "IVP",
+      "translation": "IVP"
+    },
+    {
+      "key": "t_e2fdc7a8266dc9d7766b",
+      "source": "A characteristic outcome of the three methods studied: CLA concentrates weights on a few investments, hence becoming exposed to idiosyncratic shocks. IVP evenly spreads weights through all investments, ignoring the correlation structure. This makes it vulnerable to systemic shocks. HRP finds a compromise between diversifying across all investments and diversifying across cluster, which makes it more resilient against both types of shocks.",
+      "translation": "三种方法会产生很有代表性的结果：CLA 把权重集中在少数投资上，因此容易受到个别资产冲击；IVP 把权重平均分散到所有投资，却忽略相关结构，因而容易受到系统性冲击。HRP 在“分散到所有投资”和“分散到各个簇”之间折中，因此对这两类冲击都更有韧性。"
+    },
+    {
+      "key": "t_880ad06a6ffe37aeb972",
+      "source": "16.6 Out-Of-Sample Monte Carlo Simulations",
+      "translation": "16.6 样本外蒙特卡洛模拟"
+    },
+    {
+      "key": "t_e8bb6fd02f892ffd2cce",
+      "source": "In our numerical example, CLA's portfolio has lower risk than HRP's in-sample. However, the portfolio with minimum variance in-sample is not necessarily the one with minimum variance out-of-sample. It would be all too easy for us to pick a particular historical dataset where HRP outperforms CLA and IVP (see Bailey and López de Prado",
+      "translation": "在数值示例的样本内，CLA 组合的风险低于 HRP。但样本内方差最小的组合，样本外未必仍然方差最小。我们当然可以轻易挑选一段让 HRP 胜过 CLA 和 IVP 的历史数据（见 Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_c5466e72bc960db63b06",
+      "source": ", and recall our discussion of selection bias in Chapter 11). Instead, in this section we follow the backtesting paradigm explained in Chapter 13, and evaluate via Monte Carlo the performance out-of-sample of HRP against CLA's minimum-variance and traditional risk parity's IVP allocations. This will also help us understand what features make a method preferable to the rest, regardless of anecdotal counter-examples.",
+      "translation": "，并回顾第 11 章对选择偏差的讨论）。本节不采用这种做法，而是遵循第 13 章介绍的回测范式，通过蒙特卡洛模拟比较 HRP、CLA 最小方差组合与传统风险平价 IVP 的样本外表现。这样也能帮助我们理解：不依赖个别反例时，哪些特征会让一种方法更可取。"
+    },
+    {
+      "key": "t_f2508655baa776895858",
+      "source": "First, we generate 10 series of random Gaussian returns (520 observations, equivalent to 2 years of daily history), with 0 mean and an arbitrary standard deviation of 10%. Real prices exhibit frequent jumps (Merton",
+      "translation": "第一步，生成 10 条随机高斯收益率序列，每条 520 个观测，相当于两年的日频历史；均值为 0，任意设定的标准差为 10%。真实价格会频繁跳跃（Merton"
+    },
+    {
+      "key": "t_c163ab791afbc2d19518",
+      "source": ") and returns are not cross-sectionally independent, so we must add random shocks and a random correlation structure to our generated data. Second, we compute HRP, CLA, and IVP portfolios by looking back at 260 observations (a year of daily history). These portfolios are re-estimated and rebalanced every 22 observations (equivalent to a monthly frequency). Third, we compute the out-of-sample returns associated with those three portfolios. This procedure is repeated 10,000 times.",
+      "translation": "），不同资产的收益在横截面上也并非独立，所以还要给模拟数据加入随机冲击和随机相关结构。第二步，使用过去 260 个观测，也就是一年日频历史，计算 HRP、CLA 和 IVP 组合；每经过 22 个观测重新估计并再平衡一次，相当于月度频率。第三步，计算三个组合对应的样本外收益。整个过程重复 10,000 次。"
+    },
+    {
+      "key": "t_74b635ad1883ac8032e8",
+      "source": "All mean portfolio returns out-of-sample are essentially 0, as expected. The critical difference comes from the variance of the out-of-sample portfolio returns:",
+      "translation": "正如预期，三个组合的样本外平均收益都基本为 0。关键差别在样本外组合收益的方差："
+    },
+    {
+      "key": "t_128a0e6b259f7304883b",
+      "source": ". Although CLA's goal is to deliver the lowest variance (that is the objective of its optimization program), its performance happens to exhibit the highest variance out-of-sample, and 72.47% greater variance than HRP's. This experimental finding is consistent with the historical evidence in De Miguel et al.",
+      "translation": "。CLA 的目标明明是得到最低方差，这正是其优化目标函数，但它的样本外方差反而最高，比 HRP 高 72.47%。这一实验结果与 De Miguel 等人"
+    },
+    {
+      "key": "t_c1df71cbe5e9b121b9ab",
+      "source": ". In other words, HRP would improve the out-of-sample Sharpe ratio of a CLA strategy by about 31.3%, a rather significant boost. Assuming that the covariance matrix is diagonal brings some stability to the IVP; however, its variance is still 38.24% greater than HRP's. This variance reduction out-of-sample is critically important to risk parity investors, given their use of substantial leverage. See Bailey et al.",
+      "translation": "的历史证据一致。换言之，相比 CLA，HRP 能把样本外夏普比率提高约 31.3%，增幅相当可观。IVP 假设协方差矩阵为对角矩阵，因此稳定性有所改善，但其方差仍比 HRP 高 38.24%。风险平价投资者往往使用较高杠杆，所以降低样本外方差对他们尤其重要。关于样本内与样本外表现的更广泛讨论，参见 Bailey 等人"
+    },
+    {
+      "key": "t_783fa2f884dcc157d496",
+      "source": "for a broader discussion of in-sample vs. out-of-sample performance.",
+      "translation": "。"
+    },
+    {
+      "key": "t_008a85c2108e7add8c5d",
+      "source": "The mathematical proof for HRP's outperformance over Markowitz's CLA and traditional risk parity's IVP is somewhat involved and beyond the scope of this chapter. In intuitive terms, we can understand the above empirical results as follows: Shocks affecting a specific investment penalize CLA's concentration. Shocks involving several correlated investments penalize IVP's ignorance of the correlation structure. HRP provides better protection against both common and idiosyncratic shocks by finding a compromise between diversification across all investments and diversification across clusters of investments at multiple hierarchical levels. Figure 16.7 plots the time series of allocations for the first of the 10,000 runs.",
+      "translation": "严格证明 HRP 为何优于 Markowitz 的 CLA 和传统风险平价 IVP 较为复杂，超出本章范围。直观上可以这样理解前面的实证结果：单项投资受到冲击时，CLA 的集中持仓会受罚；多项相关投资共同受冲击时，IVP 忽视相关结构会受罚。HRP 在“覆盖所有投资”和“覆盖多个层级的投资簇”之间取得折中，因此对共同冲击和个别冲击都能提供更好的保护。图 16.7 展示 10,000 次模拟中第一次运行的权重时间序列。"
+    },
+    {
+      "key": "t_2a97a4b85b9071fbca81",
+      "source": "Appendix 16.A.4 provides the Python code that implements the above study. The reader can experiment with different parameter configurations and reach similar conclusions. In particular, HRP's out-of-sample outperformance becomes even",
+      "translation": "附录 16.A.4 给出了实现上述研究的 Python 代码。读者可以尝试不同参数设置，并得到相近结论。尤其是，在下列情况下，HRP 的样本外优势会更加"
+    },
+    {
+      "key": "t_3fa8d786b2d3e471f45f",
+      "source": "Figure 16.7: (a) Time series of allocations for IVP; (b) HRP; (c) CLA",
+      "translation": "图 16.7：（a）IVP、（b）HRP、（c）CLA 的权重时间序列"
+    },
+    {
+      "key": "t_43cb9dbad652440549a0",
+      "source": "(a) IVP.",
+      "translation": "（a）IVP。"
+    },
+    {
+      "key": "t_657597a7b7969e9d414d",
+      "source": "Between the first and second rebalance, one investment receives an idiosyncratic shock, which increases its variance. IVP's response is to reduce the allocation to that investment, and spread that former exposure across all other investments. Between the fifth and sixth rebalance, two investments are affected by a common shock. IVP's response is the same. As a result, allocations among the seven unaffected investments grow over time, regardless of their correlation.",
+      "translation": "第一次与第二次再平衡之间，一项投资受到个别冲击，方差上升。IVP 会降低这项投资的权重，并把腾出的敞口分给其他所有投资。第五次与第六次再平衡之间，两项投资受到共同冲击，IVP 的反应仍然相同。结果是，七项未受影响投资的权重随时间增加，而不考虑它们彼此是否相关。"
+    },
+    {
+      "key": "t_a572b0ccf562c1cdc4dd",
+      "source": "(b) HRP.",
+      "translation": "（b）HRP。"
+    },
+    {
+      "key": "t_b9a04aab983c2e8c3e3f",
+      "source": "HRP's response to the idiosyncratic shock is to reduce the allocation to the affected investment, and use that reduced amount to increase the allocation to a correlated investment that was unaffected. As a response to the common shock, HRP reduces allocation to the affected investments and increases allocation to uncorrelated ones (with lower variance).",
+      "translation": "面对个别冲击，HRP 会降低受影响投资的权重，并把减掉的部分加到与之相关但未受影响的投资上。面对共同冲击，HRP 会降低受影响投资的权重，并增加不相关且方差更低的投资权重。"
+    },
+    {
+      "key": "t_6067c6e42d67b5db7766",
+      "source": "(c) CLA.",
+      "translation": "（c）CLA。"
+    },
+    {
+      "key": "t_9c6e020fcecba67cdf7f",
+      "source": "CLA allocations respond erratically to idiosyncratic and common shocks. If we had taken into account rebalancing costs, CLA's performance would have been very negative.",
+      "translation": "无论面对个别冲击还是共同冲击，CLA 的权重都会剧烈而无规律地变化。如果计入再平衡成本，其表现会非常差。"
+    },
+    {
+      "key": "t_2ca3cc4c857e2eaa2fcb",
+      "source": "more substantial for larger investment universes, or when more shocks are added, or a stronger correlation structure is considered, or rebalancing costs are taken into account. Each of these CLA rebalances incurs transaction costs that can accumulate into prohibitive losses over time.",
+      "translation": "明显：投资范围更大、冲击更多、相关结构更强，或把再平衡成本计入时。CLA 每次再平衡都会产生交易成本，长期累积后可能造成难以承受的损失。"
+    },
+    {
+      "key": "t_3676e079333953f4d9c7",
+      "source": "16.7 Further Research",
+      "translation": "16.7 进一步研究"
+    },
+    {
+      "key": "t_82fcc2a0ec44eb3783d9",
+      "source": "The methodology introduced in this chapter is flexible, scalable and admits multiple variations of the same ideas. Using the code provided, readers can research and evaluate what HRP configurations work best for their particular problem. For example, at stage 1 they can apply alternative definitions of",
+      "translation": "本章方法灵活、可扩展，同一思路可以有多种变体。读者可以利用所给代码，研究并评估哪种 HRP 设置最适合自己的问题。例如，在阶段 1 可以改用其他"
+    },
+    {
+      "key": "t_1c5aaa8861a132970c19",
+      "source": ", or different clustering algorithms, like biclustering; at stage 3, they can use different functions for",
+      "translation": "定义，或使用双聚类等不同聚类算法；在阶段 3，可以改用不同的"
+    },
+    {
+      "key": "t_969338ec048d34821194",
+      "source": ", or alternative allocation constraints. Instead of carrying out a recursive bisection, stage 3 could also split allocations top-down using the clusters from stage 1.",
+      "translation": "函数或配置约束。阶段 3 也不一定要递归二分，还可以直接使用阶段 1 得到的簇，自上而下拆分权重。"
+    },
+    {
+      "key": "t_412e32379484cfc0d569",
+      "source": "It is relatively straightforward to incorporate forecasted returns, Ledoit-Wolf shrinkage, and Black-Litterman-style views to this hierarchical approach. In fact, the inquisitive reader may have realized that, at its core, HRP is essentially a robust procedure to avoid matrix inversions, and the same ideas underlying HRP can be used to replace many econometric regression methods, notorious for their unstable outputs (like VAR or VECM). Figure 16.8 displays (a) a large correlation matrix of fixed income securities before and (b) after clustering, with over 2.1 million entries. Traditional optimization or econometric methods fail to recognize the hierarchical structure of financial Big Data, where the numerical instabilities defeat the benefits of the analysis, resulting in unreliable and detrimental outcomes.",
+      "translation": "在这一分层框架中加入预期收益、Ledoit-Wolf 收缩估计和 Black-Litterman 式观点并不困难。细心的读者可能已经发现，HRP 的核心其实是一套稳健地避开矩阵求逆的流程。因此，支撑 HRP 的思路也可用来替代许多输出不稳定的计量回归方法，如 VAR 和 VECM。图 16.8 展示一个包含 210 多万个元素的大型固定收益证券相关矩阵：（a）聚类前；（b）聚类后。传统优化或计量方法无法识别金融大数据的层次结构，数值不稳定性会吞噬分析收益，最终产生不可靠甚至有害的结果。"
+    },
+    {
+      "key": "t_1e98dbb61354e9be171b",
+      "source": "Figure 16.8: Correlation matrix before and after clustering",
+      "translation": "图 16.8：聚类前后的相关矩阵"
+    },
+    {
+      "key": "t_c9926db1436416e09904",
+      "source": "The methodology described in this chapter can be applied to problems beyond optimization. For example, a PCA analysis of a large fixed income universe suffers the same drawbacks we described for CLA. Small-data techniques developed decades and centuries ago (factor models, regression analysis, econometrics) fail to recognize the hierarchical nature of financial big data.",
+      "translation": "本章方法不限于优化问题。例如，对大型固定收益资产范围做 PCA，也会遇到我们为 CLA 描述的同类问题。几十年乃至几百年前发展起来的小数据技术，如因子模型、回归分析和计量经济学，无法识别金融大数据的层次性。"
+    },
+    {
+      "key": "t_c7c3cfe7f52c67453ca6",
+      "source": "Kolanovic et al.",
+      "translation": "Kolanovic 等人"
+    },
+    {
+      "key": "t_c3fa75e4e44e0cbd6501",
+      "source": "conducted a lengthy study of HRP, concluding that \"HRP delivers superior risk-adjusted returns. Whilst both the HRP and the MV portfolios deliver the highest returns, the HRP portfolios match with volatility targets much better than MV portfolios. We also run simulation studies to confirm the robustness of our findings, in which HRP consistently deliver a superior performance over MV and other risk-based strategies [...] HRP portfolios are truly diversified with a higher number of uncorrelated exposures, and less extreme weights and risk allocations.\"",
+      "translation": "对 HRP 做了详尽研究，结论是：HRP 能取得更好的风险调整后收益。HRP 与均值—方差（MV）组合的收益都较高，但 HRP 对波动率目标的跟踪明显优于 MV。模拟研究也证实了结论的稳健性：HRP 始终优于 MV 和其他风险型策略。HRP 组合实现了真正的分散化，拥有更多互不相关的风险敞口，权重和风险配置也不那么极端。"
+    },
+    {
+      "key": "t_b54d639536cb091baf10",
+      "source": "Raffinot",
+      "translation": "Raffinot"
+    },
+    {
+      "key": "t_a94c2b0cb9b34e27873d",
+      "source": "concludes that \"empirical results indicate that hierarchical clustering based portfolios are robust, truly diversified and achieve statistically better risk-adjusted performances than commonly used portfolio optimization techniques.\"",
+      "translation": "的结论是：实证结果表明，基于层次聚类的组合既稳健又真正分散，其风险调整后表现也在统计意义上优于常用的投资组合优化技术。"
+    },
+    {
+      "key": "t_9571adcd5a321b87f88c",
+      "source": "16.8 Conclusion",
+      "translation": "16.8 结论"
+    },
+    {
+      "key": "t_ec6de046b4b42fa76881",
+      "source": "Exact analytical solutions can perform much worse than approximate ML solutions. Although mathematically correct, quadratic optimizers in general, and Markowitz's CLA in particular, are known to deliver generally unreliable solutions due to their instability, concentration, and underperformance. The root cause for these issues is that quadratic optimizers require the inversion of a covariance matrix. Markowitz's curse is that the more correlated investments are, the greater is the need for a diversified portfolio, and yet the greater are that portfolio's estimation errors.",
+      "translation": "精确的解析解可能远不如近似的机器学习解。二次优化器在数学上虽然正确，但一般而言，其解并不可靠；Markowitz 的 CLA 尤其如此，常见问题包括不稳定、持仓集中和表现不佳。问题根源在于，二次优化器必须对协方差矩阵求逆。“马科维茨诅咒”指的是：投资之间越相关，越需要分散化组合，但组合的估计误差也越大。"
+    },
+    {
+      "key": "t_1bb67dff073a89985986",
+      "source": "In this chapter, we have exposed a major source of quadratic optimizers' instability: A matrix of size",
+      "translation": "本章指出了二次优化器不稳定的一个主要来源：一个"
+    },
+    {
+      "key": "t_3c2e05f3e853e67a5527",
+      "source": "is associated with a complete graph with",
+      "translation": "阶矩阵对应一张完全图，其中有"
+    },
+    {
+      "key": "t_08ff4a25ffc9830b4f27",
+      "source": "edges. With so many edges connecting the nodes of the graph, weights are allowed to rebalance with complete freedom. This lack of hierarchical structure means that small estimation errors will lead to entirely different solutions. HRP replaces the covariance structure with a tree structure, accomplishing three goals: (1) Unlike traditional risk parity methods, it fully utilizes the information contained in the covariance matrix, (2) weights' stability is recovered and (3) the solution is intuitive by construction. The algorithm converges in deterministic logarithmic (best case) or linear (worst case) time.",
+      "translation": "条边。节点之间的边如此之多，权重可以毫无限制地重新调整。缺少层次结构意味着，微小的估计误差就会导向完全不同的解。HRP 用树结构替代协方差结构，实现三个目标：（1）与传统风险平价不同，它充分利用协方差矩阵中的信息；（2）恢复权重稳定性；（3）解在构造上就直观易懂。算法在最好情形下以确定性的对数时间收敛，在最坏情形下以确定性的线性时间收敛。"
+    },
+    {
+      "key": "t_36a0d15b318e9f956108",
+      "source": "HRP is robust, visual, and flexible, allowing the user to introduce constraints or manipulate the tree structure without compromising the algorithm's search. These properties are derived from the fact that HRP does not require covariance invertibility. Indeed, HRP can compute a portfolio on an ill-degenerated or even a singular covariance matrix.",
+      "translation": "HRP 稳健、直观可视且灵活，使用者可以加入约束或调整树结构，而不会破坏算法的搜索过程。这些优点来自 HRP 不要求协方差矩阵可逆。事实上，即使矩阵严重退化甚至奇异，HRP 仍能计算组合。"
+    },
+    {
+      "key": "t_98d4acc21bcce5e1d805",
+      "source": "This chapter focuses on a portfolio construction application; however, the reader will find other practical uses for making decisions under uncertainty, particularly in the presence of a nearly singular covariance matrix: capital allocation to portfolio managers, allocations across algorithmic strategies, bagging and boosting of machine learning signals, forecasts from random forests, replacement to unstable econometric models (VAR, VECM), etc.",
+      "translation": "本章主要讨论投资组合构建，但当协方差矩阵接近奇异时，这套方法还可用于许多不确定条件下的决策：向不同投资组合经理配置资本、在算法策略之间分配资金、对机器学习信号做装袋和提升、汇总随机森林预测，以及替代不稳定的 VAR、VECM 等计量模型。"
+    },
+    {
+      "key": "t_42ef48cd0101dee85061",
+      "source": "Of course, quadratic optimizers like CLA produce the minimum-variance portfolio in-sample (that is its objective function). Monte Carlo experiments show that HRP delivers lower out-of-sample variance than CLA or traditional risk parity methods (IVP). Since Bridgewater pioneered risk parity in the 1990s, some of the largest asset managers have launched funds that follow this approach, for combined assets in excess of $500 billion. Given their extensive use of leverage, these funds should benefit from adopting a more stable risk parity allocation method, thus achieving superior risk-adjusted returns and lower rebalance costs.",
+      "translation": "CLA 等二次优化器当然能在样本内得到最小方差组合，因为这就是其目标函数。蒙特卡洛实验却表明，HRP 的样本外方差低于 CLA 和传统风险平价方法 IVP。Bridgewater 在 20 世纪 90 年代率先采用风险平价后，多家大型资产管理公司推出了这类基金，合计管理资产超过 5,000 亿美元。这些基金广泛使用杠杆，如果改用更稳定的风险平价配置方法，应能获得更高的风险调整后收益和更低的再平衡成本。"
+    },
+    {
+      "key": "t_d7919a9572ce368366f4",
+      "source": "APPENDICES",
+      "translation": "附录"
+    },
+    {
+      "key": "t_42b299c30b898da69fcf",
+      "source": "16.A.1 Correlation-Based Metric",
+      "translation": "16.A.1 基于相关性的度量"
+    },
+    {
+      "key": "t_9920f8a5a55067d2f630",
+      "source": "Consider two real-valued vectors",
+      "translation": "考虑两个实值向量"
+    },
+    {
+      "key": "t_8d62281f14d6f74da7de",
+      "source": "of size",
+      "translation": "，其长度为"
+    },
+    {
+      "key": "t_a6588a3fcadf5a8ed9d4",
+      "source": ", and a correlation variable",
+      "translation": "，以及相关性变量"
+    },
+    {
+      "key": "t_b8c02d17e7576a34f93f",
+      "source": ", with the only requirement that",
+      "translation": "；唯一要求是"
+    },
+    {
+      "key": "t_d58926f6badf3784b74e",
+      "source": "is the covariance between the two vectors, and",
+      "translation": "为两个向量之间的协方差，"
+    },
+    {
+      "key": "t_a87d11b201cb8bab8f34",
+      "source": "is the standard deviation. Note that Pearson's is not the only correlation to satisfy these requirements.",
+      "translation": "为标准差。注意，满足这些要求的相关系数并不只有 Pearson 相关系数。"
+    },
+    {
+      "key": "t_0136ca970fcfa7adc59c",
+      "source": "Let us prove that",
+      "translation": "下面证明"
+    },
+    {
+      "key": "t_f696049bcf1cece23b03",
+      "source": "is a true metric. First, the Euclidean distance between the two vectors is",
+      "translation": "是严格的度量。第一，两个向量之间的欧氏距离为"
+    },
+    {
+      "key": "t_34a91b578c2b5e029009",
+      "source": ". Second, we z-standardize those vectors as",
+      "translation": "。第二，把这两个向量做 z 标准化："
+    },
+    {
+      "key": "t_25837488c62c9eb55760",
+      "source": "Consequently,",
+      "translation": "因此，"
+    },
+    {
+      "key": "t_25540e5280ee33206778",
+      "source": ". Third, we derive the Euclidean distance",
+      "translation": "。第三，"
+    },
+    {
+      "key": "t_fc99db85f291aa2e5565",
+      "source": "In other words, the distance",
+      "translation": "换言之，距离"
+    },
+    {
+      "key": "t_1aae21bfccd941503b14",
+      "source": "is a linear multiple of the Euclidean distance between the vectors",
+      "translation": "是 z 标准化后向量"
+    },
+    {
+      "key": "t_ef29648f5cb51ef5df7a",
+      "source": "after z-standardization, hence it inherits the true-metric properties of the Euclidean distance.",
+      "translation": "之间欧氏距离的线性倍数，所以继承了欧氏距离作为严格度量的全部性质。"
+    },
+    {
+      "key": "t_01c65c78d3b23ed05051",
+      "source": "Similarly, we can prove that",
+      "translation": "类似地，可以证明"
+    },
+    {
+      "key": "t_3b038f162d178efc5a2e",
+      "source": "descends to a true metric on the",
+      "translation": "在"
+    },
+    {
+      "key": "t_15dee1bfc16c61a02187",
+      "source": "quotient. In order to do that, we redefine",
+      "translation": "商空间上也诱导出严格度量。为此，重新定义"
+    },
+    {
+      "key": "t_ff46d8e06617bb5d3ea8",
+      "source": "is the sign operator, so that",
+      "translation": "是符号运算符，因此"
+    },
+    {
+      "key": "t_e0fdb1ec832b917138e9",
+      "source": ". Then,",
+      "translation": "。于是，"
+    },
+    {
+      "key": "t_e9e6264e858c5b89004a",
+      "source": "16.A.2 Inverse Variance Allocation",
+      "translation": "16.A.2 逆方差配置"
+    },
+    {
+      "key": "t_e6018dc1002a3a564f86",
+      "source": "Stage 3 (see Section 16.4.3) splits a weight in inverse proportion to the subset's variance. We now prove that such allocation is optimal when the covariance matrix is diagonal. Consider the standard quadratic optimization problem of size",
+      "translation": "阶段 3（见第 16.4.3 节）按子集方差的倒数比例拆分权重。下面证明，当协方差矩阵为对角矩阵时，这种配置是最优的。考虑如下标准二次优化问题，其维度为"
+    },
+    {
+      "key": "t_00e783081032138a56be",
+      "source": "with solution",
+      "translation": "其解为"
+    },
+    {
+      "key": "t_b3ca0b649a070858db63",
+      "source": ". For the characteristic vector",
+      "translation": "。当"
+    },
+    {
+      "key": "t_82e4629d0e1fb5e5df27",
+      "source": ", the solution is the minimum variance portfolio. If",
+      "translation": "为全 1 向量时，该解就是最小方差组合。如果"
+    },
+    {
+      "key": "t_e81ff88938097bcfb9da",
+      "source": "is diagonal,",
+      "translation": "为对角矩阵，则"
+    },
+    {
+      "key": "t_8dda048d0be2101bb904",
+      "source": "In the particular case of",
+      "translation": "当"
+    },
+    {
+      "key": "t_02f5144bfcf3ffd56f53",
+      "source": "which is how stage 3 splits a weight between two bisections of a subset.",
+      "translation": "这正是阶段 3 在某个子集的两个二分部分之间拆分权重的方式。"
+    },
+    {
+      "key": "t_8be34cbfcc33528f41d5",
+      "source": "16.A.3 Reproducing the Numerical Example",
+      "translation": "16.A.3 重现数值示例"
+    },
+    {
+      "key": "t_49726a7d935a2eba4f76",
+      "source": "Snippet 16.4 can be used to reproduce our results and simulate additional numerical examples. Function generateData produces a matrix of time series where a number size0 of vectors are uncorrelated, and a number size1 of vectors are correlated. The reader can change the np.random.seed in generateData to run alternative examples and gain an intuition of how HRP works. Scipy’s function linkage can be used to perform stage 1 (Section 16.4.1), function getQuasiDiag performs stage 2 (Section 16.4.2), and function getRecBipart carries out stage 3 (Section 16.4.3).",
+      "translation": "代码清单 16.4 可以重现本章结果，也可用来模拟更多数值示例。generateData 函数生成一个时间序列矩阵，其中 size0 个向量彼此不相关，size1 个向量彼此相关。读者可以修改 generateData 中的 np.random.seed，运行不同示例，直观理解 HRP 的工作方式。SciPy 的 linkage 函数执行阶段 1（第 16.4.1 节），getQuasiDiag 函数执行阶段 2（第 16.4.2 节），getRecBipart 函数执行阶段 3（第 16.4.3 节）。"
+    },
+    {
+      "key": "t_6e8854e9cafc80f64acc",
+      "source": "Snippet 16.4: Full Implementation of the HRP Algorithm",
+      "translation": "代码清单 16.4：HRP 算法的完整实现"
+    },
+    {
+      "key": "t_cdea6350af5ca6e40494",
+      "source": "16.A.4 Reproducing the Monte Carlo Experiment",
+      "translation": "16.A.4 重现蒙特卡洛实验"
+    },
+    {
+      "key": "t_b76fb156aabed6193556",
+      "source": "Snippet 16.5 implements Monte Carlo experiments on three allocation methods: HRP, CLA, and IVP. All libraries are standard except for HRP, which is provided in Appendix 16.A.3, and CLA, which can be found in Bailey and López de Prado",
+      "translation": "代码清单 16.5 对 HRP、CLA 和 IVP 三种配置方法进行蒙特卡洛实验。除 HRP 与 CLA 外，所用程序库都是标准库；HRP 的实现见附录 16.A.3，CLA 的实现见 Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_5b6ad8d6a0712922699f",
+      "source": ". The subroutine generateData simulates the correlated data, with two types of random shocks: common to various investments and specific to a single investment. There are two shocks of each type, one positive and one negative. The variables for the experiments are set as arguments of hrpMC. They were chosen arbitrarily, and the user can experiment with alternative combinations.",
+      "translation": "。子程序 generateData 模拟相关数据，并加入两类随机冲击：同时影响多项投资的共同冲击，以及只影响单项投资的特定冲击。每类冲击各有两次，一正一负。实验变量作为 hrpMC 的参数设置。这些参数是任意选取的，使用者可以尝试其他组合。"
+    },
+    {
+      "key": "t_b97fdff534ab44672373",
+      "source": "Snippet 16.5: Monte Carlo Experiment on HRP Out-of-sample Performance",
+      "translation": "代码清单 16.5：HRP 样本外表现的蒙特卡洛实验"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_9db3b3e6fdd7572155c4",
+      "source": "Previous: Understanding Strategy Risk",
+      "translation": "上一章：理解策略风险"
+    },
+    {
+      "key": "t_a1874a47423b7e97653d",
+      "source": "Next: Structural Breaks",
+      "translation": "下一章：结构突变"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    }
+  ]
+}

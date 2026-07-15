@@ -1,0 +1,691 @@
+{
+  "chapter": "chapter-01",
+  "scope": "title,1.1-1.3",
+  "units": [
+    {
+      "key": "t_e5cda7ad419dd6f2f443",
+      "source": "Financial Machine Learning as a Distinct Subject | Advances in Financial Machine Learning",
+      "translation": "金融机器学习：一门独立的学科 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_59e371c5cac498cc5ae8",
+      "source": "Preamble",
+      "translation": "前言"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_cb56d800779f62f8d628",
+      "source": "Financial Machine Learning as a Distinct Subject",
+      "translation": "金融机器学习：一门独立的学科"
+    },
+    {
+      "key": "t_be49bfe26d24c61b4662",
+      "source": "1.1 Motivation",
+      "translation": "1.1 写作缘起"
+    },
+    {
+      "key": "t_30581c262adf18e955d0",
+      "source": "Machine learning (ML) is changing virtually every aspect of our lives. Today ML algorithms accomplish tasks that until recently only expert humans could perform. As it relates to finance, this is the most exciting time to adopt a disruptive technology that will transform how everyone invests for generations. This book explains scientifically sound ML tools that have worked for me over the course of two decades, and have helped me to manage large pools of funds for some of the most demanding institutional investors. Books about investments largely fall in one of two categories. On one hand we find books written by authors who have not practiced what they teach. They contain extremely elegant mathematics that describes a world that does not exist. Just because a theorem is true in a logical sense does not mean it is true in a physical sense. On the other hand we find books written by authors who offer explanations absent of any rigorous academic theory. They misuse mathematical tools to describe actual observations. Their models are overfit and fail when implemented. Academic investigation and publication are divorced from practical application to financial markets, and many applications in the trading/investment world are not grounded in proper science. A first motivation for writing this book is to cross the proverbial divide that separates academia and the industry. I have been on both sides of the rift, and I understand how difficult it is to cross it and how easy it is to get entrenched on one side. Virtue is in the balance. This book will not advocate a theory merely because of its mathematical beauty, and will not propose a solution just because it appears to work. My goal is to transmit the kind of knowledge that only comes from experience, formalized in a rigorous manner.",
+      "translation": "机器学习（ML）正在改变我们生活的方方面面。如今，ML 算法已经能完成不少直到不久前还只能由人类专家完成的任务。对金融业来说，现在正是采用这项颠覆性技术的好时机：未来几代人的投资方式都可能因此改变。本书介绍的，是我在二十年实践中反复验证过、具有可靠科学依据的 ML 工具；我也曾用这些工具，为要求极高的机构投资者管理大规模资金。投资类书籍大致分成两种。一种由缺少实战经验的作者写成，数学十分漂亮，描述的却是一个并不存在的世界。定理在逻辑上成立，不代表它在现实中也成立。另一种来自实务界，讲的是现实观察，却缺少严谨的学术理论；作者往往误用数学工具，做出的模型严重过拟合，一投入实际使用就失效。结果是，学术研究和论文发表脱离了金融市场实践，交易与投资界的许多做法又没有扎实的科学基础。我写这本书的第一个原因，就是想跨过学术界与业界之间这道老生常谈的鸿沟。我在两边都工作过，知道跨过去有多难，也知道困在其中一边有多容易。真正可取的做法，是在两者之间找到平衡。本书不会只因为一种理论数学上漂亮就拥护它，也不会只因为一种办法看起来有效就推荐它。我的目标，是把只能从实践中获得的经验，用严谨的方式整理并传递给读者。"
+    },
+    {
+      "key": "t_2b4b88be6d942777b9f8",
+      "source": "A second motivation is inspired by the desire that finance serves a purpose. Over the years some of my articles, published in academic journals and newspapers, have expressed my displeasure with the current role that finance plays in our society. Investors are lured to gamble their wealth on wild hunches originated by charlatans and encouraged by mass media. One day in the near future, ML will dominate finance, science will curtail guessing, and investing will not mean gambling. I would like the reader to play a part in that revolution. A third motivation is that many investors fail to grasp the complexity of ML applications to investments. This seems to be particularly true for discretionary firms moving into the “quantamental” space. I am afraid their high expectations will not be met, not because ML failed, but because they used ML incorrectly. Over the coming years, many firms will invest with off-the-shelf ML algorithms, directly imported from academia or Silicon Valley, and my forecast is that they will lose money (to better ML solutions). Beating the wisdom of the crowds is harder than recognizing faces or driving cars. With this book my hope is that you will learn how to solve some of the challenges that make finance a particularly difficult playground for ML, like backtest overfitting. Financial ML is a subject in its own right, related to but separate from standard ML, and this book unravels it for you.",
+      "translation": "第二个原因，是我希望金融真正发挥有益的作用。这些年来，我在学术期刊和报纸上发表过一些文章，批评金融业目前在社会中扮演的角色。江湖骗子抛出荒唐的臆测，大众媒体又推波助澜，投资者于是被诱导着拿自己的财富去赌博。我相信在不远的将来，ML 会成为金融业的主流，科学方法会减少拍脑袋式的猜测，投资也不再等同于赌博。我希望读者能参与这场变革。第三个原因，是许多投资者低估了把 ML 用于投资有多复杂。正在转向“量化基本面”（quantamental）的主观投资机构尤其容易犯这个错误。我担心他们的高期望最终会落空，不是因为 ML 不管用，而是因为他们用错了方法。未来几年，很多机构会把从学术界或硅谷直接拿来的现成 ML 算法用于投资。我的判断是，他们会亏钱——输给更好的 ML 方案。战胜市场中的群体智慧，远比识别人脸或驾驶汽车困难。我希望本书能帮助你处理那些让金融成为 ML 高难度应用场景的问题，例如回测过拟合。金融 ML 本身就是一门学科：它与常规 ML 有联系，却不能简单混为一谈。本书将逐步说明其中的门道。"
+    },
+    {
+      "key": "t_0746ac07505886f18120",
+      "source": "1.2 The Main Reason Financial Machine Learning Projects Usually Fail",
+      "translation": "1.2 金融机器学习项目经常失败的首要原因"
+    },
+    {
+      "key": "t_7d8984282f1295aad93a",
+      "source": "The rate of failure in quantitative finance is high, particularly so in financial ML. The few who succeed amass a large amount of assets and deliver consistently exceptional performance to their investors. However, that is a rare outcome, for reasons explained in this book. Over the past two decades, I have seen many faces come and go, firms started and shut down. In my experience, there is one critical mistake that underlies all those failures.",
+      "translation": "量化金融项目的失败率很高，金融 ML 项目尤其如此。少数成功者能吸引大量资金，并持续为投资者交出出色的业绩，但这种结果十分罕见，原因会在本书中逐一解释。过去二十年里，我见过许多人来了又走，也见过不少公司成立后又关门。根据我的经验，这些失败背后都有同一个关键错误。"
+    },
+    {
+      "key": "t_e595c7d875f18c930ff9",
+      "source": "1.2.1 The Sisyphus Paradigm",
+      "translation": "1.2.1 西西弗斯模式"
+    },
+    {
+      "key": "t_ceb4bce87937a72abe30",
+      "source": "Discretionary portfolio managers (PMs) make investment decisions that do not follow a particular theory or rationale (if there were one, they would be systematic PMs). They consume raw news and analyses, but mostly rely on their judgment or intuition. They may rationalize those decisions based on some story, but there is always a story for every decision. Because nobody fully understands the logic behind their bets, investment firms ask them to work independently from one another, in silos, to ensure diversification. If you have ever attended a meeting of discretionary PMs, you probably noticed how long and aimless they can be. Each attendee seems obsessed about one particular piece of anecdotal information, and giant argumentative leaps are made without fact-based, empirical evidence. This does not mean that discretionary PMs cannot be successful. On the contrary, a few of them are. The point is, they cannot naturally work as a team. Bring 50 discretionary PMs together, and they",
+      "translation": "主观决策型投资组合经理（PM）的投资决定，并不遵循某套明确的理论或推理规则；如果遵循，他们就属于系统化 PM 了。他们阅读即时新闻和各种分析，但主要还是依靠个人判断或直觉。事后，他们可能用某个故事来解释自己的决定，可任何决定都能找到一套说法。由于没人能完全看清这些押注背后的逻辑，投资公司通常让他们各自独立、分隔工作，以此实现分散化。如果你参加过主观决策型 PM 的会议，大概会发现这类会议常常又长又没有重点。每个人似乎都只盯着某一条孤立的个案信息，却在没有事实和实证证据支撑的情况下，一步跳到很远的结论。这并不是说主观决策型 PM 不会成功；恰恰相反，确实有少数人很成功。问题在于，这类 PM 天生不适合组成团队协同研究。把 50 位主观决策型 PM 放在一起，他们"
+    },
+    {
+      "key": "t_5acc6556620571c0df10",
+      "source": "will influence one another until eventually you are paying 50 salaries for the work of one. Thus it makes sense for them to work in silos so they interact as little as possible. Wherever I have seen that formula applied to quantitative or ML projects, it has led to disaster. The boardroom’s mentality is, let us do with quants what has worked with discretionary PMs. Let us hire 50 PhDs and demand that each of them produce an investment strategy within six months. This approach always backfires, because each PhD will frantically search for investment opportunities and eventually settle for (1) a false positive that looks great in an overfit backtest or (2) standard factor investing, which is an overcrowded strategy with a low Sharpe ratio, but at least has academic support. Both outcomes will disappoint the investment board, and the project will be cancelled. Even if 5 of those PhDs identified a true discovery, the profits would not suffice to cover for the expenses of 50, so those 5 will relocate somewhere else, searching for a proper reward.",
+      "translation": "会不断互相影响，到头来公司付了 50 个人的工资，得到的却只相当于一个人的成果。因此，让他们彼此隔离、尽量少交流，确实有道理。但我见过的量化或 ML 项目，只要照搬这套办法，无一例外都会出问题。董事会的想法通常是：既然这套管理方式对主观决策型 PM 有效，那对量化研究员也照做。于是公司招来 50 名博士，要求每个人在六个月内拿出一套投资策略。结果往往适得其反。每位博士都会急着寻找投资机会，最后不是选中一个在过拟合回测里表现极佳的假阳性，就是退回到常规因子投资。这类策略已经十分拥挤，夏普比率很低，好处只是有学术研究撑腰。无论哪一种结果，都会让投资委员会失望，项目也会被取消。即使 50 人中真有 5 人发现了有效规律，赚到的钱通常也不足以覆盖全部 50 人的成本。最终，这 5 人会去别处寻找与贡献相称的回报。"
+    },
+    {
+      "key": "t_36c6301e2f96b7cceb92",
+      "source": "1.2.2 The Meta-Strategy Paradigm",
+      "translation": "1.2.2 元策略模式"
+    },
+    {
+      "key": "t_ca65bc8864544720a154",
+      "source": "If you have been asked to develop ML strategies on your own, the odds are stacked against you. It takes almost as much effort to produce one true investment strategy as to produce a hundred, and the complexities are overwhelming: data curation and processing, HPC infrastructure, software development, feature analysis, execution simulators, backtesting, etc. Even if the firm provides you with shared services in those areas, you are like a worker at a BMW factory who has been asked to build an entire car by using all the workshops around you. One week you need to be a master welder, another week an electrician, another week a mechanical engineer, another week a painter . . . You will try, fail, and circle back to welding. How does that make sense? Every successful quantitative firm I am aware of applies the meta-strategy paradigm (López de Prado",
+      "translation": "如果公司要求你独自开发 ML 策略，你从一开始就处于明显劣势。做出一套真正有效的投资策略，和批量做出一百套策略，所需的基础投入几乎一样多，复杂工作包括数据整理与处理、HPC 基础设施、软件开发、特征分析、交易执行模拟、回测等。即使公司为这些环节提供共享服务，你仍像宝马工厂里的一名工人：周围车间全都可以用，但公司却要求你一个人造出整辆车。这周你得是焊接大师，下周要当电工，再下周变成机械工程师，接着还得负责喷漆……你会不断尝试、失败，然后绕一圈又回去焊接。这怎么可能合理？据我所知，成功的量化公司无一例外都采用元策略模式（López de Prado"
+    },
+    {
+      "key": "t_e320951ded764c14a406",
+      "source": "). Accordingly, this book was written as a research manual for teams, not for individuals. Through its chapters you will learn how to set up a research factory, as well as the various stations of the assembly line. The role of each quant is to specialize in a particular task, to become the best there is at it, while having a holistic view of the entire process. This book outlines the factory plan, where teamwork yields discoveries at a predictable rate, with no reliance on lucky strikes. This is how Berkeley Lab and other U.S. National Laboratories routinely make scientific discoveries, such as adding 16 elements to the periodic table, or laying out the groundwork for MRIs and PET scans.",
+      "translation": "）。因此，本书是一部供团队而非个人使用的研究手册。你会通过各章学会怎样建立一座“研究工厂”，以及怎样设置流水线上的各个工位。每位量化研究员都应专攻一个具体环节，努力做到这一环节的顶尖水平，同时理解整条流程如何运作。本书给出的就是这座工厂的蓝图：团队可以不靠偶然的好运，而以可预期的速度取得研究发现。Berkeley Lab 和其他美国国家实验室一直用这种方式开展科学研究，例如为元素周期表增加 16 种元素，以及为 MRI 和 PET 扫描奠定基础。"
+    },
+    {
+      "key": "t_a4d2bbeacc10a613c75a",
+      "source": "No particular individual is responsible for these discoveries, as they are the outcome of team efforts where everyone contributes. Of course, setting up these financial laboratories takes time, and requires people who know what they are doing and have done it before. But what do you think has a higher chance of success, this proven paradigm of organized collaboration or the Sisyphean alternative of having every single quant rolling their immense boulder up the mountain?",
+      "translation": "这些发现不能归功于某一个人，因为它们来自团队合作，每个人都贡献了自己的一部分。当然，建立这样的金融实验室需要时间，也需要真正懂行并且做过这件事的人。不过，哪种办法更可能成功？是采用已经得到验证、有组织的协作模式，还是让每位量化研究员都像西西弗斯一样，独自把自己的巨石推上山？"
+    },
+    {
+      "key": "t_0bf8c2731717d673fa04",
+      "source": "Berkeley Lab,",
+      "translation": "Berkeley Lab，"
+    },
+    {
+      "key": "t_b3c3e251a48d3a572191",
+      "source": "1.3 Book Structure",
+      "translation": "1.3 本书结构"
+    },
+    {
+      "key": "t_f561fb97cdcda53e1020",
+      "source": "This book disentangles a web of interconnected topics and presents them in an ordered fashion. Each chapter assumes that you have read the previous ones. Part 1 will help you structure your financial data in a way that is amenable to ML algorithms. Part 2 discusses how to do research with ML algorithms on that data. Here the emphasis is on doing research and making an actual discovery through a scientific process, as opposed to searching aimlessly until some serendipitous (likely false) result pops up. Part 3 explains how to backtest your discovery and evaluate the probability that it is false. These three parts give an overview of the entire process, from data analysis to model research to discovery evaluation. With that knowledge, Part 4 goes back to the data and explains innovative ways to extract informative features. Finally, much of this work requires a lot of computational power, so Part 5 wraps up the book with some useful HPC recipes.",
+      "translation": "本书把一组彼此牵连的问题拆开，再按清晰的顺序讲解。每一章都默认你已经读过前面的内容。第一部分介绍怎样整理金融数据，让 ML 算法能够正确使用它们。第二部分讲怎样基于这些数据，用 ML 算法开展研究。重点是遵循科学流程，真正做出发现，而不是漫无目的地反复搜索，直到偶然冒出一个很可能是假的“好结果”。第三部分讲怎样回测你的发现，并评估该发现为假的概率。前三部分串起整套流程：从数据分析，到模型研究，再到检验研究发现。掌握这些内容后，第四部分会回到数据，介绍一些从中提取有效特征的新方法。最后，由于其中许多工作都需要大量算力，第五部分将用一组实用的 HPC 方法为全书收尾。"
+    },
+    {
+      "key": "t_07e44f44e7367fb17918",
+      "source": "1.3.1 Structure by Production Chain",
+      "translation": "1.3.1 按研发流水线划分"
+    },
+    {
+      "key": "t_4014ac0bada9d293a29b",
+      "source": "Mining gold or silver was a relatively straightforward endeavor during the 16th and 17th centuries. In less than a hundred years, the Spanish treasure fleet quadrupled the amount of precious metals in circulation throughout Europe. Those times are long gone, and today prospectors must deploy complex industrial methods to extract microscopic bullion particles out of tons of earth. That does not mean that gold production is at historical lows. On the contrary, nowadays miners extract 2,500 metric tons of microscopic gold every year, compared to the average annual 1.54 metric tons taken by the Spanish conquistadors throughout the entire 16th century!",
+      "translation": "在 16、17 世纪，开采金银相对简单。不到一百年，西班牙珍宝船队就让欧洲流通的贵金属总量增加到原来的四倍。那个时代早已过去。今天，勘探者必须使用复杂的工业方法，才能从成吨的矿土中提取肉眼难辨的贵金属颗粒。但这并不意味着黄金产量跌到了历史低点。恰恰相反，如今矿业每年能提取约 2,500 公吨这种“微观黄金”；而整个 16 世纪，西班牙征服者平均每年带走的黄金只有 1.54 公吨！"
+    },
+    {
+      "key": "t_a05a665741a27be162fc",
+      "source": "Visible gold is an infinitesimal portion of the overall amount of gold on Earth. El Dorado was always there . . . if only Pizarro could have exchanged the sword for a microscope. The discovery of investment strategies has undergone a similar evolution. If a decade ago it was relatively common for an individual to discover macroscopic alpha (i.e., using simple mathematical tools like econometrics), currently the chances of that happening are quickly converging to zero. Individuals searching nowadays for macroscopic alpha, regardless of their experience or knowledge, are fighting overwhelming odds. The only true alpha left is microscopic, and finding it requires capital-intensive industrial methods. Just like with gold, microscopic alpha does not mean smaller overall profits. Microscopic alpha today is much more abundant than macroscopic alpha has ever been in history. There is a lot of money to be made, but you will need to use heavy ML tools. Let us review some of the stations involved in the chain of production within a modern asset manager.",
+      "translation": "肉眼能看到的黄金，只占地球黄金总量中微乎其微的一部分。传说中的黄金国其实一直都在那里……只可惜皮萨罗手里拿的是剑，不是显微镜。寻找投资策略也经历了相似的变化。十年前，个人还比较容易发现“宏观 alpha”，也就是用计量经济学之类的简单数学工具就能找到的明显机会；如今，这种可能性正在迅速接近于零。不论经验多丰富、知识多扎实，今天再由个人去寻找宏观 alpha，胜算都极低。真正剩下的 alpha 已经细小到“微观”尺度，要找到它，必须使用资本密集的工业化方法。和黄金一样，alpha 更细小，并不代表总利润更少。今天可供挖掘的微观 alpha，远比历史上曾经存在的宏观 alpha 丰富。这里仍然有很多钱可以赚，但你需要动用强大的工业级 ML 工具。下面看看现代资产管理公司的研发流水线上有哪些工位。"
+    },
+    {
+      "key": "t_186699634e873302c3eb",
+      "source": "1.3.1.1 Data Curators",
+      "translation": "1.3.1.1 数据治理人员"
+    },
+    {
+      "key": "t_93a6fd84fe1612c9ad91",
+      "source": "This is the station responsible for collecting, cleaning, indexing, storing, adjusting, and delivering all data to the production chain. The values could be tabulated or hierarchical, aligned or misaligned, historical or real-time feeds, etc. Team members are experts in market microstructure and data protocols such as FIX. They must develop the data handlers needed to understand the context in which that data arises. For example, was a quote cancelled and replaced at a different level, or cancelled without replacement? Each asset class has its own nuances. For instance, bonds are routinely exchanged or recalled; stocks are subjected to splits, reverse-splits, voting rights, etc.; futures and options must be rolled; currencies are not traded in a centralized order book. The degree of specialization involved in this station is beyond the scope of this book, and Chapter 1 will discuss only a few aspects of data curation.",
+      "translation": "这个工位负责收集、清洗、建立索引、存储和调整数据，再把数据交给研发流水线。数据可能是表格形式，也可能有层级结构；时间可能对齐，也可能没有对齐；既可能是历史数据，也可能是实时数据流。团队成员需要精通市场微观结构以及 FIX 等数据协议，还要开发相应的数据处理程序，弄清每条数据是在什么背景下产生的。例如，一笔报价被撤销后，是换成了另一个价位的新报价，还是直接撤销、没有替代？每类资产都有自己的细节。债券经常发生置换或被赎回；股票会拆股、反向拆股，还涉及投票权等事项；期货和期权需要展期；外汇则不在一个集中式订单簿中交易。这个工位需要很深的专业知识，已经超出本书范围；本章只会谈到数据治理的少数几个方面。"
+    },
+    {
+      "key": "t_233164c735a887b7dc29",
+      "source": "1.3.1.2 Feature Analysts",
+      "translation": "1.3.1.2 特征分析师"
+    },
+    {
+      "key": "t_11befc064edba9081534",
+      "source": "This is the station responsible for transforming raw data into informative signals. These informative signals have some predictive power over financial variables. Team members are experts in information theory, signal extraction and processing, visualization, labeling, weighting, classifiers, and feature importance techniques. For example, feature analysts may discover that the probability of a sell-off is particularly high when: (1) quoted offers are cancelled-replaced with market sell orders, and (2) quoted buy orders are cancelled-replaced with limit buy orders deeper in the book. Such a finding is not an investment strategy on its own, and can be used in alternative ways: execution, monitoring of liquidity risk, market making, position taking, etc. A common error is to believe that feature analysts develop strategies. Instead, feature analysts collect and catalogue libraries of findings that can be useful to a multiplicity of stations. Chapters 2–9 and 17–19 are dedicated to this all-important station.",
+      "translation": "这个工位负责把原始数据变成有用的信号，也就是对金融变量具有一定预测能力的信号。团队成员要熟悉信息论、信号提取与处理、可视化、标签设计、样本加权、分类器和特征重要性等技术。例如，特征分析师可能发现，在以下两件事同时发生时，市场大幅抛售的概率特别高：（1）卖方报价被撤销，随后出现市价卖单；（2）买方报价被撤销，随后在订单簿更深处挂出限价买单。这个发现本身还不是一套投资策略，却可以用于交易执行、流动性风险监控、做市或建立头寸等不同场景。常见误解是把特征分析师当成策略开发者。实际上，他们的工作是收集研究发现、整理成库，供流水线上的多个工位使用。第 2—9 章和第 17—19 章都与这个关键工位有关。"
+    },
+    {
+      "key": "t_662548fd0b3357869c9d",
+      "source": "1.3.1.3 Strategists",
+      "translation": "1.3.1.3 策略研究员"
+    },
+    {
+      "key": "t_acbd0428b2069333ff22",
+      "source": "In this station, informative features are transformed into actual investment algorithms. A strategist will parse through the libraries of features looking for ideas to develop an investment strategy. These features were discovered by different analysts studying a wide range of instruments and asset classes. The goal of the strategist is to make sense of all these observations and to formulate a general theory that explains them. Therefore, the strategy is merely the experiment designed to test the validity of this theory. Team members are data scientists with a deep knowledge of financial markets and the economy. Remember, the theory needs to explain a large collection of important features. In particular, a theory must identify the economic mechanism that causes an agent to lose money to us. Is it a behavioral bias? Asymmetric information? Regulatory constraints? Features may be discovered by a black box, but the strategy is developed in a white box. Gluing together a number of catalogued features does not constitute a theory. Once a strategy is finalized, the strategists will prepare code that utilizes the full algorithm and submit that prototype to the backtesting team described below. Chapters 10 and 16 are dedicated to this station, with the understanding that it would be unreasonable for a book to reveal specific investment strategies.",
+      "translation": "这个工位把有用的特征变成真正可以运行的投资算法。策略研究员会查阅特征库，从中寻找开发投资策略的思路。这些特征来自不同分析师对多种金融工具和资产类别的研究。策略研究员要把这些零散观察串起来，提出一套能够统一解释它们的理论。策略本身只是一个实验，用来检验这套理论是否成立。团队成员应当是既懂数据科学，又深入了解金融市场和经济运行的人。要注意，理论必须解释一大批重要特征，尤其要指出一种经济机制：为什么市场中的某类参与者会把钱输给我们？原因是行为偏差、信息不对称，还是监管限制？特征可以由黑箱发现，但策略必须在白箱中构建。把几个已经入库的特征简单拼在一起，算不上理论。策略定稿后，策略研究员会写出包含完整算法的原型代码，交给下面介绍的回测团队。第 10 章和第 16 章主要对应这个工位；当然，不能指望一本书公开具体的投资策略。"
+    },
+    {
+      "key": "t_f3cb85f54b68938df93d",
+      "source": "1.3.1.4 Backtesters",
+      "translation": "1.3.1.4 回测团队"
+    },
+    {
+      "key": "t_9e7f8a92641201b216ab",
+      "source": "This station assesses the profitability of an investment strategy under various scenarios. One of the scenarios of interest is how the strategy would perform if history repeated itself. However, the historical path is merely one of the possible outcomes of a stochastic process, and not necessarily the most likely going forward. Alternative scenarios must be evaluated, consistent with the knowledge of the weaknesses and strengths of a proposed strategy. Team members are data scientists with a deep understanding of empirical and experimental techniques. A good backtester incorporates in his analysis meta-information regarding how the strategy came about. In particular, his analysis must evaluate the probability of backtest overfitting by taking into account the number of trials it took to distill the strategy. The results of this evaluation will not be reused by other stations, for reasons that will become apparent in Chapter 11. Instead, backtest results are communicated to management and not shared with anyone else. Chapters 11-16 discuss the analyses carried out by this station.",
+      "translation": "这个工位评估投资策略在不同情景下能否赚钱。其中一个重要情景是：如果历史重演，策略会有什么表现。但真实发生过的历史路径，只是某个随机过程的一种可能结果，并不一定是未来最可能出现的路径。因此，回测还必须根据策略已知的优点和弱点，设计并评估其他情景。团队成员应当是深入掌握实证研究和实验方法的数据科学家。优秀的回测人员还会把策略的产生过程纳入分析，也就是考虑关于策略来源的元信息。尤其是，他们必须统计为了筛出这套策略一共尝试了多少次，并据此评估回测过拟合的概率。出于第 11 章会解释的原因，这项评估结果不会交给流水线上的其他工位重复使用。回测结果只报告给管理层，不与其他人共享。第 11—16 章会介绍这个工位所做的分析。"
+    },
+    {
+      "key": "t_f63ca4208a9be3c02b6b",
+      "source": "1.3.1.5 Deployment Team",
+      "translation": "1.3.1.5 部署团队"
+    },
+    {
+      "key": "t_182c4442c243f3626cc8",
+      "source": "The deployment team is tasked with integrating the strategy code into the production line. Some components may be reused by multiple strategies, especially when they share common features. Team members are algorithm specialists and hardcore mathematical programmers. Part of their job is to ensure that the deployed solution is logically identical to the prototype they received. It is also the deployment team’s responsibility to optimize the implementation sufficiently, such that production latency is minimized. As production calculations often are time sensitive, this team will rely heavily on process schedulers, automation servers (Jenkins), vectorization, multithreading, multiprocessing, graphics processing unit (GPU-NVIDIA), distributed computing (Hadoop), high-performance computing (Slurm), and parallel computing techniques in general. Chapters 20–22 touch on various aspects interesting to this station, as they relate to financial ML.",
+      "translation": "部署团队负责把策略代码接入生产系统。有些组件可以由多套策略复用，特别是当这些策略使用共同特征时。团队成员应当是算法专家和功底扎实的数学程序员。他们的一项任务，是确保上线版本在逻辑上与收到的原型完全一致；另一项任务，是充分优化实现，把生产环境中的延迟降到最低。生产计算通常对时间十分敏感，因此这个团队会大量使用进程调度器、自动化服务器（Jenkins）、向量化、多线程、多进程、图形处理器（GPU-NVIDIA）、分布式计算（Hadoop）、高性能计算（Slurm）以及其他并行计算技术。第 20—22 章会讨论与金融 ML 相关、也与这个工位密切相关的若干主题。"
+    },
+    {
+      "key": "t_6ebc4a07d2437b7f8b64",
+      "source": "1.3.1.6 Portfolio Oversight",
+      "translation": "1.3.1.6 策略投产后的管理"
+    },
+    {
+      "key": "t_095f75f6ec1db101f651",
+      "source": "Once a strategy is deployed, it follows a cursus honorum, which entails the following stages or lifecycle:",
+      "translation": "策略部署后，还要经过一套逐级晋升流程。它包含以下阶段，也就是一套完整的生命周期："
+    },
+    {
+      "key": "t_1231143cfa34b6c583b4",
+      "source": "Embargo:",
+      "translation": "留出观察期："
+    },
+    {
+      "key": "t_42c3b9b040cc34be0689",
+      "source": "Initially, the strategy is run on data observed after the end date of the backtest. Such a period may have been reserved by the backtesters, or it may be the result of implementation delays. If embargoed performance is consistent with backtest results, the strategy is promoted to the next stage.",
+      "translation": "首先，用回测截止日之后才观察到的数据运行策略。这段数据可能是回测团队事先特意留出的，也可能是开发上线需要时间而自然形成的。如果策略在这段留出期内的表现与回测结果一致，就可以进入下一阶段。"
+    },
+    {
+      "key": "t_e21ef39f5caeece2f467",
+      "source": "Paper trading:",
+      "translation": "模拟交易："
+    },
+    {
+      "key": "t_92e6bdd25385a7999a1a",
+      "source": "At this point, the strategy is run on a live, real-time feed. In this way, performance will account for data parsing latencies, calculation latencies, execution delays, and other time lapses between observation and positioning. Paper trading will take place for as long as it is needed to gather enough evidence that the strategy performs as expected.",
+      "translation": "在这个阶段，策略接入真实的实时数据流运行，但不动用真实资金。这样测得的表现会计入数据解析延迟、计算延迟、执行延迟，以及从观察到信号到建立头寸之间的其他时间损耗。模拟交易要持续到积累了足够证据，能够确认策略表现符合预期为止。"
+    },
+    {
+      "key": "t_09b4d375d9602af34892",
+      "source": "Graduation:",
+      "translation": "正式上线："
+    },
+    {
+      "key": "t_5a3854d6599c0e48a959",
+      "source": "At this stage, the strategy manages a real position, whether in isolation or as part of an ensemble. Performance is evaluated precisely, including attributed risk, returns, and costs.",
+      "translation": "到这一阶段，策略开始管理真实头寸，既可以单独运行，也可以作为策略组合的一部分运行。团队会精确评估它的业绩，包括可归因风险、收益和成本。"
+    },
+    {
+      "key": "t_168e130843c9d90a960f",
+      "source": "Re-allocation:",
+      "translation": "调整配置："
+    },
+    {
+      "key": "t_37011bb2e21df44b2c10",
+      "source": "Based on the production performance, the allocation to graduated strategies is re-assessed frequently and automatically in the context of a diversified portfolio. In general, a strategy's allocation follows a concave function. The initial allocation (at graduation) is small. As time passes, and the strategy performs as expected, the allocation is increased. Over time, performance decays, and allocations become gradually smaller.",
+      "translation": "策略正式上线后，系统会根据它在生产环境中的表现，在分散化投资组合中频繁、自动地重新评估资金配置。一般来说，策略的资金规模沿一条凹函数曲线变化：刚上线时配置很小；随着时间推移，如果表现符合预期，配置会逐步增加；再往后，策略业绩开始衰减，配置也会逐渐减少。"
+    },
+    {
+      "key": "t_abe09cb987cc37d7321c",
+      "source": "Decommission:",
+      "translation": "下线："
+    },
+    {
+      "key": "t_5ea619d9b7ea8bb7caf0",
+      "source": "Eventually, all strategies are discontinued. This happens when they perform below expectations for a sufficiently extended period of time to conclude that the supporting theory is no longer backed by empirical evidence.",
+      "translation": "所有策略最终都会停用。当一套策略长期低于预期，时间已经足以让我们判断其背后的理论不再得到实证证据支持时，就应将它下线。"
+    },
+    {
+      "key": "t_857ddbac996781b8f8c2",
+      "source": "In general, it is preferable to release new variations of a strategy and run them in parallel with old versions. Each version will go through the above lifecycle, and old strategies will receive smaller allocations as a matter of diversification, while taking into account the degree of confidence derived from their longer track record.",
+      "translation": "通常，更好的做法是发布策略的新变体，让新旧版本并行运行。每个版本都要经历上述生命周期。出于分散化考虑，旧策略会逐渐获得更小的配置；不过，旧版本拥有更长的实盘记录，由此带来的更高可信度也应纳入配置决策。"
+    },
+    {
+      "key": "t_bea6f8ea5db5de1b4695",
+      "source": "1.3.2 Structure by Strategy Component",
+      "translation": "1.3.2 按策略组成要素划分"
+    },
+    {
+      "key": "t_dc03f7ae9ad2d8528b97",
+      "source": "Many investment managers believe that the secret to riches is to implement an extremely complex ML algorithm. They are setting themselves up for a disappointment. If it was as easy as coding a state-of-the art classifier, most people in Silicon Valley would be billionaires. A successful investment strategy is the result of multiple factors. Table 1.1 summarizes what chapters will help you address each of the challenges involved in developing a successful investment strategy. Throughout the book, you will find many references to journal articles I have published over the years. Rather than repeating myself, I will often refer you to one of them, where you will find a detailed analysis of the subject at hand. All of my cited papers can be downloaded for free, in pre-print format, from my website: www.QuantResearch.org.",
+      "translation": "许多投资经理相信，致富的秘诀是实现一个极其复杂的 ML 算法。这种想法多半会让他们失望。如果只要写出一个最先进的分类器就能发财，硅谷大多数人早已成了亿万富翁。成功的投资策略由许多因素共同决定。表 1.1 汇总了开发成功策略时需要应对的挑战，以及本书哪些章节会帮助你解决它们。书中还会多次引用我这些年发表的期刊论文。为了避免重复，我通常会直接引导你阅读其中某篇论文，那里对相关主题有更详细的分析。书中引用的论文都可以从我的网站免费下载预印本：www.QuantResearch.org。"
+    },
+    {
+      "key": "t_7e98437e0c9c21f0ab8c",
+      "source": "1.3.2.1 Data",
+      "translation": "1.3.2.1 数据"
+    },
+    {
+      "key": "t_4204e14466dc61d8f892",
+      "source": "Problem:",
+      "translation": "问题："
+    },
+    {
+      "key": "t_0492c85e77012709cd25",
+      "source": "Garbage in, garbage out.",
+      "translation": "输入的是垃圾，输出的也只会是垃圾。"
+    },
+    {
+      "key": "t_003faca274035fc379c5",
+      "source": "Solution:",
+      "translation": "解决办法："
+    },
+    {
+      "key": "t_acb302f73e50cec6b4a7",
+      "source": "Work with unique, hard-to-manipulate data. If you are the only user of this data, whatever its value, it is all for you.",
+      "translation": "使用独有、难以人为操纵的数据。如果只有你能使用这份数据，那么它带来的价值就全归你所有。"
+    },
+    {
+      "key": "t_9fd7135e16f19b7b8fb0",
+      "source": "How:",
+      "translation": "具体方法："
+    },
+    {
+      "key": "t_1b300fea8ae9b7f5b06c",
+      "source": "Chapter 2: Structure your data correctly.",
+      "translation": "第 2 章：正确组织数据。"
+    },
+    {
+      "key": "t_d5af083233e8d81d3e1d",
+      "source": "Chapter 3: Produce informative labels.",
+      "translation": "第 3 章：生成真正有信息量的标签。"
+    },
+    {
+      "key": "t_8a4fdff816b4a2b92cf5",
+      "source": "Chapters 4 and 5: Model non-IID series properly.",
+      "translation": "第 4、5 章：正确建模非 IID 序列。"
+    },
+    {
+      "key": "t_42842948e69ae23be14c",
+      "source": "Chapters 17-19: Find predictive features.",
+      "translation": "第 17—19 章：寻找具有预测力的特征。"
+    },
+    {
+      "key": "t_918a77d2b6a536fc90bf",
+      "source": "1.3.2.2 Software",
+      "translation": "1.3.2.2 软件"
+    },
+    {
+      "key": "t_e67696c4d4c0a13bf700",
+      "source": "A specialized task requires customized tools.",
+      "translation": "专业任务需要量身定制的工具。"
+    },
+    {
+      "key": "t_d766ab53c764941b303c",
+      "source": "Develop your own classes. Using popular libraries means more competitors tapping the same well.",
+      "translation": "开发自己的类。大家都用同一套流行库，就等于更多竞争者在同一口井里取水。"
+    },
+    {
+      "key": "t_49811ed8f099945dbc03",
+      "source": "Table 1.1: Overview of the Challenges Addressed by Every Chapter",
+      "translation": "表 1.1：各章所解决的主要挑战一览"
+    },
+    {
+      "key": "t_8570a2e1669ff057c9f9",
+      "source": "Part",
+      "translation": "部分"
+    },
+    {
+      "key": "t_548c31f731ec2c86146a",
+      "source": "Chapter",
+      "translation": "章节"
+    },
+    {
+      "key": "t_e0faf56cb8c280d230f0",
+      "source": "Fin. data",
+      "translation": "金融数据"
+    },
+    {
+      "key": "t_9b3289a385a5301eea0c",
+      "source": "Software",
+      "translation": "软件"
+    },
+    {
+      "key": "t_7975300f01bc46f86e52",
+      "source": "Hardware",
+      "translation": "硬件"
+    },
+    {
+      "key": "t_d48500aea83254706245",
+      "source": "Math",
+      "translation": "数学方法"
+    },
+    {
+      "key": "t_0661e94d8fe4b0183aac",
+      "source": "Meta-Strat",
+      "translation": "元策略"
+    },
+    {
+      "key": "t_3720a2125534f57ef37a",
+      "source": "Overfitting",
+      "translation": "过拟合"
+    },
+    {
+      "key": "t_4b68ab3847feda7d6c62",
+      "source": "X",
+      "translation": "X"
+    },
+    {
+      "key": "t_729d2f0d11d27a8fb1f7",
+      "source": "Chapters 2-22: Throughout the book, for each chapter, we develop our own functions. For your particular problems, you will have to do the same, following the examples in the book.",
+      "translation": "第 2—22 章：本书每一章都会开发自己的函数。面对你的具体问题，你也要参考书中的示例，编写适合自己的函数。"
+    },
+    {
+      "key": "t_f14c451b4d22d5e4600b",
+      "source": "1.3.2.3 Hardware",
+      "translation": "1.3.2.3 硬件"
+    },
+    {
+      "key": "t_a6e7a6d46bb59804c77e",
+      "source": "ML involves some of the most computationally intensive tasks in all of mathematics.",
+      "translation": "ML 涉及的任务，有些是整个数学领域中计算量最大的。"
+    },
+    {
+      "key": "t_02bd49339533d56e7826",
+      "source": "Become an HPC expert. If possible, partner with a National Laboratory to build a supercomputer.",
+      "translation": "掌握 HPC。如果条件允许，可以与美国国家实验室合作建设超级计算机。"
+    },
+    {
+      "key": "t_c0ac5dc473d2118fed08",
+      "source": "Chapters 20 and 22: Learn how to think in terms of multiprocessing architectures. Whenever you code a library, structure it in such a way that functions can be called in parallel. You will find plenty of examples in the book.",
+      "translation": "第 20、22 章：学会从多进程架构的角度思考。每次编写程序库时，都要让函数在结构上可以被并行调用。书中有大量示例。"
+    },
+    {
+      "key": "t_a71bb582290e1eddd88f",
+      "source": "Chapter 21: Develop algorithms for quantum computers.",
+      "translation": "第 21 章：为量子计算机开发算法。"
+    },
+    {
+      "key": "t_257f9377d291f796010b",
+      "source": "1.3.2.4 Math",
+      "translation": "1.3.2.4 数学方法"
+    },
+    {
+      "key": "t_b2d220c8eb92e3480c4f",
+      "source": "Mathematical proofs can take years, decades, and centuries. No investor will wait that long.",
+      "translation": "数学证明可能要花几年、几十年，甚至几百年。没有投资者会等那么久。"
+    },
+    {
+      "key": "t_cdec1244aae7900b9e85",
+      "source": "Use experimental math. Solve hard, intractable problems, not by proof but by experiment. For example, Bailey, Borwein, and Plouffe [1997] found a spigot algorithm for",
+      "translation": "采用实验数学。面对难以严格求解的问题，不一定要先给出证明，也可以通过实验找到答案。例如，Bailey、Borwein 和 Plouffe [1997] 为"
+    },
+    {
+      "key": "t_aac42acf0112fc78a2a9",
+      "source": "(pi) without proof, against the prior perception that such mathematical finding would not be possible.",
+      "translation": "（圆周率）找到了一种逐位生成算法，却没有先给出证明；此前，人们一直认为这样的数学发现不可能做到。"
+    },
+    {
+      "key": "t_02bf3650da5ced1cf89f",
+      "source": "Chapter 5: Familiarize yourself with memory-preserving data transformations.",
+      "translation": "第 5 章：熟悉能够保留记忆性的数据变换。"
+    },
+    {
+      "key": "t_fa04950a452abc1178ac",
+      "source": "Chapters 11-15: There are experimental methods to assess the value of your strategy, with greater reliability than a historical simulation.",
+      "translation": "第 11—15 章：使用实验方法评估策略价值，这些方法比历史模拟更可靠。"
+    },
+    {
+      "key": "t_cb35f71d8679938e3830",
+      "source": "Chapter 16: An algorithm that is optimal in-sample can perform poorly out-of-sample. There is no mathematical proof for investment success. Rely on experimental methods to lead your research.",
+      "translation": "第 16 章：样本内最优的算法，到了样本外可能表现很差。投资成功不存在数学证明，要用实验方法引导研究。"
+    },
+    {
+      "key": "t_4e3962ac1f07a10fa906",
+      "source": "Chapters 17 and 18: Apply methods to detect structural breaks, and quantify the amount of information carried by financial series.",
+      "translation": "第 17、18 章：检测结构突变，并量化金融序列携带的信息量。"
+    },
+    {
+      "key": "t_3e711ad04e1d11e29195",
+      "source": "Chapter 20: Learn queuing methods for distributed computing so that you can break apart complex tasks and speed up calculations.",
+      "translation": "第 20 章：学习分布式计算的任务排队方法，把复杂任务拆开，加快计算。"
+    },
+    {
+      "key": "t_dec696f2fdaa9741c42c",
+      "source": "Chapter 21: Become familiar with discrete methods, used among others by quantum computers, to solve intractable problems.",
+      "translation": "第 21 章：熟悉离散方法，包括量子计算机使用的方法，用它们处理难以求解的问题。"
+    },
+    {
+      "key": "t_344d5148a04b359ee22e",
+      "source": "1.3.2.5 Meta-Strategies",
+      "translation": "1.3.2.5 元策略"
+    },
+    {
+      "key": "t_56ecb22d47a43d5c6998",
+      "source": "Amateurs develop individual strategies, believing that there is such a thing as a magical formula for riches. In contrast, professionals develop methods to mass-produce strategies. The money is not in making a car, it is in making a car factory.",
+      "translation": "业余者总想开发某一套神奇策略，以为世上真有一条致富公式。专业人士则研究怎样批量生产策略。真正值钱的不是造出一辆车，而是建成一座汽车工厂。"
+    },
+    {
+      "key": "t_bc48dfecb48d51d1af8f",
+      "source": "Think like a business. Your goal is to run a research lab like a factory, where true discoveries are not born out of inspiration, but out of methodic hard work. That was the philosophy of physicist Ernest Lawrence, the founder of the first U.S. National Laboratory.",
+      "translation": "要像经营企业一样思考。你的目标是把研究实验室办成一座工厂，让真正的发现来自有章法的辛勤工作，而不是一时灵感。这正是物理学家 Ernest Lawrence 的理念；他创立了美国第一所国家实验室。"
+    },
+    {
+      "key": "t_86e529921befb656ecf8",
+      "source": "Chapters 7-9: Build a research process that identifies features relevant across asset classes, while dealing with multi-collinearity of financial features.",
+      "translation": "第 7—9 章：建立一套研究流程，在处理金融特征多重共线性的同时，找出能跨资产类别发挥作用的特征。"
+    },
+    {
+      "key": "t_f52cbfb7cb87f44d547c",
+      "source": "Chapter 10: Combine multiple predictions into a single bet.",
+      "translation": "第 10 章：把多个预测合并成一次下注。"
+    },
+    {
+      "key": "t_111c393ab80944e0142c",
+      "source": "Chapter 16: Allocate funds to strategies using a robust method that performs well out-of-sample.",
+      "translation": "第 16 章：用稳健、样本外表现良好的方法为策略配置资金。"
+    },
+    {
+      "key": "t_eab16a99f08709c154b4",
+      "source": "1.3.2.6 Overfitting",
+      "translation": "1.3.2.6 过拟合"
+    },
+    {
+      "key": "t_a14d3f00312a528b2535",
+      "source": "Standard cross-validation methods fail in finance. Most discoveries in finance are false, due to multiple testing and selection bias.",
+      "translation": "常规交叉验证方法在金融问题上会失效。受多重检验和选择偏差影响，金融研究中的大多数“发现”其实是假的。"
+    },
+    {
+      "key": "t_b9305565c5460ad34956",
+      "source": "Whatever you do, always ask yourself in what way you may be overfitting. Be skeptical about your own work, and constantly challenge yourself to prove that you are adding value.",
+      "translation": "无论做什么，都要反复问自己：我可能在哪些地方过拟合了？对自己的研究保持怀疑，不断要求自己拿出证据，证明这项工作确实创造了价值。"
+    },
+    {
+      "key": "t_532119d7e6cf7cca7c46",
+      "source": "Overfitting is unethical. It leads to promising outcomes that cannot be delivered. When done knowingly, overfitting is outright scientific fraud. The fact that many academics do it does not make it right: They are not risking anyone's wealth, not even theirs.",
+      "translation": "过拟合违背职业伦理。它给出看似诱人的结果，却无法兑现。如果明知如此还故意过拟合，那就是赤裸裸的科研欺诈。许多学者都这样做，并不能让它变得正确；他们并没有拿任何人的财富冒险，甚至连自己的钱也没冒险。"
+    },
+    {
+      "key": "t_e0bafa483eeb00f7db0d",
+      "source": "It is also a waste of your time, resources, and opportunities. Besides, the industry only pays for out-of-sample returns. You will only succeed after you have created substantial wealth for your investors.",
+      "translation": "过拟合还会浪费你的时间、资源和机会。更现实的是，行业只会为样本外收益买单。只有真正为投资者创造了可观财富，你才算取得成功。"
+    },
+    {
+      "key": "t_e9bf61ba9820099af06f",
+      "source": "Chapters 11-15: There are three backtesting paradigms, of which historical simulation is only one. Each backtest is always overfit to some extent, and it is critical to learn to quantify by how much.",
+      "translation": "第 11—15 章：回测有三种基本范式，历史模拟只是其中之一。任何回测都会有一定程度的过拟合，关键是学会量化它究竟有多严重。"
+    },
+    {
+      "key": "t_9601a0ccbf132106a690",
+      "source": "Chapter 16: Learn robust techniques for asset allocation that do not overfit in-sample signals at the expense of out-of-sample performance.",
+      "translation": "第 16 章：学习稳健的资产配置方法，避免为了贴合样本内信号而牺牲样本外表现。"
+    },
+    {
+      "key": "t_9f7b99c5b0bfad08a03f",
+      "source": "1.3.3 Structure by Common Pitfall",
+      "translation": "1.3.3 按常见误区划分"
+    },
+    {
+      "key": "t_95f08f4b99aa4002837d",
+      "source": "Despite its many advantages, ML is no panacea. The flexibility and power of ML techniques have a dark side. When misused, ML algorithms will confuse statistical flukes with patterns. This fact, combined with the low signal-to-noise ratio that characterizes finance, all but ensures that careless users will produce false discoveries at an ever-greater speed. This book exposes some of the most pervasive errors made by ML experts when they apply their techniques on financial datasets. Some of these pitfalls are listed in Table 1.2, with solutions that are explained in the indicated chapters.",
+      "translation": "ML 优点很多，却不是包治百病的灵药。它越灵活、越强大，用错时的危害也越大。使用不当的 ML 算法，会把统计上的偶然现象误认成稳定规律。金融数据本来就具有信噪比低的特点，两者叠加后，粗心的使用者几乎必然会越来越快地产出虚假发现。本书会揭示 ML 专家把技术用于金融数据时最常犯的一些错误。表 1.2 列出了其中一部分误区，并标明了讲解相应解决办法的章节。"
+    },
+    {
+      "key": "t_33d565db18bef3ca2ff5",
+      "source": "Table 1.2: Common Pitfalls in Financial ML",
+      "translation": "表 1.2：金融 ML 中的常见误区"
+    },
+    {
+      "key": "t_292c06f0045a45d044be",
+      "source": "Category",
+      "translation": "类别"
+    },
+    {
+      "key": "t_f6342d8d146223c89bb4",
+      "source": "Pitfall",
+      "translation": "常见误区"
+    },
+    {
+      "key": "t_22927695994eab589c76",
+      "source": "Solution",
+      "translation": "解决办法"
+    },
+    {
+      "key": "t_a43a301af5f872c1bc17",
+      "source": "Epistemological",
+      "translation": "研究思路"
+    },
+    {
+      "key": "t_b6808e8789b4062abd79",
+      "source": "The Sisyphus paradigm",
+      "translation": "西西弗斯模式"
+    },
+    {
+      "key": "t_78ee938af7709eaa4980",
+      "source": "The meta-strategy paradigm",
+      "translation": "元策略模式"
+    },
+    {
+      "key": "t_4c9524d82973ec59286f",
+      "source": "Research through backtesting",
+      "translation": "靠反复回测寻找结果"
+    },
+    {
+      "key": "t_bfa743518174c41fb59f",
+      "source": "Feature importance analysis",
+      "translation": "特征重要性分析"
+    },
+    {
+      "key": "t_ac3a070044522169c787",
+      "source": "Data processing",
+      "translation": "数据处理"
+    },
+    {
+      "key": "t_fb70655e8b435236e3de",
+      "source": "Chronological sampling",
+      "translation": "按固定时间间隔采样"
+    },
+    {
+      "key": "t_37221fdab90e116537e8",
+      "source": "The volume clock",
+      "translation": "成交量时钟"
+    },
+    {
+      "key": "t_2c8922b09208dfa7ffb8",
+      "source": "Integer differentiation",
+      "translation": "整数阶差分"
+    },
+    {
+      "key": "t_90d90b425fc78676076a",
+      "source": "Fractional differentiation",
+      "translation": "分数阶差分"
+    },
+    {
+      "key": "t_72f049954fdd06c875fe",
+      "source": "Classification",
+      "translation": "分类"
+    },
+    {
+      "key": "t_ea3f2eb3e0f0bd8e5ad6",
+      "source": "Fixed-time horizon labeling",
+      "translation": "固定时间跨度标签法"
+    },
+    {
+      "key": "t_1263bd43f0109c7e45fd",
+      "source": "The triple-barrier method",
+      "translation": "三重障碍法"
+    },
+    {
+      "key": "t_eab2fefc0ac8d308f818",
+      "source": "Learning side and size simultaneously",
+      "translation": "同时学习交易方向和仓位规模"
+    },
+    {
+      "key": "t_4ac5469ae4d3a117e73d",
+      "source": "Meta-labeling",
+      "translation": "元标签化（meta-labeling）"
+    },
+    {
+      "key": "t_44e62b552acd3a011a39",
+      "source": "Weighting of non-IID samples",
+      "translation": "非 IID 样本加权"
+    },
+    {
+      "key": "t_8c50f49c57345de22dab",
+      "source": "Uniqueness weighting; sequential bootstrapping",
+      "translation": "按唯一性加权；序贯自助法（sequential bootstrap）"
+    },
+    {
+      "key": "t_163e44b102626149bbbf",
+      "source": "Evaluation",
+      "translation": "评估"
+    },
+    {
+      "key": "t_a823c2cd02b0f4fc194f",
+      "source": "Cross-validation leakage",
+      "translation": "交叉验证中的信息泄漏"
+    },
+    {
+      "key": "t_8ede02a8eddaaf200b5d",
+      "source": "Purging and embargoing",
+      "translation": "清除重叠样本（purging）并设置禁运期（embargo）"
+    },
+    {
+      "key": "t_4f5b7f47cf3614704720",
+      "source": "Walk-forward (historical) backtesting",
+      "translation": "滚动前推（WF）历史回测"
+    },
+    {
+      "key": "t_a3b49519406ab9f217c3",
+      "source": "Combinatorial purged cross-validation",
+      "translation": "组合式清除交叉验证（CPCV）"
+    },
+    {
+      "key": "t_58df0fd1cba58d6ac926",
+      "source": "Backtest overfitting",
+      "translation": "回测过拟合"
+    },
+    {
+      "key": "t_9e2a7aa827e9c77e6d17",
+      "source": "Backtesting on synthetic data; the deflated Sharpe ratio",
+      "translation": "基于合成数据的回测；去膨胀夏普比率（DSR）"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_00694552eda28e014468",
+      "source": "Previous: Front Matter",
+      "translation": "上一章：封面"
+    },
+    {
+      "key": "t_1e13e5b2d68164581d4d",
+      "source": "Next: Financial Data Structures",
+      "translation": "下一章：金融数据结构"
+    }
+  ]
+}

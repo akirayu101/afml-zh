@@ -1,0 +1,791 @@
+{
+  "chapter": "chapter-03",
+  "scope": "full chapter",
+  "units": [
+    {
+      "key": "t_3a2246d8e80e65ffbef0",
+      "source": "Labeling | Advances in Financial Machine Learning",
+      "translation": "标签化 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_e454f6edc495e4da389c",
+      "source": "Part 1: Data Analysis",
+      "translation": "第一部分：数据分析"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_e807debfd75e0073d45c",
+      "source": "Labeling",
+      "translation": "标签化"
+    },
+    {
+      "key": "t_5588c0b60989201fef72",
+      "source": "3.1 Motivation",
+      "translation": "3.1 为什么需要给金融数据加标签"
+    },
+    {
+      "key": "t_80b8227414abdaaa2b98",
+      "source": "In Chapter 2 we discussed how to produce a matrix",
+      "translation": "第 2 章介绍了怎样把非结构化数据集整理成金融特征矩阵"
+    },
+    {
+      "key": "t_8af6e98e325cffc1ba98",
+      "source": "of financial features out of an unstructured dataset. Unsupervised learning algorithms can learn the patterns from that matrix",
+      "translation": "。无监督学习算法可以从矩阵"
+    },
+    {
+      "key": "t_070e51585681c1e3b66a",
+      "source": ", for example whether it contains hierarchical clusters. On the other hand, supervised learning algorithms require that the rows in",
+      "translation": "中寻找规律，例如判断数据是否存在层次聚类。监督学习算法则不同，它要求矩阵"
+    },
+    {
+      "key": "t_9205e38bb8002d3db0ad",
+      "source": "are associated with an array of labels or values",
+      "translation": "中的每一行都对应一组标签或数值"
+    },
+    {
+      "key": "t_b80bdd2eeb324e2a0da6",
+      "source": ", so that those labels or values can be predicted on unseen feature samples. In this chapter we will discuss ways to label financial data.",
+      "translation": "，这样才能根据未见过的特征样本预测这些标签或数值。本章将介绍怎样给金融数据加标签。"
+    },
+    {
+      "key": "t_a726bd63fc2f73463a29",
+      "source": "3.2 The Fixed-Time Horizon Method",
+      "translation": "3.2 固定时间跨度法"
+    },
+    {
+      "key": "t_e790ac14eedfa0e5a54d",
+      "source": "As it relates to finance, virtually all ML papers label observations using the fixed-time horizon method. This method can be described as follows. Consider a features matrix",
+      "translation": "在金融领域，几乎所有 ML 论文都用固定时间跨度法给观测值加标签。具体做法如下。假设有一个特征矩阵"
+    },
+    {
+      "key": "t_0695b563acde461fc2f8",
+      "source": "with",
+      "translation": "，它有"
+    },
+    {
+      "key": "t_ca7b98d840a59f76c6da",
+      "source": "rows,",
+      "translation": "行，记作"
+    },
+    {
+      "key": "t_b03856f153c72714453f",
+      "source": ", drawn from some bars with index",
+      "translation": "。这些行来自若干数据条（bar），其索引为"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，且"
+    },
+    {
+      "key": "t_ea49343aad36ecbc307a",
+      "source": ". Chapter 2, Section 2.5 discussed sampling methods that produce the set of features",
+      "translation": "。第 2 章第 2.5 节介绍了怎样通过采样得到特征集合"
+    },
+    {
+      "key": "t_195f1c33d766305bcc13",
+      "source": ". An observation",
+      "translation": "。对观测值"
+    },
+    {
+      "key": "t_4e618acf54fffce07b8b",
+      "source": "is assigned a label",
+      "translation": "赋予标签"
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "其中，"
+    },
+    {
+      "key": "t_50864632dec163b00c4f",
+      "source": "is a pre-defined constant threshold,",
+      "translation": "是预先设定的常数阈值；"
+    },
+    {
+      "key": "t_15d76203fa4873101922",
+      "source": "is the index of the bar immediately after",
+      "translation": "是"
+    },
+    {
+      "key": "t_5b48c5eb517bcc1909b8",
+      "source": "takes place,",
+      "translation": "出现后紧接着的 bar 索引；"
+    },
+    {
+      "key": "t_45c0c6f0054eea2fef19",
+      "source": "is the index of the",
+      "translation": "表示往后经过"
+    },
+    {
+      "key": "t_964d7f1e6af3fe38f38e",
+      "source": "-th bar after",
+      "translation": "个 bar 时对应的索引，起点为"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "；"
+    },
+    {
+      "key": "t_294689f9da4d27602c61",
+      "source": "is the price return over a bar horizon",
+      "translation": "是价格收益率，对应的 bar 跨度为"
+    },
+    {
+      "key": "t_de65a8ee4655155d20df",
+      "source": "Because the literature almost always works with time bars,",
+      "translation": "文献几乎总以时间条/time bar 为基础，因此"
+    },
+    {
+      "key": "t_53a88255112878fb27d3",
+      "source": "implies a fixed-time horizon. The bibliography section lists multiple ML studies, of which Dixon et al.",
+      "translation": "对应固定的时间跨度。参考书目列出了多项 ML 研究，Dixon 等人"
+    },
+    {
+      "key": "t_d2450562732bb2c0a556",
+      "source": "is a recent example of this labeling method. Despite its popularity, there are several reasons to avoid this approach in most cases. First, as we saw in Chapter 2, time bars do not exhibit good statistical properties. Second, the same threshold",
+      "translation": "的研究是这种标签法较新的例子。这个方法虽然很流行，但多数情况下并不适用，原因有好几个。第一，第 2 章已经说明，时间条/time bar 的统计性质并不好。第二，同一个阈值"
+    },
+    {
+      "key": "t_6199e6ab8d085d6d571e",
+      "source": "is applied regardless of the observed volatility. Suppose that",
+      "translation": "不会随观测到的波动率变化。假设"
+    },
+    {
+      "key": "t_7626db3cc9201e57d9ec",
+      "source": ", where sometimes we label an observation as",
+      "translation": "。有时我们把某个观测值标为"
+    },
+    {
+      "key": "t_57381e073b8364a3c4fa",
+      "source": "subject to a realized bar volatility of",
+      "translation": "，此时已实现的 bar 波动率只有"
+    },
+    {
+      "key": "t_e55231313a7ecc9884ed",
+      "source": "(e.g., during the night session), and sometimes",
+      "translation": "（例如夜盘时段）；有时波动率却达到"
+    },
+    {
+      "key": "t_642a3fc2a0f127ac44d3",
+      "source": "(e.g., around the open). The large majority of labels will be",
+      "translation": "（例如开盘前后）。因此，绝大多数标签都会是"
+    },
+    {
+      "key": "t_aeb3178baa7de149c651",
+      "source": ", even if return",
+      "translation": "，即使收益率"
+    },
+    {
+      "key": "t_177d080e6e018a7497cf",
+      "source": "was predictable and statistically significant.",
+      "translation": "本来可以预测，而且在统计上显著。"
+    },
+    {
+      "key": "t_a27ebff08d6e3dd0a99e",
+      "source": "In other words, it is a very common error to label observations according to a fixed threshold on time bars. Here are a couple of better alternatives. First, label per a varying threshold",
+      "translation": "换句话说，在时间条/time bar 上按固定阈值加标签，是一种非常常见的错误。有两种更好的办法。第一，使用随市场变化的阈值"
+    },
+    {
+      "key": "t_f101791ad427e2404b07",
+      "source": ", estimated using a rolling exponentially weighted standard deviation of returns. Second, use volume or dollar bars, as their volatilities are much closer to constant (homoscedasticity). But even these two improvements miss a key flaw of the fixed-time horizon method: the path followed by prices. Every investment strategy has stop-loss limits, whether they are self-imposed by the portfolio manager, enforced by the risk department, or triggered by a margin call. It is simply unrealistic to build a strategy that profits from positions that would have been stopped-out by the exchange. That virtually no publication accounts for that when labeling observations tells you something about the current state of the investment literature.",
+      "translation": "，用收益率的滚动指数加权标准差来估计。第二，改用成交量条或成交额条，因为这两类数据条的波动率更接近常数，也就是更接近同方差。不过，这两项改进仍漏掉了固定时间跨度法的一个关键缺陷：价格走过的路径。任何投资策略都有止损约束：可能由投资组合经理自行设置，也可能由风控部门强制执行，或因追加保证金通知而触发强制平仓。一个仓位若途中本应止损或被交易所强平，就不能假设它能一直持有到后来获利；据此设计策略并不现实。几乎没有论文在加标签时考虑这一点，这也反映了当前投资研究文献的状况。"
+    },
+    {
+      "key": "t_63658439e76e0ff3ac0e",
+      "source": "3.3 Computing Dynamic Thresholds",
+      "translation": "3.3 计算动态阈值"
+    },
+    {
+      "key": "t_009ca0899d640e939269",
+      "source": "As argued in the previous section, in practice we want to set profit-taking and stop-loss limits that are a function of the risks involved in a bet. Otherwise, sometimes we will be aiming too high (",
+      "translation": "上一节已经说明，在实际交易中，止盈和止损限额应随一笔交易承担的风险而变化。否则，相对于当前波动率，我们有时会把目标定得太高（"
+    },
+    {
+      "key": "t_c8f4a027c81b672a33e0",
+      "source": "), and sometimes too low (",
+      "translation": "），有时又定得太低（"
+    },
+    {
+      "key": "t_ae285ac9dafd9427bcf0",
+      "source": "), considering the prevailing volatility. Snippet 3.1 computes the daily volatility at intraday estimation points, applying a span of",
+      "translation": "）。代码清单 3.1 在各个日内估计时点计算日波动率：计算指数加权移动标准差时，将窗口跨度设为"
+    },
+    {
+      "key": "t_a0635035e998af9df680",
+      "source": "days to an exponentially weighted moving standard deviation. See the pandas documentation for details on the",
+      "translation": "天。关于"
+    },
+    {
+      "key": "t_78655d4d73de012287e6",
+      "source": "function.",
+      "translation": "函数的细节，请参阅 pandas 文档。"
+    },
+    {
+      "key": "t_873f1cd6ed2d554a3ace",
+      "source": "Snippet 3.1: Daily Volatility Estimates",
+      "translation": "代码清单 3.1：估计日波动率"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_3e865a1f8a43b1dbf0d1",
+      "source": "We can use the output of this function to set default profit taking and stop-loss limits throughout the rest of this chapter.",
+      "translation": "在本章后面的内容中，我们可以用这个函数的输出设置默认的止盈和止损限额。"
+    },
+    {
+      "key": "t_ddc23e5f93938548876d",
+      "source": "3.4 The Triple-Barrier Method",
+      "translation": "3.4 三重障碍法"
+    },
+    {
+      "key": "t_ea832ac992d330a6aaeb",
+      "source": "Here I will introduce an alternative labeling method that I have not found in the literature. If you are an investment professional, I think you will agree that it makes more sense. I call it the triple-barrier method because it labels an observation according to the first barrier touched out of three barriers. First, we set two horizontal barriers and one vertical barrier. The two horizontal barriers are defined by profit-taking and stop-loss limits, which are a dynamic function of estimated volatility (whether realized or implied). The third barrier is defined in terms of number of bars elapsed since the position was taken (an expiration limit). If the upper barrier is touched first, we label the observation as",
+      "translation": "下面介绍一种我尚未在文献中见过的替代标签法。如果你从事投资实务，应该会觉得它更符合真实交易。我把它称为三重障碍法，因为它根据三道障碍中最先触及的一道给观测值加标签。首先设置两道水平障碍和一道垂直障碍。两道水平障碍分别对应止盈和止损限额，其位置随估计波动率动态变化，这里的波动率既可以是已实现波动率，也可以是隐含波动率。第三道障碍由建仓后经过的 bar 数决定，相当于到期限制。如果最先触及上方障碍，就把观测值标为"
+    },
+    {
+      "key": "t_b19ef41e805d3965b0c4",
+      "source": ". If the lower barrier is touched first, we label the observation as",
+      "translation": "；如果最先触及下方障碍，就标为"
+    },
+    {
+      "key": "t_ecfd4a18d50642df951f",
+      "source": ". If the vertical barrier is touched first, we have two choices: the sign of the return, or a",
+      "translation": "；如果最先触及垂直障碍，则有两种选择：用收益率的正负号作为标签，或者标为"
+    },
+    {
+      "key": "t_2f0a1c5d0f4ca4c848d5",
+      "source": "I personally prefer the former as a matter of realizing a profit or loss within limits, but you should explore whether a",
+      "translation": "我个人倾向于前一种做法，因为它能反映仓位在限额以内最终是盈利还是亏损；但在你的具体问题中，也应检验把标签设为"
+    },
+    {
+      "key": "t_b8c87a197c2c22508f7d",
+      "source": "works better in your particular problems. You may have noticed that the triple-barrier method is path-dependent. In order to label an observation, we must take into account the entire path spanning",
+      "translation": "是否效果更好。可以看出，三重障碍法具有路径依赖性。要给一个观测值加标签，必须考察整个价格路径，对应的时间区间是"
+    },
+    {
+      "key": "t_963e3288e5522d6dc600",
+      "source": "defines the vertical barrier (the expiration limit). We will denote",
+      "translation": "定义了垂直障碍，也就是到期限制。我们用"
+    },
+    {
+      "key": "t_21abad0c20e4ddff1cf4",
+      "source": "the time of the first barrier touch, and the return associated with the observed feature is",
+      "translation": "表示首次触及任一障碍的时刻，与该观测特征对应的收益率为"
+    },
+    {
+      "key": "t_33314982bbc9a1a4d4af",
+      "source": ". For the sake of clarity,",
+      "translation": "。明确地说，"
+    },
+    {
+      "key": "t_5feaa9f82b71160b1e5e",
+      "source": "and the horizontal barriers are not necessarily symmetric.",
+      "translation": "，而且两道水平障碍不一定对称。"
+    },
+    {
+      "key": "t_3f479a23f9beade58378",
+      "source": "Snippet 3.2 implements the triple-barrier method. The function receives four arguments:",
+      "translation": "代码清单 3.2 实现了三重障碍法。函数接收四个参数："
+    },
+    {
+      "key": "t_c1d94b74d3acbced833f",
+      "source": ": A pandas series of prices.",
+      "translation": "：pandas 价格序列。"
+    },
+    {
+      "key": "t_75f20aaa71af434b7676",
+      "source": ": A pandas dataframe, with columns:",
+      "translation": "：pandas DataFrame，包含以下列："
+    },
+    {
+      "key": "t_140adbe2307fa0b7989e",
+      "source": ": The timestamp of the vertical barrier. When the value is",
+      "translation": "：垂直障碍的时间戳。值为"
+    },
+    {
+      "key": "t_69f41f650af4305e2238",
+      "source": ", there will not be a vertical barrier.",
+      "translation": "时，表示不设置垂直障碍。"
+    },
+    {
+      "key": "t_41b3eb3e2619a53a47b5",
+      "source": ": The unit width of the horizontal barriers.",
+      "translation": "：水平障碍的单位宽度。"
+    },
+    {
+      "key": "t_05f01bb8d0b288ec14a9",
+      "source": ": A list of two non-negative float values:",
+      "translation": "：由两个非负浮点数组成的列表："
+    },
+    {
+      "key": "t_e1d3fc44f83bfe90b891",
+      "source": ": The factor that multiplies",
+      "translation": "：与"
+    },
+    {
+      "key": "t_a7272a79dfb530c48969",
+      "source": "to set the width of the upper barrier. If 0, there will not be an upper barrier.",
+      "translation": "相乘后得到上方障碍的宽度。若为 0，则不设置上方障碍。"
+    },
+    {
+      "key": "t_e5c3c648490d99e215cb",
+      "source": "to set the width of the lower barrier. If 0, there will not be a lower barrier.",
+      "translation": "相乘后得到下方障碍的宽度。若为 0，则不设置下方障碍。"
+    },
+    {
+      "key": "t_495af52b7390376cb286",
+      "source": ": A list with the subset of event indices that will be processed by a single thread. Its use will become clear later on in the chapter.",
+      "translation": "：一个事件索引子集列表，其中的事件将由单个线程处理。它的用途会在本章后面说明。"
+    },
+    {
+      "key": "t_cdb8b2f09844ab790a31",
+      "source": "Snippet 3.2: Triple-barrier Labeling Method",
+      "translation": "代码清单 3.2：三重障碍标签法"
+    },
+    {
+      "key": "t_ad02e3d43b488f7aa909",
+      "source": "The output from this function is a pandas dataframe containing the timestamps (if any) at which each barrier was touched. As you can see from the previous description, the method considers the possibility that each of the three barriers may be disabled. Let us denote a barrier configuration by the triplet [pt,sl,t1], where a 0 means that the barrier is inactive and a 1 means that the barrier is active. The possible eight configurations are:",
+      "translation": "该函数返回一个 pandas DataFrame，记录每道障碍被触及的时间戳；没有触及时则没有相应时间戳。从前面的说明可以看出，三道障碍都允许停用。用三元组 [pt,sl,t1] 表示一种障碍配置：0 表示停用，1 表示启用。这样共有八种配置："
+    },
+    {
+      "key": "t_47f04e62426578bc8e39",
+      "source": "Three useful configurations:",
+      "translation": "三种实用的配置："
+    },
+    {
+      "key": "t_e9d2c3c0e3059b0510b4",
+      "source": ": This is the standard setup, where we define three barrier exit conditions. We would like to realize a profit, but we have a maximum tolerance for losses and a holding period.",
+      "translation": "：标准配置，同时设置三种退出条件。我们的目标是获利，同时为最大可承受亏损和最长持有期设限。"
+    },
+    {
+      "key": "t_801b5f0c881b22bbcc70",
+      "source": ": In this setup, we would like to exit after a number of bars, unless we are stopped-out.",
+      "translation": "：计划在持有若干个 bar 后退出，但如果提前触发止损，就先止损离场。"
+    },
+    {
+      "key": "t_12bb2ef31f739ba60c5d",
+      "source": ": Here we would like to take a profit as long as we are not stopped-out. This is somewhat unrealistic in that we are willing to hold the position for as long as it takes.",
+      "translation": "：只要没有触发止损，就一直等待止盈。这不太现实，因为可能需要无限期地持有仓位。"
+    },
+    {
+      "key": "t_1b5dac1cf4e8a789e6ec",
+      "source": "Three less realistic configurations:",
+      "translation": "三种不太现实的配置："
+    },
+    {
+      "key": "t_5065b96e20dd64f69029",
+      "source": ": This is equivalent to the fixed-time horizon method. It may still be useful when applied to volume-, dollar-, or information-driven bars, and multiple forecasts are updated within the horizon.",
+      "translation": "：等同于固定时间跨度法。不过，如果使用成交量条、成交额条或信息驱动 bar，而且在这段时间内会更新多次预测，这种配置仍可能有用。"
+    },
+    {
+      "key": "t_a33e8cb24c6d625be35a",
+      "source": ": A position is held until a profit is made or the maximum holding period is exceeded, without regard for the intermediate unrealized losses.",
+      "translation": "：一直持有到盈利或超过最长持有期，完全不管期间出现了多少未实现亏损。"
+    },
+    {
+      "key": "t_d65c7808abb8be21e243",
+      "source": ": A position is held until a profit is made. It could mean being locked on a losing position for years.",
+      "translation": "：一直持有到盈利。这可能让资金在一个亏损仓位上套牢数年。"
+    },
+    {
+      "key": "t_a8a12980e9d52c3e461e",
+      "source": "Two illogical configurations:",
+      "translation": "两种不合逻辑的配置："
+    },
+    {
+      "key": "t_739b2f635c2235a90d98",
+      "source": ": This is an aimless configuration, where we hold a position until we are stopped-out.",
+      "translation": "：没有明确的获利或到期目标，只是一直持有，直到触发止损。"
+    },
+    {
+      "key": "t_323fba8a6f0101dc26aa",
+      "source": ": There are no barriers. The position is locked forever, and no label is generated.",
+      "translation": "：不设置任何障碍。仓位将被永久锁住，也不会生成标签。"
+    },
+    {
+      "key": "t_e46418fd0d4bd491d83a",
+      "source": "Figure 3.1 shows two alternative configurations of the triple-barrier method. On the left, the configuration is [1,1,0], where the first barrier touched is the lower horizontal one. On the right, the configuration is [1,1,1], where the first barrier touched is the vertical one.",
+      "translation": "图 3.1 展示了三重障碍法的两种配置。左图采用 [1,1,0]，最先触及的是下方水平障碍；右图采用 [1,1,1]，最先触及的是垂直障碍。"
+    },
+    {
+      "key": "t_df25a6346284bddf3453",
+      "source": "Figure 3.1: Two alternative configurations of the triple-barrier method",
+      "translation": "图 3.1：三重障碍法的两种配置"
+    },
+    {
+      "key": "t_97e0b36e447847fc449e",
+      "source": "3.5 Learning Side And Size",
+      "translation": "3.5 同时学习交易方向和仓位规模"
+    },
+    {
+      "key": "t_307579ce5fcc9529a7f4",
+      "source": "In this section we will discuss how to label examples so that an ML algorithm can learn both the side and the size of a bet. We are interested in learning the side of a bet when we do not have an underlying model to set the sign of our position (long or short). Under such circumstance, we cannot differentiate between a profit-taking barrier and a stop-loss barrier, since that requires knowledge of the side. Learning the side implies that either there are no horizontal barriers or that the horizontal barriers must be symmetric. Snippet 3.3 implements the function getEvents, which finds the time of the first barrier touch. The function receives the following arguments:",
+      "translation": "本节讨论怎样给样本加标签，让 ML 算法同时学习一笔交易的方向和仓位规模。如果没有现成模型预先给出仓位方向，也就是应该做多还是做空，就需要让算法自行学习交易方向。在这种情况下，由于方向未知，我们无法区分哪道障碍代表止盈、哪道代表止损。因此，要学习交易方向，就只能不设水平障碍，或者把两道水平障碍设为对称。代码清单 3.3 实现了 getEvents 函数，用来查找首次触及障碍的时间。函数接收以下参数："
+    },
+    {
+      "key": "t_ecf1c961ca66dd5c393e",
+      "source": "close: A pandas series of prices.",
+      "translation": "close：pandas 价格序列。"
+    },
+    {
+      "key": "t_9040b63530f53bf2156d",
+      "source": "tEvents: The pandas time index containing the timestamps that will seed every triple barrier. These are the timestamps selected by the sampling procedures discussed in Chapter 2, Section 2.5.",
+      "translation": "tEvents：pandas 时间索引，其中每个时间戳都是一组三重障碍的起始时点。这些时间戳由第 2 章第 2.5 节介绍的采样方法选出。"
+    },
+    {
+      "key": "t_6d1c35b1ffb1c952a1cc",
+      "source": "ptSl: A non-negative float that sets the width of the two barriers. A 0 value means that the respective horizontal barrier (profit taking and/or stop loss) will be disabled.",
+      "translation": "ptSl：一个非负浮点数，用来设置两道水平障碍的宽度。若为 0，就停用相应的水平障碍，也就是止盈障碍和/或止损障碍。"
+    },
+    {
+      "key": "t_aba04c6cbe0d9c9d7753",
+      "source": "t1: A pandas series with the timestamps of the vertical barriers. We pass a False when we want to disable vertical barriers.",
+      "translation": "t1：pandas 序列，保存垂直障碍的时间戳。若要停用垂直障碍，就传入 False。"
+    },
+    {
+      "key": "t_ff232252baa422df77ea",
+      "source": "trgt: A pandas series of targets, expressed in terms of absolute returns.",
+      "translation": "trgt：pandas 目标值序列，以绝对收益率表示。"
+    },
+    {
+      "key": "t_ed1d4823d0cb179d7919",
+      "source": "minRet: The minimum target return required for running a triple barrier search.",
+      "translation": "minRet：启动三重障碍搜索所要求的最低目标收益率。"
+    },
+    {
+      "key": "t_75e03e817968430a86e6",
+      "source": "numThreads: The number of threads concurrently used by the function.",
+      "translation": "numThreads：函数并发使用的线程数。"
+    },
+    {
+      "key": "t_9ac07f16b13e0003d4f7",
+      "source": "Snippet 3.3: Getting the Time of First Touch",
+      "translation": "代码清单 3.3：获取首次触及障碍的时间"
+    },
+    {
+      "key": "t_fec9870e474474d9697a",
+      "source": "Suppose that",
+      "translation": "假设"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "且"
+    },
+    {
+      "key": "t_6529fc39ea5c94acb7fd",
+      "source": ", then the number of conditions to evaluate is up to one billion on a single instrument. Many ML tasks are computationally expensive unless you are familiar with multithreading, and this is one of them. Here is where parallel computing comes into play. Chapter 20 discusses a few multiprocessing functions that we will use throughout the book.",
+      "translation": "，那么单个标的上最多需要检查十亿个条件。许多 ML 任务在没有多线程处理时计算成本很高，这就是其中之一。此时需要并行计算。第 20 章会介绍本书反复使用的几个多进程函数。"
+    },
+    {
+      "key": "t_c803710302d5769d8fcd",
+      "source": "Function",
+      "translation": "函数"
+    },
+    {
+      "key": "t_fa57204a190260fdd020",
+      "source": "calls a multiprocessing engine, which is explained in depth in Chapter 20. For the moment, you simply need to know that this function will execute",
+      "translation": "会调用一个多进程引擎，第 20 章将详细讲解。现在只需知道，该函数会并行执行"
+    },
+    {
+      "key": "t_7fcc54e917d178418618",
+      "source": "in parallel. Function",
+      "translation": "。函数"
+    },
+    {
+      "key": "t_ff90cf47dd3f13793d0d",
+      "source": "returns the timestamps at which each barrier is touched (if any). Then, the time of the first touch is the earliest time among the three returned by",
+      "translation": "会返回三道障碍各自的触及时刻（若有）。在"
+    },
+    {
+      "key": "t_6c54b3c4f280448a987b",
+      "source": ". Because we must learn the side of the bet, we have passed",
+      "translation": "返回的三个时间戳中，最早的一个就是首次触及时间。因为这里要学习交易方向，所以我们传入"
+    },
+    {
+      "key": "t_d87ecf70c6cfa7bc977f",
+      "source": "as argument, and we arbitrarily set the side to be always long (the horizontal barriers are symmetric, so the side is irrelevant to determining the time of the first touch). The output from this function is a pandas dataframe with columns:",
+      "translation": "作为参数，并暂时统一假定交易方向为做多。由于水平障碍对称，方向并不影响首次触及时间。该函数返回一个 pandas DataFrame，包含以下列："
+    },
+    {
+      "key": "t_e4334ff526396e5ab20b",
+      "source": "t1: The timestamp at which the first barrier is touched.",
+      "translation": "t1：首次触及任一障碍的时间戳。"
+    },
+    {
+      "key": "t_c29559e19db7aa33cf51",
+      "source": "trgt: The target that was used to generate the horizontal barriers.",
+      "translation": "trgt：生成水平障碍时使用的目标值。"
+    },
+    {
+      "key": "t_d16c17cc2defd1701816",
+      "source": "Snippet 3.4 shows one way to define a vertical barrier. For each index in",
+      "translation": "代码清单 3.4 给出了一种定义垂直障碍的办法。对于"
+    },
+    {
+      "key": "t_87742e5d56e42dbf589f",
+      "source": ", it finds the timestamp of the next price bar at or immediately after a number of days",
+      "translation": "中的每个索引，它会找到经过"
+    },
+    {
+      "key": "t_24c6ae6519e23cca1092",
+      "source": ". This vertical barrier can be passed as optional argument",
+      "translation": "天后，位于该时点或紧随其后的第一个价格 bar 的时间戳。这个垂直障碍可以作为可选参数"
+    },
+    {
+      "key": "t_582967534d0f909d196b",
+      "source": "in",
+      "translation": "传给"
+    },
+    {
+      "key": "t_1aed77ed23bae0548f66",
+      "source": "Snippet 3.4: Adding a Vertical Barrier",
+      "translation": "代码清单 3.4：添加垂直障碍"
+    },
+    {
+      "key": "t_d0633b2db95f880c575c",
+      "source": "Finally, we can label the observations using the",
+      "translation": "最后，可以使用代码清单 3.5 定义的"
+    },
+    {
+      "key": "t_a0775826510966aeb03f",
+      "source": "function defined in Snippet 3.5. The arguments are the",
+      "translation": "函数给观测值加标签。它接收两个参数：前面介绍的"
+    },
+    {
+      "key": "t_52b0d139c2dd6e1306ad",
+      "source": "dataframe we just discussed, and the",
+      "translation": "DataFrame，以及保存价格的"
+    },
+    {
+      "key": "t_ec2ad8280b06dc516a13",
+      "source": "pandas series of prices. The output is a dataframe with columns:",
+      "translation": "pandas 序列。返回结果是一个 DataFrame，包含以下列："
+    },
+    {
+      "key": "t_319d2a48170adef68212",
+      "source": ": The return realized at the time of the first touched barrier.",
+      "translation": "：首次触及任一障碍时实现的收益率。"
+    },
+    {
+      "key": "t_b7c3f9f8b23e84148102",
+      "source": ": The label,",
+      "translation": "：标签，取值为"
+    },
+    {
+      "key": "t_de78b3bddb257dbe6656",
+      "source": ", as a function of the sign of the outcome. The function can be easily adjusted to label as",
+      "translation": "，由结果的正负号决定。只需稍作修改，也可以把"
+    },
+    {
+      "key": "t_3a4bbc13e2ffa659131e",
+      "source": "those events when the vertical barrier was touched first, which we leave as an exercise.",
+      "translation": "作为垂直障碍最先触及时的标签。我们把这项修改留作练习。"
+    },
+    {
+      "key": "t_e395a36f9fc9d7e38c07",
+      "source": "Snippet 3.5: Labeling for Side and Size",
+      "translation": "代码清单 3.5：为交易方向和仓位规模加标签"
+    },
+    {
+      "key": "t_0f106373ab8f63322f6c",
+      "source": "3.6 Meta-Labeling",
+      "translation": "3.6 元标签化"
+    },
+    {
+      "key": "t_360d6d4a6fdcac96a000",
+      "source": "Suppose that you have a model for setting the side of the bet (long or short). You just need to learn the size of that bet, which includes the possibility of no bet at all (zero size). This is a situation that practitioners face regularly. We often know whether we want to buy or sell a product, and the only remaining question is how much money we should risk in such a bet. We do not want the ML algorithm to learn the side, just to tell us what is the appropriate size. At this point, it probably does not surprise you to hear that no book or paper has so far discussed this common problem. Thankfully, that misery ends here. I call this problem meta-labeling because we want to build a secondary ML model that learns how to use a primary exogenous model. Rather than writing an entirely new getEvents function, we will make some adjustments to the previous code, in order to handle meta-labeling. First, we accept a new side optional argument (with default None), which contains the side of our bets as decided by the primary model. When side is not None, the function understands that meta-labeling is in play. Second, because now we know the side, we can effectively discriminate between profit taking and stop loss. The horizontal barriers do not need to be symmetric, as in Section 3.5. Argument ptSl is a list of two non-negative float values, where ptSl[0] is the factor that multiplies trgt to set the width of the upper barrier, and ptSl[1] is the factor that multiplies trgt to set the width of the lower barrier. When either is 0, the respective barrier is disabled. Snippet 3.6 implements these enhancements.",
+      "translation": "假设你已经有一个模型，可以决定一笔交易应该做多还是做空。接下来只需学习仓位规模，其中也包括完全不交易，也就是仓位为零。这是实务中经常遇到的情形：我们常常知道想买还是想卖，剩下的问题只是这笔交易该冒多大资金风险。我们不希望 ML 算法再去学习方向，只需要它告诉我们仓位多大才合适。听到这里，你大概不会惊讶：此前还没有书籍或论文讨论过这个常见问题。好在本书将补上这个缺口。我把它称为元标签化（meta-labeling），因为我们要建立一个次级 ML 模型，让它学习怎样使用一个外生的主模型。不必另写一个全新的 getEvents 函数，只要调整前面的代码，就能支持元标签化。第一，增加可选参数 side，默认值为 None，用来接收主模型决定的交易方向。当 side 不为 None 时，函数就知道要执行元标签化。第二，因为现在方向已知，所以可以明确区分止盈和止损。水平障碍也不必像第 3.5 节那样保持对称。参数 ptSl 是一个包含两个非负浮点数的列表：ptSl[0] 乘以 trgt，得到上方障碍的宽度；ptSl[1] 乘以 trgt，得到下方障碍的宽度。任一值为 0 时，就停用对应的障碍。代码清单 3.6 实现了这些改动。"
+    },
+    {
+      "key": "t_5f025c77cde20f748218",
+      "source": "Snippet 3.6: Expanding getEvents to Incorporate Meta-labeling",
+      "translation": "代码清单 3.6：扩展 getEvents 以支持元标签化"
+    },
+    {
+      "key": "t_36badfef41d32fc538b0",
+      "source": "Likewise, we need to expand the",
+      "translation": "同样，还需要扩展"
+    },
+    {
+      "key": "t_524e97d533cc7500ed88",
+      "source": "function, so that it handles meta-labeling. Snippet 3.7 implements the necessary changes.",
+      "translation": "函数，使其支持元标签化。代码清单 3.7 给出了所需修改。"
+    },
+    {
+      "key": "t_2818e91c6e9538e774a7",
+      "source": "Snippet 3.7: Expanding getBins to Incorporate Meta-labeling",
+      "translation": "代码清单 3.7：扩展 getBins 以支持元标签化"
+    },
+    {
+      "key": "t_37afd0bda67928bae31b",
+      "source": "Now the possible values for labels in",
+      "translation": "现在，"
+    },
+    {
+      "key": "t_ba78973ddcf98d4e5369",
+      "source": "are",
+      "translation": "中的标签只能取"
+    },
+    {
+      "key": "t_eeb386a9fb040f0ca33e",
+      "source": ", as opposed to the previous feasible values",
+      "translation": "，不再是之前的"
+    },
+    {
+      "key": "t_40535ef5fcf51cfbb05e",
+      "source": ". The ML algorithm will be trained to decide whether to take the bet or pass, a purely binary prediction. When the predicted label is",
+      "translation": "。ML 算法要学习的是做这笔交易还是放弃，因此这是一个纯粹的二分类问题。当预测标签为"
+    },
+    {
+      "key": "t_b5b81bc2475527b87ff7",
+      "source": ", we can use the probability of this secondary prediction to derive the size of the bet, where the side (sign) of the position has been set by the primary model.",
+      "translation": "时，可以根据这个次级预测的概率确定仓位规模；仓位方向，也就是正负号，已经由主模型给出。"
+    },
+    {
+      "key": "t_401d75177174bae66890",
+      "source": "3.7 How To Use Meta-Labeling",
+      "translation": "3.7 怎样使用元标签化"
+    },
+    {
+      "key": "t_1e85eb9044e54448486f",
+      "source": "Binary classification problems present a trade-off between type-I errors (false positives) and type-II errors (false negatives). In general, increasing the true positive rate of a binary classifier will tend to increase its false positive rate. The receiver operating characteristic (ROC) curve of a binary classifier measures the cost of increasing the true positive rate, in terms of accepting higher false positive rates.",
+      "translation": "二分类问题需要在第一类错误（假阳性）和第二类错误（假阴性）之间权衡。一般来说，提高二分类器的真阳性率，往往也会推高假阳性率。受试者工作特征（ROC）曲线衡量的，正是为了提高真阳性率而不得不接受更高假阳性率的代价。"
+    },
+    {
+      "key": "t_e1f39cf10f3cdbc37857",
+      "source": "Figure 3.2: A visualization of the “confusion matrix”",
+      "translation": "图 3.2：混淆矩阵示意图"
+    },
+    {
+      "key": "t_76ee2877672ea793edb8",
+      "source": "Figure 3.2 illustrates the so-called “confusion matrix.” On a set of observations, there are items that exhibit a condition (positives, left rectangle), and items that do not exhibit a condition (negative, right rectangle). A binary classifier predicts that some items exhibit the condition (ellipse), where the TP area contains the true positives and the TN area contains the true negatives. This leads to two kinds of errors: false positives (FP) and false negatives (FN). “Precision” is the ratio between the TP area and the area in the ellipse. “Recall” is the ratio between the TP area and the area in the left rectangle. This notion of recall (aka true positive rate) is in the context of classification problems, the analogous to “power” in the context of hypothesis testing. “Accuracy” is the sum of the TP and TN areas divided by the overall set of items (square). In general, decreasing the FP area comes at a cost of increasing the FN area, because higher precision typically means fewer calls, hence lower recall. Still, there is some combination of precision and recall that maximizes the overall efficiency of the classifier. The F1-score measures the efficiency of a classifier as the harmonic average between precision and recall (more on this in Chapter 14).",
+      "translation": "图 3.2 展示了所谓的“混淆矩阵”。在一组观测样本中，一部分样本满足某个条件，称为正例，对应左侧矩形；另一部分不满足，称为负例，对应右侧矩形。二分类器会把其中一些样本预测为正例，对应椭圆区域。TP 区域是真阳性，TN 区域是真阴性。由此会产生两类错误：假阳性（FP）和假阴性（FN）。“精确率”是 TP 区域与整个椭圆区域的比值；“召回率”是 TP 区域与左侧矩形区域的比值。在分类问题中，召回率也叫真阳性率，与假设检验中的“检验功效”相对应。“准确率”是 TP 与 TN 区域之和除以全部样本，也就是整个正方形区域。通常，缩小 FP 区域要以扩大 FN 区域为代价，因为提高精确率往往意味着更少地判为正例，从而降低召回率。不过，总有某种精确率与召回率的组合，能让分类器的整体效果最好。F1 分数用精确率和召回率的调和平均数衡量分类器的效果，第 14 章会进一步讨论。"
+    },
+    {
+      "key": "t_bcfd79cdaea0c9e5eb24",
+      "source": "Meta-labeling is particularly helpful when you want to achieve higher F1-scores. First, we build a model that achieves high recall, even if the precision is not particularly high. Second, we correct for the low precision by applying meta-labeling to the positives predicted by the primary model.",
+      "translation": "如果目标是提高 F1 分数，元标签化尤其有用。第一步，先建立一个高召回率的模型，即使它的精确率并不高。第二步，对主模型预测出的正例应用元标签化，过滤误报，从而弥补精确率不足。"
+    },
+    {
+      "key": "t_7e045c206e57b9701e14",
+      "source": "Meta-labeling will increase your F1-score by filtering out the false positives, where the majority of positives have already been identified by the primary model. Stated differently, the role of the secondary ML algorithm is to determine whether a positive from the primary (exogenous) model is true or false. It is not its purpose to come up with a betting opportunity. Its purpose is to determine whether we should act or pass on the opportunity that has been presented. Meta-labeling is a very powerful tool to have in your arsenal, for four additional reasons. First, ML algorithms are often criticized as black boxes (see Chapter 1). Meta-labeling allows you to build an ML system on top of a white box (like a fundamental model founded on economic theory). This ability to transform a fundamental model into an ML model should make meta-labeling particularly useful to “quantamental” firms. Second, the effects of overfitting are limited when you apply meta-labeling, because ML will not decide the side of your bet, only the size. Third, by decoupling the side prediction from the size prediction, meta-labeling enables sophisticated strategy structures. For instance, consider that the features driving a rally may differ from the features driving a sell-off. In that case, you may want to develop an ML strategy exclusively for long positions, based on the buy recommendations of a primary model, and an ML strategy exclusively for short positions, based on the sell recommendations of an entirely different primary model. Fourth, achieving high accuracy on small bets and low accuracy on large bets will ruin you. As important as identifying good opportunities is to size them properly, so it makes sense to develop an ML algorithm solely focused on getting that critical decision (sizing) right. We will retake this fourth point in Chapter 10. In my experience, meta-labeling ML models can deliver more robust and reliable outcomes than standard labeling models.",
+      "translation": "在主模型已经找出大多数正例的前提下，元标签化可以滤掉假阳性，从而提高 F1 分数。换句话说，次级 ML 算法的任务，是判断主模型（即外生模型）给出的正例是真阳性还是假阳性。它不负责寻找交易机会，只负责决定面对主模型给出的机会时，是采取行动还是放弃。元标签化还是一种非常强大的工具，另有四个原因。第一，ML 算法经常被批评为黑箱，参见第 1 章。元标签化可以把 ML 系统搭在白盒模型之上，例如以经济理论为基础的基本面模型。这种把基本面模型纳入 ML 框架的能力，使元标签化对“量化基本面”机构尤其有用。第二，应用元标签化时，过拟合的影响较小，因为 ML 只决定仓位规模，不决定交易方向。第三，把方向预测和规模预测拆开后，可以设计更精细的策略结构。例如，推动上涨的特征可能不同于推动下跌的特征。此时可以根据一个主模型的买入建议，开发只做多的 ML 策略；再根据另一个完全不同的主模型的卖出建议，开发只做空的 ML 策略。第四，小仓位判断得准、大仓位判断得错，照样会让你破产。正确设置仓位规模与发现好机会同样重要，因此完全可以开发一个 ML 算法，专门把仓位规模这个关键决定做好。第 10 章会再讨论这一点。根据我的经验，元标签化 ML 模型通常比常规标签化模型更稳健、更可靠。"
+    },
+    {
+      "key": "t_bd1a39c374130862b627",
+      "source": "3.8 The Quantamental Way",
+      "translation": "3.8 量化基本面方法"
+    },
+    {
+      "key": "t_6c493903ba6940e07b47",
+      "source": "You may have read in the press that many hedge funds are embracing the quantamental approach. A simple Google search will show reports that many hedge funds, including some of the most traditional ones, are investing tens of millions of dollars in technologies designed to combine human expertise with quantitative methods. It turns out, meta-labeling is exactly what these people have been waiting for. Let us see why. Suppose that you have a series of features that you believe can forecast some prices, you just do not know how. Since you do not have a model to determine the side of each bet, you need to learn both side and size. You apply what you have learned in Section 3.5, and produce some labels based on the triple-barrier method with symmetric horizontal barriers. Now you are ready to fit your algorithm on a training set, and evaluate the accuracy of your forecasts on a testing set. Alternatively, you could do the following:",
+      "translation": "你可能在新闻中读到，许多对冲基金正在采用量化基本面方法。简单搜索一下 Google 就会发现，包括一些最传统的对冲基金在内，不少机构正在投入数千万美元，开发把人类专业知识与量化方法结合起来的技术。元标签化正是这些机构一直在等待的工具。原因如下。假设你有一组特征，相信它们能够预测某些价格，却不知道具体该怎样预测。由于没有模型能决定每笔交易的方向，你就需要同时学习方向和仓位规模。可以运用第 3.5 节的方法，采用水平障碍对称的三重障碍法生成标签。然后在训练集上拟合算法，再用测试集评估预测准确率。也可以换一种做法："
+    },
+    {
+      "key": "t_8c1d661ec9066e0968f2",
+      "source": "Use your forecasts from the primary model, and generate meta-labels. Remember, horizontal barriers do not need to be symmetric in this case.",
+      "translation": "使用主模型的预测结果生成元标签。注意，这时两道水平障碍不必对称。"
+    },
+    {
+      "key": "t_a893f95e0fb12ba3ac65",
+      "source": "Fit your model again on the same training set, but this time using the meta-labels you just generated.",
+      "translation": "仍在同一个训练集上拟合模型，但这次使用刚生成的元标签。"
+    },
+    {
+      "key": "t_a7d8f3e4f7575fc457ef",
+      "source": "Combine the “sides” from the first ML model with the “sizes” from the second ML model.",
+      "translation": "把第一个 ML 模型给出的“交易方向”与第二个 ML 模型给出的“仓位规模”结合起来。"
+    },
+    {
+      "key": "t_231d1df0c84b50efa72b",
+      "source": "You can always add a meta-labeling layer to any primary model, whether that is an ML algorithm, an econometric equation, a technical trading rule, a fundamental analysis, etc. That includes forecasts generated by a human, solely based on his intuition. In that case, meta-labeling will help us figure out when we should pursue or dismiss a discretionary PM’s call. The features used by such meta-labeling ML algorithm could range from market information to biometric statistics to psychological assessments. For example, the meta-labeling ML algorithm could find that discretionary PMs tend to make particularly good calls when there is a structural break (Chapter 17), as they may be quicker to grasp a change in the market regime. Conversely, it may find that PMs under stress, as evidenced by fewer hours of sleep, fatigue, change in weight, etc. tend to make inaccurate predictions.",
+      "translation": "任何主模型上都可以再加一层元标签化，不论主模型是 ML 算法、计量经济学方程、技术交易规则、基本面分析，还是其他方法。主模型甚至可以是人类完全凭直觉做出的预测。此时，元标签化能帮助我们判断，什么时候该采纳主观决策型 PM 的建议，什么时候该放弃。元标签化 ML 算法使用的特征可以很广，既可以是市场信息，也可以是生理数据或心理评估。例如，算法可能发现，市场发生结构突变时（第 17 章），主观决策型 PM 往往判断得特别准，因为他们可能更快察觉市场状态的变化。反过来，算法也可能发现，PM 处于压力之下时——例如睡眠减少、感到疲劳、体重变化——更容易做出错误预测。"
+    },
+    {
+      "key": "t_fa2988fabad6c9404087",
+      "source": "Many professions require regular psychological exams, and an ML meta-labeling algorithm may find that those scores are also relevant to assess our current degree of confidence on a PM’s predictions. Perhaps none of these factors affect discretionary PMs, and their brains operate independently from their emotional being, like cold calculating machines. My guess is that this is not the case, and therefore meta-labeling should become an essential ML technique for every discretionary hedge fund. In the near future, every discretionary hedge fund will become a quantamental firm, and meta-labeling offers them a clear path to make that transition.",
+      "translation": "许多职业都要求定期进行心理测评。元标签化 ML 算法可能发现，这些测评分数也有助于判断当前应该多大程度上信任某位 PM 的预测。也许上述因素对主观决策型 PM 毫无影响，他们的大脑能完全脱离情绪，像冷冰冰的计算机器一样运转。但我猜事实并非如此。因此，元标签化应该成为每家主观投资型对冲基金的核心 ML 技术。在不远的将来，所有主观投资型对冲基金都会转向量化基本面，而元标签化为这种转型提供了一条清晰的路径。"
+    },
+    {
+      "key": "t_f14c779c9796680d8f12",
+      "source": "3.9 Dropping Unnecessary Labels",
+      "translation": "3.9 删除不必要的标签"
+    },
+    {
+      "key": "t_1e8a3b1d7d4163f4c89d",
+      "source": "Some ML classifiers do not perform well when classes are too imbalanced. In those circumstances, it is preferable to drop extremely rare labels and focus on the more common outcomes. Snippet 3.8 presents a procedure that recursively drops observations associated with extremely rare labels. Function dropLabels recursively eliminates those observations associated with classes that appear less than a fraction minPct of cases, unless there are only two classes left.",
+      "translation": "类别过于不平衡时，一些 ML 分类器的表现会很差。这种情况下，最好删除极少出现的标签，把注意力放在更常见的结果上。代码清单 3.8 给出了一套递归删除稀有标签所对应观测值的流程。dropLabels 函数会递归剔除占比低于 minPct 的类别所对应的观测值，除非最后只剩两个类别。"
+    },
+    {
+      "key": "t_8841aa13f1aac839f405",
+      "source": "Snippet 3.8: Dropping Under-populated Labels",
+      "translation": "代码清单 3.8：删除样本过少的标签"
+    },
+    {
+      "key": "t_56b709a32987e3345f99",
+      "source": "You are probably aware of at least one large hedge fund that monitors the emotional state of their research analysts on a daily basis.",
+      "translation": "你很可能知道，至少有一家大型对冲基金会每天监测研究分析师的情绪状态。"
+    },
+    {
+      "key": "t_2e41070521e56c7d9d23",
+      "source": "Incidentally, another reason you may want to drop unnecessary labels is this known sklearn bug: https://github.com/scikit-learn/scikit-learn/issues/8566. This sort of bug is a consequence of very fundamental assumptions in sklearn implementation, and resolving them is far from trivial. In this particular instance, the error stems from sklearn’s decision to operate with standard numpy arrays rather than structured arrays or pandas objects. It is unlikely that there will be a fix by the time you are reading this chapter, or in the near future. In later chapters, we will study ways to circumvent these sorts of implementation errors, by building your own classes and expanding sklearn’s functionality.",
+      "translation": "顺便说一句，删除不必要标签还有一个原因：sklearn 存在这个已知缺陷：https://github.com/scikit-learn/scikit-learn/issues/8566。此类缺陷源于 sklearn 实现中的一些基础假设，要解决远非易事。这里的问题来自 sklearn 的一项设计决定：使用标准 numpy 数组，而不是结构化数组或 pandas 对象。等你读到本章时，这个问题很可能还没有修复，短期内也未必会修复。后面的章节将介绍怎样自建类并扩展 sklearn 的功能，从而绕开这类实现错误。"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_55702bb9ce4d59750a37",
+      "source": "Previous: Financial Data Structures",
+      "translation": "上一章：金融数据结构"
+    },
+    {
+      "key": "t_f2ecea351c8f6c04aac6",
+      "source": "Next: Sample Weights",
+      "translation": "下一章：样本权重"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_5136308728026120fb83",
+      "source": "Figure 3.1: Two alternative configurations of the triple-barrier method panel a",
+      "translation": "图 3.1：三重障碍法的两种配置，图 a"
+    },
+    {
+      "key": "t_0a809f554e42ab08a832",
+      "source": "Figure 3.1: Two alternative configurations of the triple-barrier method panel b",
+      "translation": "图 3.1：三重障碍法的两种配置，图 b"
+    }
+  ]
+}

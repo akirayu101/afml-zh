@@ -1,0 +1,731 @@
+{
+  "chapter": "chapter-10",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_e098f8d21c56e69486dc",
+      "source": "Bet Sizing | Advances in Financial Machine Learning",
+      "translation": "仓位规模 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_6c97bca7afd7fe168b80",
+      "source": "Part 3: Backtesting",
+      "translation": "第三部分：回测"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_eae003c086cb7820402e",
+      "source": "Bet Sizing",
+      "translation": "仓位规模"
+    },
+    {
+      "key": "t_5dc3345bd02f648ed4d1",
+      "source": "10.1 Motivation",
+      "translation": "10.1 动机"
+    },
+    {
+      "key": "t_7f4536bf706858b2e384",
+      "source": "There are fascinating parallels between strategy games and investing. Some of the best portfolio managers I have worked with are excellent poker players, perhaps more so than chess players. One reason is bet sizing, for which Texas Hold'em provides a great analogue and training ground. Your ML algorithm can achieve high accuracy, but if you do not size your bets properly, your investment strategy will inevitably lose money. In this chapter we will review a few approaches to size bets from ML predictions.",
+      "translation": "策略游戏与投资之间有许多有趣的相似之处。我合作过的一些顶尖投资组合经理都是扑克高手；其中擅长扑克的人似乎比擅长国际象棋的更多。原因之一就在于下注规模：德州扑克为理解和训练投资中的仓位规模管理提供了很好的类比。ML 算法的准确率可以很高，但如果仓位规模设置不当，投资策略终究会亏钱。本章将介绍几种根据 ML 预测确定仓位规模的方法。"
+    },
+    {
+      "key": "t_1f1160335fc14fcbf8bd",
+      "source": "10.2 Strategy-Independent Bet Sizing Approaches",
+      "translation": "10.2 与策略无关的仓位规模方法"
+    },
+    {
+      "key": "t_fffba5979e2735ccb7f7",
+      "source": "Consider two strategies on the same instrument. Let",
+      "translation": "考虑同一金融工具上的两个策略。设"
+    },
+    {
+      "key": "t_70bfc0229f901a50b1d6",
+      "source": "be the bet size of strategy",
+      "translation": "为仓位规模，对应策略"
+    },
+    {
+      "key": "t_4aba6c021da73a8629ee",
+      "source": "at time",
+      "translation": "和时点"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_5f7a02683879ee7905c9",
+      "source": "indicates a full short position and",
+      "translation": "表示满仓做空，"
+    },
+    {
+      "key": "t_a62c664347ce2be23de6",
+      "source": "indicates a full long position. Suppose that one strategy produced a sequence of bet sizes",
+      "translation": "表示满仓做多。假设第一个策略给出的仓位规模序列为"
+    },
+    {
+      "key": "t_6e8bbbe89e56ee53fa9f",
+      "source": ", as the market price followed a sequence",
+      "translation": "；同期市场价格序列为"
+    },
+    {
+      "key": "t_035d395c82898b013796",
+      "source": "is the price at time",
+      "translation": "表示时点"
+    },
+    {
+      "key": "t_fa145a5cd646e846b189",
+      "source": ". The other strategy produced",
+      "translation": "的价格。另一个策略给出的仓位序列为"
+    },
+    {
+      "key": "t_a4fe9ccc02f118e6f435",
+      "source": ", as it was forced to reduce its bet size once the market moved against the initial full position. Both strategies produced forecasts that turned out to be correct (the price increased by 25% between",
+      "translation": "；因为市场走势一度不利于初始满仓仓位，它被迫减仓。两个策略的预测最终都正确（价格在"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "和"
+    },
+    {
+      "key": "t_3f8efcee8ef8206e97be",
+      "source": "), however the first strategy made money (0.5) while the second strategy lost money (-.125).",
+      "translation": "之间上涨了 25%），但第一个策略赚了 0.5，第二个策略却亏了 0.125。"
+    },
+    {
+      "key": "t_02ef2bafdf32fb88f778",
+      "source": "We would prefer to size positions in such a way that we reserve some cash for the possibility that the trading signal strengthens before it weakens. One option is to compute the series",
+      "translation": "我们希望设置仓位时留出一部分现金，以便在交易信号先增强、后减弱时仍有加仓余地。一种方法是计算序列"
+    },
+    {
+      "key": "t_952896d6fb1741338ccb",
+      "source": "is the number of concurrent long bets at time",
+      "translation": "表示同时有效的多头交易信号数，计算时点为"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "；"
+    },
+    {
+      "key": "t_8a6df0b476f26c071404",
+      "source": "is the number of concurrent short bets at time",
+      "translation": "表示同时有效的空头交易信号数，计算时点为"
+    },
+    {
+      "key": "t_531a8347f6dd0dba6ab8",
+      "source": ". This bet concurrency is derived, for each side, similarly to how we computed label concurrency in Chapter 4 (recall the",
+      "translation": "。多头和空头两侧同时有效的信号数，可分别像第 4 章计算标签并发度那样得到（回想"
+    },
+    {
+      "key": "t_1c0dfe2340163930c0dd",
+      "source": "object, with overlapping time spans). We fit a mixture of two Gaussians on",
+      "translation": "对象，其时间区间会相互重叠）。然后对"
+    },
+    {
+      "key": "t_001f93a600d10e2bb7e6",
+      "source": ", applying a method like the one described in López de Prado and Foreman",
+      "translation": "拟合双高斯混合分布，方法可参考 López de Prado 和 Foreman"
+    },
+    {
+      "key": "t_ab76e7c76b6ad538a0ec",
+      "source": ". Then, the bet size is derived as",
+      "translation": "。之后，仓位规模按下式计算："
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "其中："
+    },
+    {
+      "key": "t_c33455df87d6b51572ab",
+      "source": "is the CDF of the fitted mixture of two Gaussians for a value",
+      "translation": "是所拟合双高斯混合分布在取值"
+    },
+    {
+      "key": "t_2c9f4e8804a0b8e6f555",
+      "source": ". For example, we could size the bet as 0.9 when the probability of observing a signal of greater value is only 0.1. The stronger the signal, the smaller the probability that the signal becomes even stronger, hence the greater the bet size.",
+      "translation": "处的累积分布函数（CDF）。例如，如果出现更强信号的概率只有 0.1，就可以把仓位规模设为 0.9。当前信号越强，继续变强的概率就越小，因此仓位应当越大。"
+    },
+    {
+      "key": "t_2b583d91327f064ce6d6",
+      "source": "A second solution is to follow a budgeting approach. We compute the maximum number (or some other quantile) of concurrent long bets,",
+      "translation": "第二种方法采用预算思路。先计算同时有效的多头信号数量的最大值（或其他分位数），即"
+    },
+    {
+      "key": "t_f75dd4ebfb07ef51df0d",
+      "source": ", and the maximum number of concurrent short bets,",
+      "translation": "，以及同时有效的空头信号数量的最大值，即"
+    },
+    {
+      "key": "t_2108cd80864b12f9aa75",
+      "source": ". Then we derive the bet size as",
+      "translation": "，再按下式计算仓位规模："
+    },
+    {
+      "key": "t_d1cf18a3d32c9b347552",
+      "source": ". The goal is that the maximum position is not reached before the last concurrent signal is triggered.",
+      "translation": "。目标是在最后一个并发信号触发之前，不要过早达到最大仓位。"
+    },
+    {
+      "key": "t_0796d3eea532161518cc",
+      "source": "A third approach is to apply meta-labeling, as we explained in Chapter 3. We fit a classifier, such as an SVC or RF, to determine the probability of misclassification, and use that probability to derive the bet size.",
+      "translation": "第三种方法是第 3 章介绍的元标签化。我们拟合 SVC、RF 等分类器来估计误分类概率，再根据该概率确定仓位规模。"
+    },
+    {
+      "key": "t_a710f9b982560ab1ab75",
+      "source": "This approach has a couple of advantages: First, the ML algorithm that decides the bet sizes is independent of the primary model, allowing for the incorporation of features predictive of false positives (see Chapter 3). Second, the predicted probability can be directly translated into bet size. Let us see how.",
+      "translation": "这种方法有两个优点。第一，决定仓位规模的 ML 算法独立于主模型，因此可以加入能够预测假阳性的特征（见第 3 章）。第二，预测概率可以直接映射为仓位规模。下面说明具体做法。"
+    },
+    {
+      "key": "t_e1776072e3f09bdc619a",
+      "source": "The references section lists articles that explain how these probabilities are derived. Usually these probabilities incorporate information about the goodness of the fit, or confidence in the prediction. See Wu et al.",
+      "translation": "参考文献列出了一些文章，解释这些概率是如何得到的。它们通常会考虑拟合优度或预测置信度。参见 Wu 等人"
+    },
+    {
+      "key": "t_a2976f16df6654eecaac",
+      "source": ", and visit",
+      "translation": "，另见"
+    },
+    {
+      "key": "t_4195ac857ffe0d20a6ec",
+      "source": "10.3 Bet Sizing From Predicted Probabilities",
+      "translation": "10.3 根据预测概率确定仓位规模"
+    },
+    {
+      "key": "t_0b544adff120a701b250",
+      "source": "Let us denote",
+      "translation": "记"
+    },
+    {
+      "key": "t_a12ff3b491051e7582e3",
+      "source": "the probability that label",
+      "translation": "为标签"
+    },
+    {
+      "key": "t_3f23c982bdfa75ba910b",
+      "source": "takes place. For two possible outcomes,",
+      "translation": "出现的概率。若只有两个可能结果，"
+    },
+    {
+      "key": "t_6cc8b8b30e3161cc1139",
+      "source": ", we would like to test the null hypothesis",
+      "translation": "，我们希望检验原假设"
+    },
+    {
+      "key": "t_5d7d51cb4d88a981ace6",
+      "source": ". We compute the test statistic",
+      "translation": "。检验统计量为："
+    },
+    {
+      "key": "t_0695b563acde461fc2f8",
+      "source": "with",
+      "translation": "其中"
+    },
+    {
+      "key": "t_a44ffc8cc69acfc9fbba",
+      "source": ", and where",
+      "translation": "，且"
+    },
+    {
+      "key": "t_5e1c01300b3d1bbb931c",
+      "source": "represents the standard Normal distribution. We derive the bet size as",
+      "translation": "表示标准正态分布。仓位规模定义为"
+    },
+    {
+      "key": "t_89577815ff8a1c22209a",
+      "source": "is the CDF of",
+      "translation": "分别表示仓位的取值范围和相应的累积分布函数；这里的分布为"
+    },
+    {
+      "key": "t_0f83c3375785dd7355c1",
+      "source": "For more than two possible outcomes, we follow a one-versus-rest method. Let",
+      "translation": "若可能结果超过两个，则采用一对其余法。设"
+    },
+    {
+      "key": "t_d4c6b440ea85e6333bc2",
+      "source": "be various labels associated with bet sizes, and",
+      "translation": "为不同仓位规模所对应的标签集合，"
+    },
+    {
+      "key": "t_30b10ba0805bdfc339f7",
+      "source": "the predicted label. In other words, the label is identified by the bet size associated with it. For each label",
+      "translation": "为预测标签。换言之，每个标签由与之对应的仓位规模来标识。对每个标签"
+    },
+    {
+      "key": "t_cddd16c20d0d2993b0bd",
+      "source": ", we estimate a probability",
+      "translation": "，估计概率"
+    },
+    {
+      "key": "t_5dc7680cacec826b738a",
+      "source": ", with",
+      "translation": "，并满足"
+    },
+    {
+      "key": "t_7c0bebbc5baa30af0033",
+      "source": ". We define",
+      "translation": "。定义"
+    },
+    {
+      "key": "t_054c51fe94b81ee58893",
+      "source": "as the probability of",
+      "translation": "为标签"
+    },
+    {
+      "key": "t_0220da0829793d1bca27",
+      "source": ", and we would like to test for",
+      "translation": "的概率，并检验"
+    },
+    {
+      "key": "t_102aed6c7bdf97eee088",
+      "source": "We derive the bet size as",
+      "translation": "仓位规模定义为"
+    },
+    {
+      "key": "t_79e47920e1fa02bfeb9e",
+      "source": "regulates the size for a prediction",
+      "translation": "分别承担两个作用：前者限定仓位的取值范围，后者调节预测"
+    },
+    {
+      "key": "t_67972840cfa177975512",
+      "source": "(where the side is implied by",
+      "translation": "的仓位大小（方向由"
+    },
+    {
+      "key": "t_2af1130953014e448e57",
+      "source": "). Figure 10.1 plots the bet size as a function of test statistic.",
+      "translation": "的正负号决定）。图 10.1 展示了仓位规模如何随检验统计量变化。"
+    },
+    {
+      "key": "t_5874dae254f056cc4138",
+      "source": "Figure 10.1: Bet size from predicted probabilities",
+      "translation": "图 10.1：根据预测概率确定仓位规模"
+    },
+    {
+      "key": "t_288fbc9e3e4347243669",
+      "source": "Snippet 10.1 implements the translation from probabilities to bet size. It handles the possibility that the prediction comes from a meta-labeling estimator, as well from a standard labeling estimator. In step #2, it also averages active bets, and discretizes the final value, which we will explain in the following sections.",
+      "translation": "代码清单 10.1 实现了从概率到仓位规模的映射。它既能处理来自元标签估计器的预测，也能处理来自标准标签估计器的预测。在第 2 步中，它还会对有效仓位取平均，并将最终结果离散化；后续各节会解释这两项操作。"
+    },
+    {
+      "key": "t_fdc8733f009ab9ce00b0",
+      "source": "Uncertainty is absolute when all outcomes are equally likely.",
+      "translation": "当所有结果等概率出现时，不确定性达到最大。"
+    },
+    {
+      "key": "t_51428adb10a877e0604e",
+      "source": "Snippet 10.1: From Probabilities to Bet Size",
+      "translation": "代码清单 10.1：从概率映射到仓位规模"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_b24de689ab5c17fe27b4",
+      "source": "10.4 Averaging Active Bets",
+      "translation": "10.4 对有效仓位取平均"
+    },
+    {
+      "key": "t_085cfa61fb66c310b4e9",
+      "source": "Every bet is associated with a holding period, spanning from the time it originated to the time the first barrier is touched,",
+      "translation": "每笔交易都有一个持有期，从产生时一直到首次触及障碍的时点"
+    },
+    {
+      "key": "t_cd91d18eb61eb7f98af9",
+      "source": "(see Chapter 3). One possible approach is to override an old bet as a new bet arrives; however, that is likely to lead to excessive turnover. A more sensible approach is to average all sizes across all bets still active at a given point in time. Snippet 10.2 illustrates one possible implementation of this idea.",
+      "translation": "（见第 3 章）。一种做法是每当新交易信号到来就覆盖旧信号，但这很可能造成过高换手率。更合理的办法是，在任一时点对所有仍然有效的交易仓位规模取平均。代码清单 10.2 给出了一种实现。"
+    },
+    {
+      "key": "t_b8780f5aaf3dab5f69ea",
+      "source": "Snippet 10.2: Bets Are Averaged as Long as They Are Still Active",
+      "translation": "代码清单 10.2：只要交易仍有效，就对仓位规模取平均"
+    },
+    {
+      "key": "t_ec8f2096b8db53ec4f8b",
+      "source": "10.5 Size Discretization",
+      "translation": "10.5 仓位规模离散化"
+    },
+    {
+      "key": "t_f8148a437f203049e005",
+      "source": "Averaging reduces some of the excess turnover, but still it is likely that small trades will be triggered with every prediction. As this jitter would cause unnecessary overtrading, I suggest you discretize the bet size as",
+      "translation": "取平均可以减少一部分过度换手，但每次预测仍可能触发一笔很小的交易。这种抖动会导致不必要的频繁交易，因此建议按下式离散化仓位规模："
+    },
+    {
+      "key": "t_733f66c2da81a8cf1dd9",
+      "source": "determines the degree of discretization. Figure 10.2 illustrates the discretization of the bet size.",
+      "translation": "决定离散化的粒度。图 10.2 展示了仓位规模的离散化效果。"
+    },
+    {
+      "key": "t_50790eba7ea9c1298644",
+      "source": "Figure 10.2: Discretization of the bet size, d = 0.2",
+      "translation": "图 10.2：仓位规模离散化，d = 0.2"
+    },
+    {
+      "key": "t_83ca0a6c9cf8ca680cce",
+      "source": "Snippet 10.3 implements this notion.",
+      "translation": "代码清单 10.3 实现了这一做法。"
+    },
+    {
+      "key": "t_6fc9477acd0f63aacbfa",
+      "source": "Snippet 10.3: Size Discretization to Prevent Overtrading",
+      "translation": "代码清单 10.3：通过仓位规模离散化防止过度交易"
+    },
+    {
+      "key": "t_6c8b42c5c8d8e9d652a4",
+      "source": "10.6 Dynamic Bet Sizes And Limit Prices",
+      "translation": "10.6 动态仓位规模与限价"
+    },
+    {
+      "key": "t_8acb6f4dafc19165d73a",
+      "source": "Recall the triple-barrier labeling method presented in Chapter 3. Bar",
+      "translation": "回顾第 3 章介绍的三重障碍标签法。价格条"
+    },
+    {
+      "key": "t_0ab0eed041e1f4d722a6",
+      "source": "is formed at time",
+      "translation": "在时点"
+    },
+    {
+      "key": "t_ac768ae573a91f5d998d",
+      "source": ", at which point we forecast the first barrier that will be touched. That prediction implies a forecasted price,",
+      "translation": "形成，此时我们预测首先会触及哪一道障碍。该预测对应一个与障碍设置一致的预测价格"
+    },
+    {
+      "key": "t_00182d8d8ee484af7200",
+      "source": ", consistent with the barriers' settings. In the period elapsed until the outcome takes place,",
+      "translation": "。在结果发生之前的期间"
+    },
+    {
+      "key": "t_5fd0262714975d350590",
+      "source": ", the price",
+      "translation": "，价格"
+    },
+    {
+      "key": "t_aeca00ded4d976b2f596",
+      "source": "fluctuates and additional forecasts may be formed,",
+      "translation": "不断波动，还可能形成新的预测"
+    },
+    {
+      "key": "t_3b6d9eacdecf4e2a6b99",
+      "source": ". In Sections 10.4 and 10.5 we discussed methods for averaging the active bets and discretizing the bet size as new forecasts are formed.",
+      "translation": "。第 10.4 节和第 10.5 节讨论了新预测出现时，如何对有效仓位取平均并将仓位规模离散化。"
+    },
+    {
+      "key": "t_8e74ee57640aa90a5a8f",
+      "source": "In this section we will introduce an approach to adjust bet sizes as market price",
+      "translation": "本节介绍一种方法，随市场价格"
+    },
+    {
+      "key": "t_4bd17adf7c1df555dc32",
+      "source": "and forecast price",
+      "translation": "和预测价格"
+    },
+    {
+      "key": "t_98709b093be92bb43f87",
+      "source": "fluctuate. In the process, we will derive the order's limit price. Let",
+      "translation": "的变化动态调整仓位规模，并在此过程中推导订单限价。设"
+    },
+    {
+      "key": "t_072a5a89202aec858b40",
+      "source": "be the current position,",
+      "translation": "为当前仓位，"
+    },
+    {
+      "key": "t_c95b16ad11ca96ed0b0e",
+      "source": "the maximum absolute position size, and",
+      "translation": "为最大绝对仓位规模，"
+    },
+    {
+      "key": "t_ce95b7f2532a85926591",
+      "source": "the target position size associated with forecast",
+      "translation": "为目标仓位规模；所对应的预测是"
+    },
+    {
+      "key": "t_6a6f53b834dc24488c17",
+      "source": ", such that",
+      "translation": "，满足"
+    },
+    {
+      "key": "t_efd6f7a3ffc0c7c3fc3d",
+      "source": "is the bet size,",
+      "translation": "是仓位规模；"
+    },
+    {
+      "key": "t_ad869a2fd9758f661c68",
+      "source": "is the divergence between the current market price and the forecast,",
+      "translation": "是预测价格减去当前市场价格所得的差值；"
+    },
+    {
+      "key": "t_84f73cc21850f9fda633",
+      "source": "is a coefficient that regulates the width of the sigmoid function, and",
+      "translation": "是控制 S 形函数宽度的系数；"
+    },
+    {
+      "key": "t_653a62f90a12491f511e",
+      "source": "is the integer value of",
+      "translation": "表示对"
+    },
+    {
+      "key": "t_685c124280e46307ba21",
+      "source": ". Note that for a real-valued price divergence",
+      "translation": "取整后的结果。注意，若实数价格差为"
+    },
+    {
+      "key": "t_448a9f70377c00631232",
+      "source": "; the integer value",
+      "translation": "；整数目标仓位"
+    },
+    {
+      "key": "t_d77780619892f1462aff",
+      "source": "is bounded",
+      "translation": "满足界限"
+    },
+    {
+      "key": "t_b78ebd1f5e21c8ee860f",
+      "source": "The target position size",
+      "translation": "目标仓位规模"
+    },
+    {
+      "key": "t_a365504a8b7c68ef27b0",
+      "source": "can be dynamically adjusted as",
+      "translation": "可以随着"
+    },
+    {
+      "key": "t_710aff1178735252e9d5",
+      "source": "changes. In particular, as",
+      "translation": "的变化动态调整。特别是，当"
+    },
+    {
+      "key": "t_f59160e0d660b95f3d94",
+      "source": "we get",
+      "translation": "时，有"
+    },
+    {
+      "key": "t_d22c8dd56067f6c39db2",
+      "source": ", because the algorithm wants to realize the gains. This implies a breakeven limit price",
+      "translation": "，因为算法希望锁定收益。这意味着需要一个盈亏平衡限价"
+    },
+    {
+      "key": "t_5b4f37838d3963ef0601",
+      "source": "for the order size",
+      "translation": "；对应的订单规模为"
+    },
+    {
+      "key": "t_318dd0244f7fe1f71ecb",
+      "source": ", to avoid realizing losses. In particular,",
+      "translation": "，以免实现亏损。具体为："
+    },
+    {
+      "key": "t_8b98e17b6c63254002b8",
+      "source": "is the inverse function of",
+      "translation": "可由"
+    },
+    {
+      "key": "t_ff950b5d1efb92c1af2e",
+      "source": "with respect to",
+      "translation": "反解得到；这里求解的变量是"
+    },
+    {
+      "key": "t_9a019306ecaa183af23d",
+      "source": "We do not need to worry about the case",
+      "translation": "不必担心"
+    },
+    {
+      "key": "t_011421194651086be781",
+      "source": ", because the normalized bet size used by the inverse is strictly inside",
+      "translation": "这种情况，因为反函数使用的标准化仓位规模严格位于区间"
+    },
+    {
+      "key": "t_55b41b97be30f1bc7a3c",
+      "source": ". Since this function is monotonic, the algorithm cannot realize losses as",
+      "translation": "内部。由于该函数单调，当价格逐渐接近预测值时，算法不会实现亏损，即"
+    },
+    {
+      "key": "t_202d08c82663beef4b8f",
+      "source": "Let us calibrate",
+      "translation": "下面校准"
+    },
+    {
+      "key": "t_9f329f3b199d0bac784d",
+      "source": ". Given a user-defined pair",
+      "translation": "。给定用户指定的一对数值"
+    },
+    {
+      "key": "t_72a9bb1130cece08911f",
+      "source": ", the inverse function of",
+      "translation": "，待校准参数可由"
+    },
+    {
+      "key": "t_fa51fd49abf67705d6a3",
+      "source": "is",
+      "translation": "，结果为："
+    },
+    {
+      "key": "t_04655fb816ab71154821",
+      "source": "Snippet 10.4 implements the algorithm that computes the dynamic position size and limit prices as a function of",
+      "translation": "代码清单 10.4 实现了根据"
+    },
+    {
+      "key": "t_984d583e5fa04ed952af",
+      "source": ". First, we calibrate the sigmoid function, so that it returns a bet size of",
+      "translation": "计算动态仓位规模和限价的算法。第一步，校准 S 形函数，使仓位规模为"
+    },
+    {
+      "key": "t_3f8a2512efcb9d816a84",
+      "source": "for a price divergence of",
+      "translation": "时，对应的价格差为"
+    },
+    {
+      "key": "t_cef64e13cabd7a1e5645",
+      "source": ". Second, we compute the target position",
+      "translation": "。第二步，计算目标仓位"
+    },
+    {
+      "key": "t_5fd871d6f93b46f5bbc1",
+      "source": "for a maximum position",
+      "translation": "；参数包括最大仓位"
+    },
+    {
+      "key": "t_222e62453dc92b8e4a9e",
+      "source": ". If you try",
+      "translation": "。如果尝试"
+    },
+    {
+      "key": "t_10d2b6c6201fe471041d",
+      "source": ", you will get",
+      "translation": "，会得到"
+    },
+    {
+      "key": "t_f3e133b0c0169d816486",
+      "source": ", consistent with the calibration of",
+      "translation": "，这与"
+    },
+    {
+      "key": "t_0dd97747c54f87b7cd5a",
+      "source": ". Third, the limit price for this order of size",
+      "translation": "的校准一致。第三步，计算限价；对应的订单规模为"
+    },
+    {
+      "key": "t_c1d00b1af04bf4e7d592",
+      "source": ", satisfying",
+      "translation": "，并满足"
+    },
+    {
+      "key": "t_484dcba0e007aa50099c",
+      "source": ". It is between the current price and the forecasted price.",
+      "translation": "。该限价位于当前价格与预测价格之间。"
+    },
+    {
+      "key": "t_9394d51710c275b2fafb",
+      "source": "Snippet 10.4: Dynamic Position Size and Limit Price",
+      "translation": "代码清单 10.4：动态仓位规模与限价"
+    },
+    {
+      "key": "t_5ebdb88d3a626bd188d2",
+      "source": "As an alternative to the sigmoid function, we could have used a power function",
+      "translation": "除了 S 形函数，也可以使用幂函数"
+    },
+    {
+      "key": "t_29db4769267bc5dc9882",
+      "source": ", which results in",
+      "translation": "，从而得到"
+    },
+    {
+      "key": "t_445e5fb21b4a970231d4",
+      "source": ". This alternative presents the advantages that:",
+      "translation": "。这种替代方案有以下优点："
+    },
+    {
+      "key": "t_db5db4040204e187cf71",
+      "source": "Curvature can be directly manipulated through",
+      "translation": "可以直接调节曲率，所用参数为"
+    },
+    {
+      "key": "t_ca15ebc05a3c5c134875",
+      "source": "For",
+      "translation": "当"
+    },
+    {
+      "key": "t_96994c5100a53910d654",
+      "source": ", the function goes from concave to convex, rather than the other way around, hence the function is almost flat around the inflection point.",
+      "translation": "时，函数由凹转凸，而不是由凸转凹，因此在拐点附近几乎是平的。"
+    },
+    {
+      "key": "t_1a0a8f371c1e89c31eb5",
+      "source": "We leave the derivation of the equations for a power function as an exercise. Figure 10.3 plots the bet sizes (y-axis) as a function of price divergence",
+      "translation": "幂函数相关方程的推导留作练习。图 10.3 展示了 S 形函数和幂函数下，仓位规模（纵轴）如何随价格差"
+    },
+    {
+      "key": "t_bcd31c286e1c81cfdca3",
+      "source": "(x-axis) for both the sigmoid and power functions.",
+      "translation": "（横轴）变化。"
+    },
+    {
+      "key": "t_edd4bf9b627abccd010a",
+      "source": "Figure 10.3:",
+      "translation": "图 10.3："
+    },
+    {
+      "key": "t_d20c734f65e03e8158ce",
+      "source": "(concave to convex) and",
+      "translation": "（由凹转凸）和"
+    },
+    {
+      "key": "t_f90bd6aeeb04588e931a",
+      "source": "(convex to concave)",
+      "translation": "（由凸转凹）"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_533c23b1234b0e8db539",
+      "source": "Previous: Hyper-Parameter Tuning with Cross-Validation",
+      "translation": "上一章：使用交叉验证调优超参数"
+    },
+    {
+      "key": "t_059d827b9bf5c4ef9c61",
+      "source": "Next: The Dangers of Backtesting",
+      "translation": "下一章：回测的危险"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_3d79d59d6e7a16198bb0",
+      "source": "Bet size versus price divergence for the power function sgn[x]|x|^2 and the sigmoid x(.1+x^2)^-.5",
+      "translation": "幂函数 sgn[x]|x|^2 和 S 形函数 x(.1+x^2)^-.5 的仓位规模与价格差关系"
+    }
+  ]
+}

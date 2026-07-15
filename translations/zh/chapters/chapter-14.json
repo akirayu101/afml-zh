@@ -1,0 +1,1211 @@
+{
+  "chapter": "chapter-14",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_802943d65205f11d3bd3",
+      "source": "Backtest Statistics | Advances in Financial Machine Learning",
+      "translation": "回测统计 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_6c97bca7afd7fe168b80",
+      "source": "Part 3: Backtesting",
+      "translation": "第三部分：回测"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_79cee4d76a24663985f4",
+      "source": "Backtest Statistics",
+      "translation": "回测统计"
+    },
+    {
+      "key": "t_6f7e80737f24b10b5833",
+      "source": "14.1 Motivation",
+      "translation": "14.1 动机"
+    },
+    {
+      "key": "t_39fd51ef16f547f2a05c",
+      "source": "In the previous chapters, we have studied three backtesting paradigms: First, historical simulations (the walk-forward method, Chapters 11 and 12). Second, scenario simulations (CV and CPCV methods, Chapter 12). Third, simulations on synthetic data (Chapter 13). Regardless of the backtesting paradigm you choose, you need to report the results according to a series of statistics that investors will use to compare and judge your strategy against competitors. In this chapter we will discuss some of the most commonly used performance evaluation statistics. Some of these statistics are included in the Global Investment Performance Standards (GIPS),",
+      "translation": "前几章介绍了三种回测范式：第一，历史模拟，即第 11 章和第 12 章的滚动前推法；第二，情景模拟，即第 12 章的 CV 和 CPCV 方法；第三，第 13 章的合成数据模拟。无论选择哪种回测范式，都需要用一组统计指标报告结果，供投资者与其他策略比较并作出判断。本章将介绍一些最常用的绩效评价指标，其中一部分已纳入全球投资绩效标准（GIPS），"
+    },
+    {
+      "key": "t_062327de4446a45da975",
+      "source": "however a comprehensive analysis of performance requires metrics specific to the ML strategies under scrutiny.",
+      "translation": "但要全面分析绩效，还需要使用针对所考察 ML 策略的专门指标。"
+    },
+    {
+      "key": "t_57c069531ee4281ceaec",
+      "source": "For further details, visit",
+      "translation": "更多信息参见"
+    },
+    {
+      "key": "t_219ac33b7ab7950faef1",
+      "source": "14.2 Types Of Backtest Statistics",
+      "translation": "14.2 回测统计的类型"
+    },
+    {
+      "key": "t_cdd3b167bd813d0ac2b6",
+      "source": "Backtest statistics comprise metrics used by investors to assess and compare various investment strategies. They should help us uncover potentially problematic aspects of the strategy, such as substantial asymmetric risks or low capacity. Overall, they can be categorized into general characteristics, performance, runs/drawdowns, implementation shortfall, return/risk efficiency, classification scores, and attribution.",
+      "translation": "回测统计是一组供投资者评价和比较不同投资策略的指标。它们应当帮助我们发现策略中可能存在的问题，例如严重的非对称风险或容量过低。总体而言，这些指标可分为一般特征、绩效、连续同号收益与回撤、执行缺口、收益风险效率、分类评分和归因。"
+    },
+    {
+      "key": "t_9d3457f764875f0aff47",
+      "source": "14.3 General Characteristics",
+      "translation": "14.3 一般特征"
+    },
+    {
+      "key": "t_a4b690a2b19dbe3bfb0f",
+      "source": "The following statistics inform us about the general characteristics of the backtest:",
+      "translation": "以下统计指标用于描述回测的一般特征："
+    },
+    {
+      "key": "t_dbc8a3c85feebaa67810",
+      "source": "Time range:",
+      "translation": "时间范围："
+    },
+    {
+      "key": "t_fa00f4b9f65a1a62c910",
+      "source": "Time range specifies the start and end dates. The period used to test the strategy should be sufficiently long to include a comprehensive number of regimes (Bailey and López de Prado [2012]).",
+      "translation": "时间范围给出回测的开始和结束日期。测试策略的期间应当足够长，能够覆盖足够多种市场状态（Bailey 和 López de Prado [2012]）。"
+    },
+    {
+      "key": "t_8ed70b1cc4a61d0bf3b0",
+      "source": "Average AUM:",
+      "translation": "平均管理资产规模（AUM）："
+    },
+    {
+      "key": "t_c7524d4de371a531a2a5",
+      "source": "This is the average dollar value of the assets under management. For the purpose of computing this average, the dollar value of long and short positions is considered to be a positive real number.",
+      "translation": "这是管理资产的平均美元价值。计算该平均值时，多头和空头仓位的美元价值都按正数计入。"
+    },
+    {
+      "key": "t_54a399cddc5e79b22cc5",
+      "source": "Capacity:",
+      "translation": "策略容量："
+    },
+    {
+      "key": "t_35fefb294b03efeff324",
+      "source": "A strategy's capacity can be measured as the highest AUM that delivers a target risk-adjusted performance. A minimum AUM is needed to ensure proper bet sizing (Chapter 10) and risk diversification (Chapter 16). Beyond that minimum AUM, performance will decay as AUM increases, due to higher transaction costs and lower turnover.",
+      "translation": "策略容量可以理解为：在达到目标风险调整后绩效的前提下，策略所能承载的最高 AUM。要合理确定仓位规模（第 10 章）并分散风险（第 16 章），AUM 需要达到一定下限。超过这一最低规模后，随着 AUM 增长，交易成本会上升、换手能力会下降，绩效也会随之衰减。"
+    },
+    {
+      "key": "t_4d9deb145689c9f6eff4",
+      "source": "Leverage:",
+      "translation": "杠杆："
+    },
+    {
+      "key": "t_008b96385d5ffbd2d159",
+      "source": "Leverage measures the amount of borrowing needed to achieve the reported performance. If leverage takes place, costs must be assigned to it. One way to measure leverage is as the ratio of average dollar position size to average AUM.",
+      "translation": "杠杆衡量为了取得所报告的绩效需要借入多少资金。只要使用杠杆，就必须计入相应成本。一种衡量方法，是用平均美元仓位规模除以平均 AUM。"
+    },
+    {
+      "key": "t_b30ecc8b028d0ec53a2f",
+      "source": "Maximum dollar position size:",
+      "translation": "最大美元仓位规模："
+    },
+    {
+      "key": "t_6b328669122086d320a1",
+      "source": "Maximum dollar position size informs us whether the strategy at times took dollar positions that greatly exceeded the average AUM. In general we will prefer strategies that take maximum dollar positions close to the average AUM, indicating that they do not rely on the occurrence of extreme events (possibly outliers).",
+      "translation": "最大美元仓位规模可以看出，策略是否曾持有远超平均 AUM 的仓位。通常，我们更偏好最大美元仓位接近平均 AUM 的策略，因为这说明策略并不依赖极端事件，而这些事件可能只是异常值。"
+    },
+    {
+      "key": "t_4aeca302f60aa23dd582",
+      "source": "Ratio of longs:",
+      "translation": "多头占比："
+    },
+    {
+      "key": "t_d4c02ead184f92062be2",
+      "source": "The ratio of longs shows what proportion of the bets involved long positions. In long-short, market neutral strategies, ideally this value is close to 0.5. If not, the strategy may have a position bias, or the backtested period may be too short and unrepresentative of future market conditions.",
+      "translation": "多头占比表示所有下注中有多少使用了多头仓位。对于多空市场中性策略，该值最好接近 0.5。如果偏离较大，可能说明策略存在方向性仓位偏差，也可能是回测期间太短，无法代表未来市场状况。"
+    },
+    {
+      "key": "t_cc601362eba92adab33c",
+      "source": "Frequency of bets:",
+      "translation": "下注频率："
+    },
+    {
+      "key": "t_6a9aeb049867b3910cbb",
+      "source": "The frequency of bets is the number of bets per year in the backtest. A sequence of positions on the same side is considered part of the same bet. A bet ends when the position is flattened or flipped to the opposite side. The number of bets is always smaller than the number of trades. A trade count would overestimate the number of independent opportunities discovered by the strategy.",
+      "translation": "下注频率是回测中每年的下注次数。同一方向的一连串仓位视为同一次下注；仓位归零或反转到相反方向时，这次下注才算结束。因此，下注次数总是少于交易次数。若直接统计交易笔数，就会高估策略发现的独立机会数量。"
+    },
+    {
+      "key": "t_3b9501b0390dc7da9e41",
+      "source": "Average holding period:",
+      "translation": "平均持有期："
+    },
+    {
+      "key": "t_ead1f48cd2849ba171a5",
+      "source": "The average holding period is the average number of days a bet is held. High-frequency strategies may hold a position for a fraction of seconds, whereas low frequency strategies may hold a position for months or even years. Short holding periods may limit the capacity of the strategy. The holding period is related but different to the frequency of bets. For example, a strategy may place bets on a monthly basis, around the release of nonfarm payrolls data, where each bet is held for only a few minutes.",
+      "translation": "平均持有期是每次下注平均持有多少天。高频策略可能只持仓几分之一秒，低频策略则可能持仓数月甚至数年。持有期太短可能限制策略容量。持有期与下注频率有关，但两者并不相同。例如，某个策略可能每月只在非农就业数据发布前后下注一次，而每次只持仓几分钟。"
+    },
+    {
+      "key": "t_5736e96c06ce6b710696",
+      "source": "Annualized turnover:",
+      "translation": "年化换手率："
+    },
+    {
+      "key": "t_dfbe49b72f656e9a73a9",
+      "source": "Annualized turnover measures the ratio of the average dollar amount traded per year to the average annual AUM. High turnover may occur even with a low number of bets, as the strategy may require constant tuning of the position. High turnover may also occur with a low number of trades, if every trade involves flipping the position between maximum long and maximum short.",
+      "translation": "年化换手率等于每年平均交易金额与年度平均 AUM 之比。即使下注次数不多，如果策略需要不断微调仓位，换手率仍可能很高。交易笔数很少时也可能出现高换手率，例如每笔交易都在最大多头和最大空头之间反转仓位。"
+    },
+    {
+      "key": "t_7bd11b78bf6e85b0d7a4",
+      "source": "Correlation to underlying:",
+      "translation": "与底层资产的相关性："
+    },
+    {
+      "key": "t_8604ddf196b1ecab0e6e",
+      "source": "This is the correlation between strategy returns and the returns of the underlying investment universe. When the correlation is significantly positive or negative, the strategy is essentially holding or short-selling the investment universe, without adding much value.",
+      "translation": "这是策略收益率与底层投资范围收益率之间的相关性。如果二者显著正相关或负相关，策略实质上只是在做多或做空整个投资范围，并没有创造多少额外价值。"
+    },
+    {
+      "key": "t_f7e340843821c833078f",
+      "source": "Snippet 14.1 lists an algorithm that derives the timestamps of flattening or flipping trades from a pandas series of target positions (tPos). This gives us the number of bets that have taken place.",
+      "translation": "代码清单 14.1 给出了一种算法：从 pandas 的目标仓位序列（tPos）中找出仓位归零或反转的时间戳，由此统计实际发生的下注次数。"
+    },
+    {
+      "key": "t_a5c70270b68f27abfe06",
+      "source": "Snippet 14.1: Deriving the Timing of Bets from a Series of Target Positions",
+      "translation": "代码清单 14.1：从目标仓位序列中找出下注时点"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_f83bfc75dfa28e9d5e33",
+      "source": "Snippet 14.2 illustrates the implementation of an algorithm that estimates the average holding period of a strategy, given a pandas series of target positions (tPos).",
+      "translation": "代码清单 14.2 展示了如何根据 pandas 目标仓位序列（tPos）估计策略的平均持有期。"
+    },
+    {
+      "key": "t_5145b5c5d184c24e6960",
+      "source": "Snippet 14.2: Implementation of a Holding Period Estimator",
+      "translation": "代码清单 14.2：持有期估计器的实现"
+    },
+    {
+      "key": "t_1838b0b3075e6ac9317d",
+      "source": "14.4 Performance",
+      "translation": "14.4 绩效"
+    },
+    {
+      "key": "t_f0c5793973c1b2d0fd0e",
+      "source": "Performance statistics are dollar and returns numbers without risk adjustments. Some useful performance measurements include:",
+      "translation": "绩效统计只看金额和收益率，尚未做风险调整。常用指标包括："
+    },
+    {
+      "key": "t_86e6d83bd530c2d77d73",
+      "source": "PnL:",
+      "translation": "损益（PnL）："
+    },
+    {
+      "key": "t_26a4efbfb1da49d66bba",
+      "source": "The total amount of dollars (or the equivalent in the currency of denomination) generated over the entirety of the backtest, including liquidation costs from the terminal position.",
+      "translation": "整个回测期间产生的美元损益总额，或以计价货币表示的等值金额，其中包括回测结束时平掉剩余仓位的成本。"
+    },
+    {
+      "key": "t_c2cc7f94e121521a00d4",
+      "source": "PnL from long positions:",
+      "translation": "多头仓位产生的 PnL："
+    },
+    {
+      "key": "t_154624eb39bee7b1603c",
+      "source": "The portion of the PnL dollars that was generated exclusively by long positions. This is an interesting value for assessing the bias of long-short, market neutral strategies.",
+      "translation": "仅由多头仓位产生的 PnL 金额。这个指标有助于判断多空市场中性策略是否存在方向偏差。"
+    },
+    {
+      "key": "t_e15243aa1e611fc0ec34",
+      "source": "Annualized rate of return:",
+      "translation": "年化收益率："
+    },
+    {
+      "key": "t_e4a5f0779639ed9cb7d3",
+      "source": "The time-weighted average annual rate of total return, including dividends, coupons, costs, etc.",
+      "translation": "按时间加权计算的年均总收益率，包括股息、票息、成本等。"
+    },
+    {
+      "key": "t_578721f31f2d0734714a",
+      "source": "Hit ratio:",
+      "translation": "命中率："
+    },
+    {
+      "key": "t_fc8e8756d86141368ea8",
+      "source": "The fraction of bets that resulted in a positive PnL.",
+      "translation": "PnL 为正的下注占全部下注的比例。"
+    },
+    {
+      "key": "t_70d30422ef5eb059aa3b",
+      "source": "Average return from hits:",
+      "translation": "盈利下注的平均收益率："
+    },
+    {
+      "key": "t_719514bca489fc83dbf1",
+      "source": "The average return from bets that generated a profit.",
+      "translation": "产生利润的下注所取得的平均收益率。"
+    },
+    {
+      "key": "t_eec630ed9d2e08dc8189",
+      "source": "Average return from misses:",
+      "translation": "亏损下注的平均收益率："
+    },
+    {
+      "key": "t_35a0186d480122561664",
+      "source": "The average return from bets that generated a loss.",
+      "translation": "产生亏损的下注所取得的平均收益率。"
+    },
+    {
+      "key": "t_1ee4d8a29b0b8fdcd9a1",
+      "source": "14.4.1 Time-Weighted Rate of Return",
+      "translation": "14.4.1 时间加权收益率"
+    },
+    {
+      "key": "t_f8c7566ba8ef133ad3e0",
+      "source": "Total return is the rate of return from realized and unrealized gains and losses, including accrued interest, paid coupons, and dividends for the measurement period. GIPS rules calculate time-weighted rates of return (TWRR), adjusted for external cash flows (CFA Institute",
+      "translation": "总收益率涵盖计量期间内的已实现和未实现盈亏，以及应计利息、已付票息和股息。GIPS 规则要求计算经过外部现金流调整的时间加权收益率（TWRR）（CFA Institute"
+    },
+    {
+      "key": "t_a2d90d48b8f7e6bc3bdb",
+      "source": "). Periodic and sub-periodic returns are geometrically linked. For periods beginning on or after January 1, 2005, GIPS rules mandate calculating portfolio returns that adjust for daily-weighted external cash flows. We can compute the TWRR by determining the value of the portfolio at the time of each external cash flow.",
+      "translation": "）。各期间和子期间的收益率以几何方式连接。对于 2005 年 1 月 1 日或之后开始的期间，GIPS 要求计算经过日加权外部现金流调整的投资组合收益率。只要在每次外部现金流发生时确定投资组合的价值，就可以计算 TWRR。"
+    },
+    {
+      "key": "t_f6b6d15e66abcaa25da2",
+      "source": "The TWRR for portfolio",
+      "translation": "投资组合"
+    },
+    {
+      "key": "t_6864135373ef8328b55a",
+      "source": "between subperiods",
+      "translation": "在子期间"
+    },
+    {
+      "key": "t_d91ce31232107b5d1f21",
+      "source": "is denoted",
+      "translation": "内的 TWRR 记作"
+    },
+    {
+      "key": "t_2166979d609a1892f4b2",
+      "source": ", with equations",
+      "translation": "，计算式为："
+    },
+    {
+      "key": "t_7ba6d8e4f938cad19c5f",
+      "source": "External cash flows are assets (cash or investments) that enter or exit a portfolio. Dividend and interest income payments, for example, are not considered external cash flows.",
+      "translation": "外部现金流是进入或退出投资组合的资产，包括现金和投资。例如，股息和利息收入不属于外部现金流。"
+    },
+    {
+      "key": "t_53e44550b63d1f321082",
+      "source": "where:",
+      "translation": "其中："
+    },
+    {
+      "key": "t_380855869e0dd5e9c95f",
+      "source": "is the mark-to-market (MtM) profit or loss for portfolio",
+      "translation": "是盯市（MtM）损益，对应的投资组合为"
+    },
+    {
+      "key": "t_4aba6c021da73a8629ee",
+      "source": "at time",
+      "translation": "，对应时点为"
+    },
+    {
+      "key": "t_402b938ca78475b45937",
+      "source": "is the market value of the assets under management by portfolio",
+      "translation": "是所管理资产的市场价值，对应的投资组合为"
+    },
+    {
+      "key": "t_d7a38142b8248d942980",
+      "source": "through subperiod",
+      "translation": "，覆盖至子期间"
+    },
+    {
+      "key": "t_08a96cfdda48368ac1dd",
+      "source": ". The purpose of including the",
+      "translation": "。加入"
+    },
+    {
+      "key": "t_49e44a5c8b23265995d6",
+      "source": "term is to fund additional purchases (ramp-up).",
+      "translation": "项，是为了给追加买入提供资金，也就是逐步建仓。"
+    },
+    {
+      "key": "t_4d3b50e09a4a5212bf06",
+      "source": "is the interest accrued or dividend paid by one unit of instrument",
+      "translation": "是单份金融工具产生的应计利息或支付的股息，工具编号为"
+    },
+    {
+      "key": "t_8e9357ff484e24e8ed19",
+      "source": "is the clean price of security",
+      "translation": "是证券的净价，证券编号为"
+    },
+    {
+      "key": "t_03ced200f49038c621dd",
+      "source": "are the holdings of portfolio",
+      "translation": "是持仓数量，所属投资组合为"
+    },
+    {
+      "key": "t_024911b78f1d19678874",
+      "source": "on security",
+      "translation": "，对应证券为"
+    },
+    {
+      "key": "t_fb8ab7d563fa56a993c1",
+      "source": "is the dirty price of security",
+      "translation": "是证券的全价，证券编号为"
+    },
+    {
+      "key": "t_6a8e62811a9cb6c4fe5e",
+      "source": "is the average transacted clean price of portfolio",
+      "translation": "是平均成交净价，所属投资组合为"
+    },
+    {
+      "key": "t_e1655ddc71cbe8ed86fb",
+      "source": "over subperiod",
+      "translation": "，覆盖子期间"
+    },
+    {
+      "key": "t_5d10ab8653eb9f255a55",
+      "source": "is the average transacted dirty price of portfolio",
+      "translation": "是平均成交全价，所属投资组合为"
+    },
+    {
+      "key": "t_df6693165b1661c8af5a",
+      "source": "Cash inflows are assumed to occur at the beginning of the day, and cash outflows are assumed to occur at the end of the day. These sub-period returns are then linked geometrically as",
+      "translation": "假设现金流入发生在一天开始时，现金流出发生在一天结束时。随后按几何方式连接各子期间收益率："
+    },
+    {
+      "key": "t_ee307514c5c8d844b17c",
+      "source": "The variable",
+      "translation": "变量"
+    },
+    {
+      "key": "t_eb4b9ce86334d366509d",
+      "source": "can be understood as the performance of one dollar invested in portfolio",
+      "translation": "可理解为投入投资组合"
+    },
+    {
+      "key": "t_21e9ceb5b96703aad1c0",
+      "source": "over its entire life,",
+      "translation": "的一美元在整个存续期内的累计表现，即"
+    },
+    {
+      "key": "t_a422b5954354a70e4fc8",
+      "source": ". Finally, the annualized rate of return of portfolio",
+      "translation": "。最后，投资组合"
+    },
+    {
+      "key": "t_fa51fd49abf67705d6a3",
+      "source": "is",
+      "translation": "的年化收益率为："
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "其中"
+    },
+    {
+      "key": "t_18157e41f6b620258689",
+      "source": "is the number of years elapsed between",
+      "translation": "表示下列两次收益率观测之间经过的年数："
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "与"
+    },
+    {
+      "key": "t_3b7c58e7e9501fd7bf8f",
+      "source": "14.5 Runs",
+      "translation": "14.5 连续同号收益"
+    },
+    {
+      "key": "t_b35e342860b5e6a34287",
+      "source": "Investment strategies rarely generate returns drawn from an IID process. In the absence of this property, strategy returns series exhibit frequent runs. Runs are uninterrupted sequences of returns of the same sign. Consequently, runs increase downside risk, which needs to be evaluated with proper metrics.",
+      "translation": "投资策略的收益率很少真正来自独立同分布（IID）过程。缺少这一性质时，策略收益序列常会出现连续同号区段，也就是一段没有中断、符号始终相同的收益率。这种聚集会增大下行风险，因此必须用合适的指标加以评估。"
+    },
+    {
+      "key": "t_fbd091c7ee1bb5b6f0bb",
+      "source": "14.5.1 Returns Concentration",
+      "translation": "14.5.1 收益集中度"
+    },
+    {
+      "key": "t_f9db6f0cb3eb17c8bd90",
+      "source": "Given a time series of returns from bets,",
+      "translation": "给定下注收益率的时间序列"
+    },
+    {
+      "key": "t_f0163569adac9d0084a1",
+      "source": ", we compute two weight series,",
+      "translation": "，计算两个权重序列，"
+    },
+    {
+      "key": "t_c2ff03923868dff4c5b2",
+      "source": "Inspired by the Herfindahl-Hirschman Index (HHI), for",
+      "translation": "借鉴赫芬达尔—赫希曼指数（HHI），要求"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_5ad7fcbdd3b50d397e1c",
+      "source": "is the size of the vector, we define the concentration of positive returns as",
+      "translation": "表示向量长度。正收益集中度定义为："
+    },
+    {
+      "key": "t_8b3cac19bb5a58e54983",
+      "source": "and the equivalent for concentration of negative returns, for",
+      "translation": "负收益集中度采用相同形式。当"
+    },
+    {
+      "key": "t_45c24a28fba275daf7a3",
+      "source": ", as",
+      "translation": "时，定义为："
+    },
+    {
+      "key": "t_0960efb837db2f1e3ee5",
+      "source": "From Jensen's inequality, we know that",
+      "translation": "由 Jensen 不等式可知"
+    },
+    {
+      "key": "t_f374abd59ef7d3ba68fc",
+      "source": ". And because",
+      "translation": "。又因为"
+    },
+    {
+      "key": "t_09d715cf53fd15232f9b",
+      "source": ", we deduce that",
+      "translation": "，可推出"
+    },
+    {
+      "key": "t_c3f6ff1a8752d8cb3160",
+      "source": ", with an equivalent boundary on negative bet returns. These definitions have a few interesting properties:",
+      "translation": "。负收益率也有相同的界限。这些定义具有以下几个性质："
+    },
+    {
+      "key": "t_ea530d28502d9e6b5fb9",
+      "source": "(uniform returns).",
+      "translation": "（各笔收益相同，权重均匀）。"
+    },
+    {
+      "key": "t_1c7aeb14195d1cf70a65",
+      "source": "(only one non-zero return).",
+      "translation": "（只有一个非零收益率）。"
+    },
+    {
+      "key": "t_9186a7c4a12fc6db5afb",
+      "source": "It is easy to derive a similar expression for the concentration of bets across months,",
+      "translation": "同理，也很容易得到衡量下注在各月份集中程度的公式，即"
+    },
+    {
+      "key": "t_8a3876d0805de66097bc",
+      "source": ". Snippet 14.3 implements these concepts. Ideally, we are interested in strategies where bets' returns exhibit:",
+      "translation": "。代码清单 14.3 实现了这些概念。理想情况下，我们希望策略的下注收益具有以下特征："
+    },
+    {
+      "key": "t_f597082f6d0ecdbe7901",
+      "source": "high Sharpe ratio",
+      "translation": "较高的夏普比率"
+    },
+    {
+      "key": "t_fcdbda4a2f48309d537c",
+      "source": "high number of bets per year,",
+      "translation": "每年有较多次下注，"
+    },
+    {
+      "key": "t_502df96eb475c4ba95b9",
+      "source": "high hit ratio (relatively low",
+      "translation": "较高的命中率（也就是相对较小的"
+    },
+    {
+      "key": "t_6c1ff09db3a73dc4a854",
+      "source": "low",
+      "translation": "较低的"
+    },
+    {
+      "key": "t_3fe8f32134a749fb615e",
+      "source": "(no right fat-tail)",
+      "translation": "（右尾不肥）"
+    },
+    {
+      "key": "t_0664bfbff5aec0ba431d",
+      "source": "(no left fat-tail)",
+      "translation": "（左尾不肥）"
+    },
+    {
+      "key": "t_faa6eb5324cb1bbf115f",
+      "source": "(bets are not concentrated in time)",
+      "translation": "（下注在时间上不过度集中）"
+    },
+    {
+      "key": "t_468b042c722af42def74",
+      "source": "Snippet 14.3: Algorithm for Deriving HHI Concentration",
+      "translation": "代码清单 14.3：计算 HHI 集中度的算法"
+    },
+    {
+      "key": "t_d23691bb318da15af9d9",
+      "source": "14.5.2 Drawdown and Time under Water",
+      "translation": "14.5.2 回撤与水下时间"
+    },
+    {
+      "key": "t_4c5c1c64cf5bf18ce996",
+      "source": "Intuitively, a drawdown (DD) is the maximum loss suffered by an investment between two consecutive high-watermarks (HWMs). The time under water (TuW) is the time elapsed between an HWM and the moment the PnL exceeds the previous maximum PnL. These concepts are best understood by reading Snippet 14.4. This code derives both DD and TuW series from either (1) the series of returns (dollars = False) or; (2) the series of dollar performance (dollar = True). Figure 14.1 provides an example of DD and TuW.",
+      "translation": "直观地说，回撤（DD）是投资在相邻两个历史高水位（HWM）之间遭受的最大损失。水下时间（TuW）是从出现一个 HWM，到 PnL 再次超过此前最高 PnL 所经过的时间。阅读代码清单 14.4 最容易理解这两个概念。该代码既可以根据收益率序列（dollars = False），也可以根据美元绩效序列（dollars = True），计算 DD 和 TuW 序列。图 14.1 给出了示例。"
+    },
+    {
+      "key": "t_ec556653552eb6479f24",
+      "source": "Snippet 14.4: Deriving the Sequence of DD and TuW",
+      "translation": "代码清单 14.4：计算 DD 和 TuW 序列"
+    },
+    {
+      "key": "t_cfeb2b62290379aa6d0b",
+      "source": "14.5.3 Runs Statistics for Performance Evaluation",
+      "translation": "14.5.3 用连续同号收益统计评价绩效"
+    },
+    {
+      "key": "t_82d63dc75c351d7462ee",
+      "source": "Some useful measurements of runs statistics include:",
+      "translation": "常用的连续同号收益统计指标包括："
+    },
+    {
+      "key": "t_8a8ad22b2ac08daf86be",
+      "source": "HHI index on positive returns: This is",
+      "translation": "正收益 HHI 指数：即"
+    },
+    {
+      "key": "t_aeb654df3bb05b6a4dae",
+      "source": "in Snippet 14.3.",
+      "translation": "，见代码清单 14.3。"
+    },
+    {
+      "key": "t_f1c481c106d41cf6420d",
+      "source": "HHI index on negative returns: This is",
+      "translation": "负收益 HHI 指数：即"
+    },
+    {
+      "key": "t_f3bbf6d0be9a0d299e12",
+      "source": "HHI index on time between bets: This is",
+      "translation": "下注时间分布的 HHI 指数：即"
+    },
+    {
+      "key": "t_193f76634097df033d3d",
+      "source": "95-percentile DD: This is the 95th percentile of the DD series derived by Snippet 14.4.",
+      "translation": "DD 的 95% 分位数：代码清单 14.4 所得 DD 序列的第 95 百分位数。"
+    },
+    {
+      "key": "t_8180619c65e65ba081ca",
+      "source": "95-percentile TuW: This is the 95th percentile of the TuW series derived by Snippet 14.4.",
+      "translation": "TuW 的 95% 分位数：代码清单 14.4 所得 TuW 序列的第 95 百分位数。"
+    },
+    {
+      "key": "t_ad2d104cfdf8a4064663",
+      "source": "Figure 14.1: Examples of drawdown (DD) and time under water + (TuW)",
+      "translation": "图 14.1：回撤（DD）和水下时间（TuW）示例"
+    },
+    {
+      "key": "t_c8f2191cdaa30ded5b38",
+      "source": "14.6 Implementation Shortfall",
+      "translation": "14.6 执行缺口"
+    },
+    {
+      "key": "t_5a14aded0af9551197f4",
+      "source": "Investment strategies often fail due to wrong assumptions regarding execution costs. Some important measurements of this include:",
+      "translation": "投资策略常因错误估计执行成本而失败。衡量执行缺口的重要指标包括："
+    },
+    {
+      "key": "t_cc338d765b64dc7946e0",
+      "source": "Broker fees per turnover:",
+      "translation": "每单位换手的经纪费用："
+    },
+    {
+      "key": "t_f5b4f0f3d6e41e0a92f8",
+      "source": "These are the fees paid to the broker for turning the portfolio over, including exchange fees.",
+      "translation": "投资组合换手时支付给经纪商的费用，其中包括交易所费用。"
+    },
+    {
+      "key": "t_f676d25e7358cddd4e82",
+      "source": "Average slippage per turnover:",
+      "translation": "每单位换手的平均滑点："
+    },
+    {
+      "key": "t_cb4d9e5682fd6478663e",
+      "source": "These are execution costs, excluding broker fees, involved in one portfolio turnover. For example, it includes the loss caused by buying a security at a fill-price higher than the mid-price at the moment the order was sent to the execution broker.",
+      "translation": "这是投资组合完成一次换手所产生的执行成本，不包括经纪费用。例如，订单发送给执行经纪商时的中间价低于实际买入成交价，由此造成的损失就属于滑点。"
+    },
+    {
+      "key": "t_204bf805529d16f6728c",
+      "source": "Dollar performance per turnover:",
+      "translation": "每单位换手带来的美元收益："
+    },
+    {
+      "key": "t_1af0e0d6c29d2e8f67d2",
+      "source": "This is the ratio between dollar performance (including brokerage fees and slippage costs) and total portfolio turnovers. It signifies how much costlier the execution could become before the strategy breaks even.",
+      "translation": "这是美元绩效（已计入经纪费用和滑点成本）与投资组合总换手量之比。它表示在策略降至盈亏平衡前，执行成本最多还能增加多少。"
+    },
+    {
+      "key": "t_22e71fb395b29d88af52",
+      "source": "Return on execution costs:",
+      "translation": "执行成本收益倍数："
+    },
+    {
+      "key": "t_a218fcf711cba51efc69",
+      "source": "This is the ratio between dollar performance (including brokerage fees and slippage costs) and total execution costs. It should be a large multiple, to ensure that the strategy will survive worse-than-expected execution.",
+      "translation": "这是美元绩效（已计入经纪费用和滑点成本）与总执行成本之比。该倍数应当足够高，才能保证执行情况比预期更差时策略仍能生存。"
+    },
+    {
+      "key": "t_7dc223d14ee73663f545",
+      "source": "14.7 Efficiency",
+      "translation": "14.7 效率"
+    },
+    {
+      "key": "t_dfea2d42afa7ced9b711",
+      "source": "Until now, all performance statistics considered profits, losses, and costs. In this section, we account for the risks involved in achieving those results.",
+      "translation": "到目前为止，绩效统计只考虑了利润、亏损和成本。本节把取得这些结果所承担的风险也纳入考量。"
+    },
+    {
+      "key": "t_a3f0845952c803ea6682",
+      "source": "14.7.1 The Sharpe Ratio",
+      "translation": "14.7.1 夏普比率"
+    },
+    {
+      "key": "t_199b3e10b2d8fb238dac",
+      "source": "Suppose that a strategy's excess returns (in excess of the risk-free rate),",
+      "translation": "假设策略的超额收益率，也就是超过无风险利率的收益率序列"
+    },
+    {
+      "key": "t_5d35ea5ee34d6c112aa0",
+      "source": ", are IID Gaussian with mean",
+      "translation": "，服从独立同分布的高斯分布，均值为"
+    },
+    {
+      "key": "t_720ebabc0d25489c585a",
+      "source": "and variance",
+      "translation": "，方差为"
+    },
+    {
+      "key": "t_790d424c9c75f0782d0d",
+      "source": ". The Sharpe ratio (SR) is defined as",
+      "translation": "。夏普比率（SR）定义为："
+    },
+    {
+      "key": "t_a078c92944e44b3f8d14",
+      "source": "The purpose of SR is to evaluate the skills of a particular strategy or investor. Since",
+      "translation": "SR 用于评估某个策略或投资者的能力。由于"
+    },
+    {
+      "key": "t_ee5b49c5d3145784ed6e",
+      "source": "are usually unknown, the true SR value cannot be known for certain. The inevitable consequence is that Sharpe ratio calculations may be the subject of substantial estimation errors.",
+      "translation": "通常都未知，因此无法确定真实的 SR。这样一来，计算得到的夏普比率难免带有较大的估计误差。"
+    },
+    {
+      "key": "t_e93dbb0cde004c44446f",
+      "source": "14.7.2 The Probabilistic Sharpe Ratio",
+      "translation": "14.7.2 概率夏普比率"
+    },
+    {
+      "key": "t_ce63bd113320e7a5c69e",
+      "source": "The probabilistic Sharpe ratio (PSR) provides an adjusted estimate of SR, by removing the inflationary effect caused by short series with skewed and/or fat-tailed returns. Given a user-defined benchmark",
+      "translation": "概率夏普比率（PSR）对 SR 进行校正，消除短样本序列以及收益率偏斜或肥尾造成的虚高。给定用户设定的基准"
+    },
+    {
+      "key": "t_a6bdd75613780e630393",
+      "source": "Sharpe ratio",
+      "translation": "夏普比率"
+    },
+    {
+      "key": "t_013f4875854d694bd167",
+      "source": "and an observed Sharpe ratio",
+      "translation": "和观测到的夏普比率"
+    },
+    {
+      "key": "t_aa5df706ebec88fe91d8",
+      "source": ", PSR estimates the probability that",
+      "translation": "，PSR 用于估计"
+    },
+    {
+      "key": "t_aac3206fe8f821e6785b",
+      "source": "is greater than a hypothetical",
+      "translation": "大于假设基准"
+    },
+    {
+      "key": "t_080c23b3be3fa6b78f85",
+      "source": ". Following Bailey and López de Prado",
+      "translation": "的概率。按照 Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_542aafd35eae24352c3b",
+      "source": ", PSR can be estimated as",
+      "translation": "，PSR 可估计为："
+    },
+    {
+      "key": "t_5f109797dcbb92f412d8",
+      "source": "is the cumulative distribution function (CDF) of the standard Normal distribution,",
+      "translation": "是标准正态分布的累积分布函数（CDF）；"
+    },
+    {
+      "key": "t_57a2537bfcc0ce982fd5",
+      "source": "is the number of observed returns,",
+      "translation": "是观测收益率的数量；"
+    },
+    {
+      "key": "t_8fe9cd38bb321e3e6a94",
+      "source": "is the skewness of the returns, and",
+      "translation": "是收益率的偏度；"
+    },
+    {
+      "key": "t_e1cbba7a064cbe5bd765",
+      "source": "is the kurtosis of the returns (",
+      "translation": "是收益率的峰度（"
+    },
+    {
+      "key": "t_b9ec2114e5f1923343a3",
+      "source": "for Gaussian returns). For a given",
+      "translation": "对应高斯收益率）。对于给定的"
+    },
+    {
+      "key": "t_b51540e4cd4d0e2826aa",
+      "source": ", PSR increases with greater",
+      "translation": "，当"
+    },
+    {
+      "key": "t_448aeb7b2dbfd267866a",
+      "source": "(in the original sampling frequency, i.e. non-annualized), or longer track records (",
+      "translation": "较大（按原始采样频率计算，即未年化），或样本记录更长（"
+    },
+    {
+      "key": "t_67321712de1d21adb2b7",
+      "source": "), or positively skewed returns (",
+      "translation": "），或收益率呈正偏（"
+    },
+    {
+      "key": "t_c25433b2f9b8fc93a13c",
+      "source": "), but it decreases with fatter tails (",
+      "translation": "）时，PSR 会上升；但尾部越肥，PSR 越低（尾部肥厚程度用峰度"
+    },
+    {
+      "key": "t_de6110bbb5457f31b2e5",
+      "source": "This could be set to a default value of zero (i.e., comparing against no investment skill).",
+      "translation": "该基准可默认设为 0，也就是与“没有投资能力”进行比较。"
+    },
+    {
+      "key": "t_13717c4fbb1e94a9b4e1",
+      "source": "Figure 14.2: PSR as a function of skewness and sample length",
+      "translation": "图 14.2：PSR 随偏度和样本长度的变化"
+    },
+    {
+      "key": "t_8b3ae8ee7439315cb806",
+      "source": "14.7.3 The Deflated Sharpe Ratio",
+      "translation": "14.7.3 去膨胀夏普比率"
+    },
+    {
+      "key": "t_0a4c2699853f37fceb2e",
+      "source": "The deflated Sharpe ratio (DSR) is a PSR where the rejection threshold is adjusted to reflect the multiplicity of trials. Following Bailey and López de Prado",
+      "translation": "去膨胀夏普比率（DSR）是在 PSR 基础上调整拒绝阈值，以反映多重试验影响的指标。按照 Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_4b8201cc8d9143b594d6",
+      "source": ", DSR can be estimated as",
+      "translation": "，DSR 可估计为"
+    },
+    {
+      "key": "t_44e18450a7d991ba110b",
+      "source": ", where the benchmark Sharpe ratio,",
+      "translation": "，其中基准夏普比率"
+    },
+    {
+      "key": "t_7d14e0fcf29123c7553d",
+      "source": ", is no longer user-defined. Instead,",
+      "translation": "不再由用户指定，而是根据数据估计"
+    },
+    {
+      "key": "t_4e14ac9db098878b265f",
+      "source": "is estimated as",
+      "translation": "，计算式为："
+    },
+    {
+      "key": "t_679b394d52cbfeb977d2",
+      "source": "The rationale behind DSR is the following: Given a set of SR estimates,",
+      "translation": "DSR 背后的逻辑如下。给定一组 SR 估计值"
+    },
+    {
+      "key": "t_74e8a6c42d9ebfa57f71",
+      "source": ", its expected maximum is greater than zero, even if the true SR is zero. Under the null hypothesis that the actual Sharpe ratio is zero,",
+      "translation": "，即使真实 SR 为 0，这组估计值的期望最大值也会大于 0。在实际夏普比率为 0 的原假设下，"
+    },
+    {
+      "key": "t_4ccf4df7492605348d79",
+      "source": ", we know that the expected maximum",
+      "translation": "，估计值的期望最大值"
+    },
+    {
+      "key": "t_d0b579acfae734729655",
+      "source": "can be estimated as",
+      "translation": "可近似为"
+    },
+    {
+      "key": "t_23471c766441867a1cec",
+      "source": ". Indeed,",
+      "translation": "。事实上，"
+    },
+    {
+      "key": "t_c421e41dfcc0581bc5b5",
+      "source": "increases quickly as more independent trials are attempted (",
+      "translation": "会随着独立试验次数增加而迅速上升（试验次数为"
+    },
+    {
+      "key": "t_02934d64c8277350b678",
+      "source": "), or the trials involve a greater variance (",
+      "translation": "）；试验之间的方差越大，该值也会升高（方差为"
+    },
+    {
+      "key": "t_611d7d53a857d426fd41",
+      "source": "). From this knowledge we derive the third law of backtesting.",
+      "translation": "）。据此，我们得到回测第三定律。"
+    },
+    {
+      "key": "t_b17dab6109e535348f23",
+      "source": "Figure 14.3:",
+      "translation": "图 14.3："
+    },
+    {
+      "key": "t_5de23f7fbb65a4a1a37d",
+      "source": "as a function of",
+      "translation": "关于下列两个变量的函数："
+    },
+    {
+      "key": "t_5d261a31990d2850bbf8",
+      "source": "Snippet 14.5: Marcos' Third Law of Backtesting. Most Discoveries in Finance Are False Because of Its Violation",
+      "translation": "引文 14.5：Marcos 的回测第三定律——金融领域的大多数发现之所以是假的，都是因为违背了这条定律"
+    },
+    {
+      "key": "t_e80f7eb01ffa8b7fd375",
+      "source": "Every backtest result must be reported in conjunction with all the trials involved in its production. Absent that information, it is impossible to assess the backtest's false discovery probability.",
+      "translation": "报告任何回测结果时，都必须同时披露产生该结果所涉及的全部试验。缺少这些信息，就无法评估回测出现伪发现的概率。"
+    },
+    {
+      "key": "t_88488b03ce8971d4fa8f",
+      "source": "Marcos López de Prado,",
+      "translation": "Marcos López de Prado，"
+    },
+    {
+      "key": "t_e04b8037af7721520af9",
+      "source": "14.7.4 Efficiency Statistics",
+      "translation": "14.7.4 效率统计指标"
+    },
+    {
+      "key": "t_7667602f4f0a48354e0f",
+      "source": "Useful efficiency statistics include:",
+      "translation": "常用的效率统计指标包括："
+    },
+    {
+      "key": "t_b894a69c4cb0e1ec1ceb",
+      "source": "Annualized Sharpe ratio:",
+      "translation": "年化夏普比率："
+    },
+    {
+      "key": "t_8c24c563f5c07523ad0e",
+      "source": "This is the SR value, annualized by a factor",
+      "translation": "将 SR 乘以下列因子进行年化："
+    },
+    {
+      "key": "t_5d7fc6b5562c27aed061",
+      "source": "is the average number of returns observed per year. This common annualization method relies on the assumption that returns are IID.",
+      "translation": "是每年平均观测到的收益率数量。这种常见的年化方法依赖收益率独立同分布（IID）的假设。"
+    },
+    {
+      "key": "t_b445ee9cecb5e05327c0",
+      "source": "Information ratio:",
+      "translation": "信息比率："
+    },
+    {
+      "key": "t_06997c97e1e2b9f57908",
+      "source": "This is the SR equivalent of a portfolio that measures its performance relative to a benchmark. It is the annualized ratio between the average excess return and the tracking error. The excess return is measured as the portfolio's return in excess of the benchmark's return. The tracking error is estimated as the standard deviation of the excess returns.",
+      "translation": "信息比率相当于以基准为参照评价投资组合绩效时所用的 SR。它等于平均超额收益率与跟踪误差之比，再进行年化。超额收益率是投资组合收益率超过基准收益率的部分，跟踪误差则用超额收益率的标准差估计。"
+    },
+    {
+      "key": "t_28385b8abfb09ea4d58f",
+      "source": "Probabilistic Sharpe ratio:",
+      "translation": "概率夏普比率："
+    },
+    {
+      "key": "t_ab7f90a4698651e7a9d1",
+      "source": "PSR corrects SR for inflationary effects caused by non-Normal returns or track record length. It should exceed 0.95, for the standard significance level of 5%. It can be computed on absolute or relative returns.",
+      "translation": "PSR 校正非正态收益率或业绩记录长度造成的 SR 虚高。在常用的 5% 显著性水平下，PSR 应高于 0.95。它既可以用绝对收益率计算，也可以用相对收益率计算。"
+    },
+    {
+      "key": "t_72a94bbb0dda7f3a320f",
+      "source": "Deflated Sharpe ratio:",
+      "translation": "去膨胀夏普比率："
+    },
+    {
+      "key": "t_6a38f6bb6111069b479c",
+      "source": "DSR corrects SR for inflationary effects caused by non-Normal returns, track record length, and multiple testing/selection bias. It should exceed 0.95, for the standard significance level of 5%. It can be computed on absolute or relative returns.",
+      "translation": "DSR 校正非正态收益率、业绩记录长度以及多重检验或选择偏差造成的 SR 虚高。在常用的 5% 显著性水平下，DSR 应高于 0.95。它既可以用绝对收益率计算，也可以用相对收益率计算。"
+    },
+    {
+      "key": "t_75c00e5785c1c2bb87fb",
+      "source": "14.8 Classification Scores",
+      "translation": "14.8 分类评分"
+    },
+    {
+      "key": "t_1a5af36b6f9c8d43be9c",
+      "source": "In the context of meta-labeling strategies (Chapter 3, Section 3.6), it is useful to understand the performance of the ML overlay algorithm in isolation. Remember that the primary algorithm identifies opportunities, and the secondary (overlay) algorithm decides whether to pursue them or pass. A few useful statistics include:",
+      "translation": "对于元标签化策略（第 3 章第 3.6 节），单独了解 ML 叠加算法的表现很有帮助。主算法负责发现机会，次级的叠加算法则决定采取行动还是放弃。常用指标包括："
+    },
+    {
+      "key": "t_141c19581b3470d136f7",
+      "source": "Accuracy:",
+      "translation": "准确率："
+    },
+    {
+      "key": "t_986f10959296eec6223a",
+      "source": "Accuracy is the fraction of opportunities correctly labeled by the overlay algorithm,",
+      "translation": "准确率是叠加算法正确标记的机会占比，计算式为："
+    },
+    {
+      "key": "t_de171b48264b21ce29aa",
+      "source": "is the number of true positives,",
+      "translation": "是真阳性的数量；"
+    },
+    {
+      "key": "t_a604c797867073b6bcab",
+      "source": "is the number of true negatives,",
+      "translation": "是真阴性的数量；"
+    },
+    {
+      "key": "t_e6fba23f4fed506a3ac6",
+      "source": "is the number of false positives, and",
+      "translation": "是假阳性的数量；"
+    },
+    {
+      "key": "t_e40812c61f20b1b81a6c",
+      "source": "is the number of false negatives.",
+      "translation": "是假阴性的数量。"
+    },
+    {
+      "key": "t_c76bca618f65ebf04572",
+      "source": "Precision:",
+      "translation": "精确率："
+    },
+    {
+      "key": "t_18a1ad41589717ed34ad",
+      "source": "Precision is the fraction of true positives among the predicted positives,",
+      "translation": "精确率是预测为正的样本中真阳性所占的比例："
+    },
+    {
+      "key": "t_5e57cf6d9617c8aee156",
+      "source": "Recall:",
+      "translation": "召回率："
+    },
+    {
+      "key": "t_6820afe7bbba8fbc44aa",
+      "source": "Recall is the fraction of true positives among the positives,",
+      "translation": "召回率是所有实际正样本中真阳性所占的比例："
+    },
+    {
+      "key": "t_806f5fdcef926574ead1",
+      "source": "F1:",
+      "translation": "F1："
+    },
+    {
+      "key": "t_2105ca7da11cccc6e48b",
+      "source": "Accuracy may not be an adequate classification score for meta-labeling applications. Suppose that, after you apply meta-labeling, there are many more negative cases (label '0') than positive cases (label '1'). Under that scenario, a classifier that predicts every case to be negative will achieve high accuracy, even though recall is 0 and precision is undefined. The F1 score corrects for that flaw, by assessing the classifier in terms of the equally weighted harmonic mean of precision and recall,",
+      "translation": "对于元标签化应用，准确率未必是合适的分类评分。假设应用元标签化后，负样本（标签“0”）远多于正样本（标签“1”）。此时，即使分类器把所有样本都预测为负，也会得到很高的准确率，但召回率为 0，精确率没有定义。F1 用精确率和召回率等权重的调和平均数评价分类器，从而弥补这一缺陷："
+    },
+    {
+      "key": "t_320918c5e8e36b2ba39f",
+      "source": "As a side note, consider the unusual scenario where, after applying meta-labeling, there are many more positive cases than negative cases. A classifier that predicts all cases to be positive will achieve",
+      "translation": "顺带考虑一种不常见的情况：应用元标签化后，正样本远多于负样本。若分类器把所有样本都预测为正，就会得到"
+    },
+    {
+      "key": "t_437fd078f48a73f28a24",
+      "source": ", hence accuracy equals precision and recall is 1. Accuracy will be high, and F1 will not be smaller than accuracy, even though the classifier is not able to discriminate between the observed samples. One solution would be to switch the definitions of positive and negative cases, so that negative cases are predominant, and then score with F1.",
+      "translation": "，因此准确率等于精确率，召回率为 1。尽管分类器无法区分样本，准确率仍会很高，F1 也不会低于准确率。一种解决办法是对调正负样本的定义，让负样本占多数，再使用 F1 评分。"
+    },
+    {
+      "key": "t_1b72c919c1f0d1aec74a",
+      "source": "Negative log-loss:",
+      "translation": "负对数损失："
+    },
+    {
+      "key": "t_8fc518353004d375ddec",
+      "source": "Negative log-loss was introduced in Chapter 9, Section 9.4, in the context of hyper-parameter tuning. Please refer to that section for details. The key conceptual difference between accuracy and negative log-loss is that negative log-loss takes into account not only whether our predictions were correct or not, but the probability of those predictions as well.",
+      "translation": "第 9 章第 9.4 节在超参数调优的语境下介绍了负对数损失，细节请参见该节。负对数损失与准确率在概念上的关键区别是：它不仅考虑预测是否正确，还考虑各项预测的概率。"
+    },
+    {
+      "key": "t_ea16fb3131a9aac59f9f",
+      "source": "See Chapter 3, Section 3.7 for a visual representation of precision, recall, and accuracy. Table 14.1 characterizes the four degenerate cases of binary classification. As you can see, the F1 score is not defined in two of those cases. For this reason, when Scikit-learn is asked to compute F1 on a sample with no observed 1s or with no predicted 1s, it will print a warning (UndefinedMetricWarning), and set the F1 value to 0.",
+      "translation": "精确率、召回率和准确率的直观图示见第 3 章第 3.7 节。表 14.1 列出了二分类的四种退化情形，其中两种情形下 F1 没有定义。因此，当样本中没有实际标签 1，或模型没有预测出任何标签 1 时，Scikit-learn 计算 F1 会发出警告（UndefinedMetricWarning），并把 F1 设为 0。"
+    },
+    {
+      "key": "t_78135add516a676ae238",
+      "source": "Table 14.1: The Four Degenerate Cases of Binary Classification",
+      "translation": "表 14.1：二分类的四种退化情形"
+    },
+    {
+      "key": "t_39b36d38d6eb03c89206",
+      "source": "Condition",
+      "translation": "条件"
+    },
+    {
+      "key": "t_be6eb1fc3b05bf9dceeb",
+      "source": "Collapse",
+      "translation": "退化关系"
+    },
+    {
+      "key": "t_ac991dd3c2d928da95b7",
+      "source": "Accuracy",
+      "translation": "准确率"
+    },
+    {
+      "key": "t_b5d65f0ae389b60297c5",
+      "source": "Precision",
+      "translation": "精确率"
+    },
+    {
+      "key": "t_71e2046e4c01f20a7208",
+      "source": "Recall",
+      "translation": "召回率"
+    },
+    {
+      "key": "t_deae2d4d75857c1081f1",
+      "source": "F1",
+      "translation": "F1"
+    },
+    {
+      "key": "t_71cdcbd5761f3a51d1e7",
+      "source": "Observed all 1s",
+      "translation": "实际值全为 1"
+    },
+    {
+      "key": "t_5ca9fa3918467ded4c5d",
+      "source": "TN=FP=0",
+      "translation": "TN=FP=0"
+    },
+    {
+      "key": "t_2954a232bf6e195cbdf3",
+      "source": "=recall",
+      "translation": "=召回率"
+    },
+    {
+      "key": "t_6c841e8ec42734c381ae",
+      "source": "Observed all 0s",
+      "translation": "实际值全为 0"
+    },
+    {
+      "key": "t_ed4ef7d0e53bebb79958",
+      "source": "TP=FN=0",
+      "translation": "TP=FN=0"
+    },
+    {
+      "key": "t_d5b592c05dc25b503255",
+      "source": "NaN",
+      "translation": "NaN"
+    },
+    {
+      "key": "t_c4c8374e478dcd7f51fc",
+      "source": "Predicted all 1s",
+      "translation": "预测值全为 1"
+    },
+    {
+      "key": "t_0bf7c8a8f3328439c442",
+      "source": "TN=FN=0",
+      "translation": "TN=FN=0"
+    },
+    {
+      "key": "t_eeab7a0cbd3330162521",
+      "source": "=precision",
+      "translation": "=精确率"
+    },
+    {
+      "key": "t_5c4a0ddf26d6b441346e",
+      "source": "Predicted all 0s",
+      "translation": "预测值全为 0"
+    },
+    {
+      "key": "t_259b44897c450b7b4dd5",
+      "source": "TP=FP=0",
+      "translation": "TP=FP=0"
+    },
+    {
+      "key": "t_e4df28bbe82a716db911",
+      "source": "When all observed values are positive (label '1'), there are no true negatives or false positives, thus precision is 1, recall is a positive real number between 0 and 1 (inclusive), and accuracy equals recall. Then,",
+      "translation": "当所有实际值都是正样本（标签“1”）时，不存在真阴性和假阳性，因此精确率为 1，召回率是 0 到 1 之间的实数（含端点），准确率等于召回率。因此："
+    },
+    {
+      "key": "t_d767d617332ed1075364",
+      "source": "When all predicted values are positive (label '1'), there are no true negatives or false negatives, thus precision is a positive real number between 0 and 1 (inclusive), recall is 1, and accuracy equals precision. Then,",
+      "translation": "当所有预测值都是正样本（标签“1”）时，不存在真阴性和假阴性，因此精确率是 0 到 1 之间的实数（含端点），召回率为 1，准确率等于精确率。因此："
+    },
+    {
+      "key": "t_61a9f14674dbb583ba80",
+      "source": "14.9 Attribution",
+      "translation": "14.9 绩效归因"
+    },
+    {
+      "key": "t_d917a1fdda7cff0c0ea9",
+      "source": "The purpose of performance attribution is to decompose the PnL in terms of risk classes. For example, a corporate bond portfolio manager typically wants to understand how much of its performance comes from his exposure to the following risks classes: duration, credit, liquidity, economic sector, currency, sovereign, issuer, etc. Did his duration bets pay off? What credit segments does he excel at? Or should he focus on his issuer selection skills? These risks are not orthogonal, so there is always an overlap between them. For example, highly liquid bonds tend to have short durations and high credit rating, and are normally issued by large entities with large amounts outstanding, in U.S. dollars. As a result, the sum of the attributed PnLs will not match the total PnL, but at least we will be able to compute the Sharpe ratio (or information ratio) per risk class. Perhaps the most popular example of this approach is Barra’s multi-factor method. See Barra [1998, 2013] and Zhang and Rachev",
+      "translation": "绩效归因的目的是按风险类别拆解 PnL。例如，公司债券投资组合经理通常希望了解，绩效有多少来自久期、信用、流动性、行业板块、货币、主权和发行人等风险敞口：久期判断是否带来了收益？自己最擅长哪些信用细分市场？还是应当更专注于发行人选择？这些风险并不正交，彼此总有重叠。例如，流动性高的债券往往久期较短、信用评级较高，通常由大型机构以美元发行，且流通余额较大。因此，各风险类别的归因 PnL 加总后不会恰好等于总 PnL，但至少可以分别计算各风险类别的夏普比率或信息比率。这类方法中最著名的例子可能是 Barra 多因子模型。详见 Barra [1998, 2013] 以及 Zhang 和 Rachev"
+    },
+    {
+      "key": "t_c14ed31f0bdf407b54d5",
+      "source": "for details.",
+      "translation": "的相关论述。"
+    },
+    {
+      "key": "t_1cc7b26b6c297d6da412",
+      "source": "Of equal interest is to attribute PnL across categories within each class. For example, the duration class could be split between short duration (less than 5 years), medium duration (between 5 and 10 years), and long duration (in excess of 10 years). This PnL attribution can be accomplished as follows: First, to avoid the overlapping problem we referred to earlier, we need to make sure that each member of the investment universe belongs to one and only one category of each risk class at any point in time. In other words, for each risk class, we split the entire investment universe into disjoint partitions. Second, for each risk class, we form one index per risk category. For example, we will compute the performance of an index of short duration bonds, another index of medium duration bonds, and another index of long duration bonds. The weightings for each index are the re-scaled weights of our investment portfolio, so that each index’s weightings add up to one. Third, we repeat the second step, but this time we form those risk category indices using the weights from the investment universe (e.g., Markit iBoxx Investment Grade), again re-scaled so that each index’s weightings add up to one. Fourth, we compute the performance metrics we discussed earlier in the chapter on each of these indices’ returns and excess returns. For the sake of clarity, in this context the excess return of a short duration index is the return using (re-scaled) portfolio weightings (step 2) minus the return using (re-scaled) universe weightings (step 3).",
+      "translation": "同样值得关注的是，把 PnL 继续归因到每个风险类别内部的不同分组。例如，久期可以分为短久期（不足 5 年）、中久期（5～10 年）和长久期（超过 10 年）。具体可按以下步骤完成。第一，为避免前面提到的重叠问题，必须保证在任一时点，投资范围内的每个成员在每种风险类别中只属于一个分组。换言之，要按每种风险类别把整个投资范围划分为互不重叠的分组。第二，针对每种风险类别，为每个分组建立一个指数。例如，分别计算短久期、中久期和长久期债券指数的表现。各指数使用投资组合权重，并重新缩放，使指数内权重之和为 1。第三，重复第二步，但改用整个投资范围的权重，例如 Markit iBoxx 投资级债券指数的权重，再次缩放到权重之和为 1。第四，针对这些指数的收益率和超额收益率，计算本章前面介绍的绩效指标。为免歧义，这里的短久期指数超额收益率，是使用缩放后投资组合权重得到的收益率（第二步），减去使用缩放后投资范围权重得到的收益率（第三步）。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_a3e59198e55c73b2af93",
+      "source": "Previous: Backtesting on Synthetic Data",
+      "translation": "上一章：在合成数据上回测"
+    },
+    {
+      "key": "t_8b4cd1af4b8d031f4fa7",
+      "source": "Next: Understanding Strategy Risk",
+      "translation": "下一章：理解策略风险"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_489042c33f8fe7be7890",
+      "source": "Figure 14.3: \\(SR^*\\) as a function of \\(\\mathbb{V}[\\{\\widehat{SR}_n\\}]\\) and \\(N\\)",
+      "translation": "图 14.3：\\(SR^*\\) 随 \\(\\mathbb{V}[\\{\\widehat{SR}_n\\}]\\) 和 \\(N\\) 的变化"
+    }
+  ]
+}

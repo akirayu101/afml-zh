@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
-<title>暴力搜索与量子计算机 | 金融机器学习进阶</title>
+<title>暴力搜索与量子计算机｜金融机器学习进阶</title>
 <link href="../assets/afml-book.css?v=20260706-selection-dialogs" rel="stylesheet"/><link href="../assets/afml-book-zh.css?v=20260706-selection-dialogs" rel="stylesheet"/>
 <script>
       window.MathJax = {
@@ -22,7 +22,7 @@
 <header class="book-topbar">
 <div>
 <a class="book-title" href="index.html">金融机器学习进阶</a>
-<span>第五部分：高性能计算实践</span>
+<span>第五部分：高性能计算方法</span>
 </div>
 <nav aria-label="书籍导航">
 <a href="index.html">目录</a>
@@ -34,38 +34,38 @@
 <main class="content">
 <article>
 <header class="chapter-header">
-<p>第五部分：高性能计算实践</p>
+<p>第五部分：高性能计算方法</p>
 <h1>暴力搜索与量子计算机</h1>
 </header>
 <span class="pdf-page-anchor" id="pdf-page-346"></span>
 <h2 id="sec-21-1">21.1 动机</h2>
-<p>离散数学在多个 ML 问题中自然出现，包括层次聚类、网格搜索、基于阈值的决策以及整数优化。有时，这些问题不存在已知的解析（闭合形式）解，甚至没有近似它的启发式方法，我们唯一的希望便是通过暴力搜索来寻找解。本章将研究一个对现代超级计算机而言难以处理的金融问题，如何被重新表述为整数优化问题。这种表述方式使其适合由量子计算机求解。通过这个例子，读者可以推断如何将自己特定的金融 ML 难解问题转化为量子暴力搜索问题。</p>
+<p>离散数学会自然出现在许多机器学习问题中，例如层次聚类、网格搜索、基于阈值的决策和整数优化。有时，这些问题既没有已知的闭式解，甚至也没有可用来逼近答案的启发式方法，只能寄希望于暴力搜索。本章将说明如何把一个现代超级计算机都难以求解的金融问题，重新表述为整数优化问题。采用这种表示后，就可以交给量子计算机处理。读者可以由此推断，怎样把自己难解的金融机器学习问题转换成适合量子暴力搜索的形式。</p>
 <h2 id="sec-21-2">21.2 组合优化</h2>
-<p>组合优化问题可以描述为这样一类问题：存在有限数量的可行解，这些解由有限个变量的离散值组合而成。随着可行组合数量的增长，穷举搜索变得不切实际。旅行商问题是一个典型的组合优化问题，已知其为 NP 难（Woeginger <span class="citation">[2003]</span>），即至少与非确定性多项式时间内可解的最难问题同等难度的问题类别。穷举搜索之所以不切实际，是因为标准计算机按顺序评估和存储可行解。但如果我们能够同时评估和存储所有可行解呢？这正是量子计算机的目标。标准计算机的比特每次只能采取两种可能状态之一（{0, 1}），而量子计算机依赖于量子比特（qubit），这是一种可以同时保持两种状态线性叠加的存储元素。从理论上讲，量子计算机能够借助</p>
+<p>组合优化问题具有有限个可行解，这些解来自有限个变量的离散取值组合。可行组合数量一旦增大，穷举搜索很快就会失去可行性。旅行商问题就是著名的 NP 难组合优化问题（Woeginger <span class="citation">[2003]</span>），也就是说，这类问题至少与非确定性多项式时间内可解的最难问题同样困难。穷举之所以不可行，是因为传统计算机只能依次计算并存储各个可行解。但如果能同时计算并存储所有可行解呢？这正是量子计算机追求的目标。传统计算机的比特在某一时刻只能处于 {0, 1} 两种状态之一；量子计算机则使用量子位。量子位是一种可以同时保持两种状态线性叠加的存储单元。理论上，这种能力来自量子力学现象。</p>
 <span class="pdf-page-anchor" id="pdf-page-347"></span>
-<p>量子力学现象实现这一点。在某些实现中，量子比特可以支持同时沿两个方向流动的电流，从而提供所需的叠加态。正是这种线性叠加特性使量子计算机非常适合求解 NP 难组合优化问题。参见 Williams <span class="citation">[2010]</span> 关于量子计算机能力的综述。理解这一方法的最佳方式是通过一个具体例子。我们将展示一个受通用交易成本函数约束的动态组合优化问题，如何被表述为量子计算机可处理的组合优化问题。与 Garleanu and Pedersen <span class="citation">[2012]</span>，我们不假设收益服从IID高斯分布。这一问题对大型资产管理机构尤为重要，因为过度换手及执行缺口所带来的成本可能严重侵蚀其投资策略的盈利能力。</p>
+<p>在某些实现中，量子位可以同时支持两个方向的电流，从而形成所需的叠加态。正是这种线性叠加性质，使量子计算机很适合求解 NP 难组合优化问题。关于量子计算机能力的全面介绍，参见 Williams <span class="citation">[2010]</span>。理解这种方法的最好方式，是看一个具体例子。下面把一个带有一般交易成本函数的动态投资组合优化问题表示为组合优化问题，使量子计算机能够处理。与 Garleanu 和 Pedersen <span class="citation">[2012]</span>不同，我们不假设收益率来自独立同分布的高斯分布。这个问题对大型资产管理机构尤其重要，因为换手过度和执行缺口造成的成本，可能严重侵蚀投资策略的盈利能力。</p>
 <h2 id="sec-21-3">21.3 目标函数</h2>
-<p>考虑一组资产 <span class="math inline">\(X=\{x_i\},\ i=1,\ldots,N\)</span>，其收益在每个时间期限上服从多元正态分布 <span class="math inline">\(h=1,\ldots,H\)</span>，均值和方差随时间变化。我们假设收益服从多元正态分布、时间独立，但在时间维度上不满足同分布。我们将交易轨迹定义为一个 <span class="math inline">\(N\times H\)</span> 矩阵 <span class="math inline">\(\omega\)</span> ，用以确定分配给各 <span class="math inline">\(N\)</span> 项资产在各 <span class="math inline">\(H\)</span> 个时间期限上的资本比例。在某一特定时间期限 <span class="math inline">\(h=1,\ldots,H\)</span>，我们有预测均值 <span class="math inline">\(\mu_h\)</span>，预测方差 <span class="math inline">\(V_h\)</span> 以及预测交易成本函数 <span class="math inline">\(\tau_h[\omega]\)</span>。这意味着，给定一条交易轨迹 <span class="math inline">\(\omega\)</span>，我们可以计算出预期投资收益向量 <span class="math inline">\(r\)</span>，即</p>
+<p>考虑资产集合 <span class="math inline">\(X=\{x_i\},\ i=1,\ldots,N\)</span>。在每个时间区间 <span class="math inline">\(h=1,\ldots,H\)</span>上，资产收益服从均值和方差随时间变化的多元正态分布。我们假设收益在各期均为多元正态且彼此独立，但不要求各期同分布。把交易轨迹定义为一个 <span class="math inline">\(N\times H\)</span>矩阵 <span class="math inline">\(\omega\)</span>，它决定 <span class="math inline">\(N\)</span>项资产在 <span class="math inline">\(H\)</span>个时间区间上的资金配置比例。在某个时间区间 <span class="math inline">\(h=1,\ldots,H\)</span>，我们有预测均值 <span class="math inline">\(\mu_h\)</span>、预测方差 <span class="math inline">\(V_h\)</span>和预测交易成本函数 <span class="math inline">\(\tau_h[\omega]\)</span>。这意味着，给定交易轨迹 <span class="math inline">\(\omega\)</span>，就可以计算预期投资收益向量 <span class="math inline">\(r\)</span>：</p>
 <div class="math display">\[r=\operatorname{diag}[\mu^\prime\omega]-\tau[\omega]\]</div>
-<p>其中 <span class="math inline">\(\tau[\omega]\)</span> 可采用任意函数形式。不失一般性，考虑如下形式：</p>
-<div class="math display">\[\begin{aligned}\tau_1[\omega]&amp;=\sum_{n=1}^{N}c_{n,1}\sqrt{|\omega_{n,1}-\omega_n^*|},\\\tau_h[\omega]&amp;=\sum_{n=1}^{N}c_{n,h}\sqrt{|\omega_{n,h}-\omega_{n,h-1}|},\quad h=2,\ldots,H.\end{aligned}\]</div><p><span class="math inline">\(\omega_n^*\)</span> 是对资产 <span class="math inline">\(n\)</span>, <span class="math inline">\(n=1,\ldots,N\)</span>的初始配置比例。以下实现默认 <span class="math inline">\(\omega^*=0\)</span> ，除非提供了可选的初始配置 <code>w0</code> 。</p>
-<p><span class="math inline">\(\tau[\omega]\)</span> 是一个 <span class="math inline">\(H\times1\)</span> 交易成本向量。换言之，每项资产的交易成本等于资本配置变化量平方根之和，并由资产特定系数重新缩放 <span class="math inline">\(C_h=\{c_{n,h}\}_{n=1,\ldots,N}\)</span> 会随时间段 <span class="math inline">\(h\)</span> 变化。因此， <span class="math inline">\(C_h\)</span> 是一个 <span class="math inline">\(N\times1\)</span> 向量，决定各资产间的相对交易成本。</p>
+<p>其中 <span class="math inline">\(\tau[\omega]\)</span>可以采用任意函数形式。不失一般性，考虑下面的设定：</p>
+<div class="math display">\[\begin{aligned}\tau_1[\omega]&amp;=\sum_{n=1}^{N}c_{n,1}\sqrt{|\omega_{n,1}-\omega_n^*|},\\\tau_h[\omega]&amp;=\sum_{n=1}^{N}c_{n,h}\sqrt{|\omega_{n,h}-\omega_{n,h-1}|},\quad h=2,\ldots,H.\end{aligned}\]</div><p><span class="math inline">\(\omega_n^*\)</span>是资产 <span class="math inline">\(n\)</span>，<span class="math inline">\(n=1,\ldots,N\)</span>的初始配置。下面的实现默认设为 <span class="math inline">\(\omega^*=0\)</span>；除非提供可选的初始配置参数 <code>w0</code>。</p>
+<p><span class="math inline">\(\tau[\omega]\)</span>是一个 <span class="math inline">\(H\times1\)</span>的交易成本向量。具体来说，每项资产的交易成本，是各期资金配置变化量平方根之和，再乘以该资产对应的缩放因子 <span class="math inline">\(C_h=\{c_{n,h}\}_{n=1,\ldots,N}\)</span>；该因子随 <span class="math inline">\(h\)</span>变化。因此，<span class="math inline">\(C_h\)</span>是一个 <span class="math inline">\(N\times1\)</span>向量，用来确定各资产之间交易成本的相对大小。</p>
 <span class="pdf-page-anchor" id="pdf-page-348"></span>
-<p>与……相关的夏普比率（第14章） <span class="math inline">\(r\)</span> 可计算如下（<span class="math inline">\(\mu_h\)</span> 已扣除无风险利率）</p>
+<p>预期投资收益向量 <span class="math inline">\(r\)</span>对应的夏普比率（见第 14 章）可按下式计算，其中<span class="math inline">\(\mu_h\)</span>已经扣除无风险利率：</p>
 <div class="math display">\[SR[r]=\frac{\sum_{h=1}^{H}\left(\mu_h^\prime\omega_h-\tau_h[\omega]\right)}{\sqrt{\sum_{h=1}^{H}\omega_h^\prime V_h\omega_h}}\]</div>
-<h2 id="sec-21-4">21.4 问题阐述</h2>
-<p>我们希望计算能求解如下问题的最优交易轨迹</p>
+<h2 id="sec-21-4">21.4 问题定义</h2>
+<p>我们希望求出满足下列问题的最优交易轨迹：</p>
 <div class="math display">\[\begin{aligned}\max_{\omega}\quad &amp; SR[r]\\\text{s.t.}\quad &amp; \sum_{i=1}^{N}|\omega_{i,h}|=1,\quad \forall h=1,\ldots,H.\end{aligned}\]</div>
-<p>该问题旨在求解全局动态最优解，与均值-方差优化器所得的静态最优解形成对比（参见第16章）。注意，非光滑交易成本已嵌入 <span class="math inline">\(r\)</span>。与标准投资组合优化应用相比，本问题至少出于以下三个原因而非凸（二次）规划问题：（1）收益并非同分布，因为 <span class="math inline">\(\mu_h\)</span> 和 <span class="math inline">\(V_h\)</span> 会随 <span class="math inline">\(h\)</span> 变化。（2）交易成本 <span class="math inline">\(\tau_h[\omega]\)</span> 在零点不可微，且会随 <span class="math inline">\(h\)</span> 变化。（3）目标函数 <span class="math inline">\(SR[r]\)</span> 非凸。接下来，我们将展示如何在不利用目标函数任何解析性质的情况下求解（这也正体现了本方法的通用性）。</p>
+<p>这个问题寻找的是全局动态最优解，不同于均值—方差优化器得到的静态最优解，见第 16 章。注意，非光滑交易成本已经包含在 <span class="math inline">\(r\)</span>中。与标准投资组合优化相比，这至少出于三个原因不是凸二次规划问题：（1）收益率不同分布，因为 <span class="math inline">\(\mu_h\)</span>和 <span class="math inline">\(V_h\)</span>会随 <span class="math inline">\(h\)</span>变化；（2）交易成本 <span class="math inline">\(\tau_h[\omega]\)</span>在零点不可微，并且随 <span class="math inline">\(h\)</span>变化；（3）目标函数 <span class="math inline">\(SR[r]\)</span>不是凸函数。下面将不利用目标函数的任何解析性质来求解，这也是该方法具有普适性的原因。</p>
 <h2 id="sec-21-5">21.5 整数优化方法</h2>
-<p>该问题的通用性使其无法采用标准凸优化技术求解。我们的求解策略是将其离散化，使之适用于整数优化，进而借助量子计算技术求得最优解。</p>
-<h3 id="sec-21-5-1">21.5.1 鸽巢划分</h3>
-<p>假设我们计算 <span class="math inline">\(K\)</span> 单位资本可被分配至 <span class="math inline">\(N\)</span> 个资产的方式数，其中假设 <span class="math inline">\(K&gt;N\)</span>。这等价于求以下方程非负整数解的个数 <span class="math inline">\(x_1+\cdots+x_N=K\)</span>，其具有简洁的组合解 <span class="math inline">\(\binom{K+N-1}{N-1}\)</span>。这与数论中经典的整数分拆问题颇为相似，Hardy 和 Ramanujan（以及后来的 Rademacher）已证明了该问题的渐近表达式（参见 Johansson <span class="citation">[2012]</span>）。在分拆问题中，顺序无关紧要，但对于我们手头的问题，顺序至关重要。</p>
+<p>这个问题太一般，标准凸优化技术无法处理。我们的策略是先把它离散化，转成整数优化问题，再利用量子计算技术寻找最优解。</p>
+<h3 id="sec-21-5-1">21.5.1 隔板分配</h3>
+<p>假设要计算把 <span class="math inline">\(K\)</span>个资金单位分配给 <span class="math inline">\(N\)</span>项资产的方式数量，并假设 <span class="math inline">\(K&gt;N\)</span>。这等价于求下式的非负整数解数量：<span class="math inline">\(x_1+\cdots+x_N=K\)</span>；它有一个简洁的组合解 <span class="math inline">\(\binom{K+N-1}{N-1}\)</span>。这与数论中的经典整数分拆问题相似；Hardy 和 Ramanujan、以及后来的 Rademacher 为该问题证明了渐近表达式，参见 Johansson <span class="citation">[2012]</span>。普通整数分拆不考虑顺序，但本章的问题中，顺序非常重要。</p>
 <span class="pdf-page-anchor" id="pdf-page-349"></span>
-<figure class="book-figure"><img alt="图 21.1：分拆 (1, 2, 3) 与 (3, 2, 1) 必须被视为不同的分拆" src="media/chapter-21-figure-21-1.png"/><figcaption>图 21.1：分拆 (1, 2, 3) 与 (3, 2, 1) 必须被视为不同的分拆</figcaption></figure>
-<p>例如，若 <span class="math inline">\(K=6\)</span> 和 <span class="math inline">\(N=3\)</span>，分拆 <span class="math inline">\((1,2,3)\)</span> 和 <span class="math inline">\((3,2,1)\)</span> 必须被视为不同的分拆（显然 <span class="math inline">\((2,2,2)\)</span> 无需进行全排列）。图 21.1 说明了在将 6 单位资本分配给 3 种不同资产时，顺序的重要性。这意味着我们必须考虑每个分拆的所有不同排列。尽管存在一个漂亮的组合数学方法来计算此类分配的数量，但随着规模增大，计算上仍可能相当耗时。 <span class="math inline">\(K\)</span> 和 <span class="math inline">\(N\)</span> 增大。不过，我们可以利用 Stirling 近似公式方便地得到估计值。</p><p>代码清单 21.1 提供了一种高效算法，用于生成所有分拆的集合，</p>
-<div class="math display">\[p^{K,N}=\left\{\{p_i\}_{i=1,\ldots,N}\mid p_i\in\mathbb{W},\ \sum_{i=1}^{N}p_i=K\right\}\]</div><p>其中 <span class="math inline">\(\mathbb{W}\)</span> 为包含零在内的自然数（即非负整数）。</p>
-<figure class="code-listing"><figcaption>代码清单 21.1：将 k 个对象分配到 n 个槽位的分拆</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">from</span> <span class="va">itertools</span> <span class="kw">import</span> <span class="va">combinations_with_replacement</span>
+<figure class="book-figure"><img alt="图 21.1：分配方式 (1, 2, 3) 与 (3, 2, 1) 必须视为不同结果" src="media/chapter-21-figure-21-1.png"/><figcaption>图 21.1：分配方式 (1, 2, 3) 与 (3, 2, 1) 必须视为不同结果</figcaption></figure>
+<p>例如，当 <span class="math inline">\(K=6\)</span>和 <span class="math inline">\(N=3\)</span>时，分配方式 <span class="math inline">\((1,2,3)\)</span>和 <span class="math inline">\((3,2,1)\)</span>必须视为不同结果；显然，<span class="math inline">\((2,2,2)\)</span>本身无须再做排列。图 21.1 展示了把 6 个资金单位分配给 3 项不同资产时，顺序为何重要。这意味着每种分拆的所有不同排列都必须纳入考虑。虽然这类配置数量有简洁的组合公式，但随着 <span class="math inline">\(K\)</span>和 <span class="math inline">\(N\)</span>增大，逐个生成仍可能耗费大量计算。不过，可以用 Stirling 近似轻松估计其规模。</p><p>代码清单 21.1 给出一个高效算法，用来生成全部分拆集合</p>
+<div class="math display">\[p^{K,N}=\left\{\{p_i\}_{i=1,\ldots,N}\mid p_i\in\mathbb{W},\ \sum_{i=1}^{N}p_i=K\right\}\]</div><p>其中 <span class="math inline">\(\mathbb{W}\)</span>表示包含零的自然数，也就是非负整数。</p>
+<figure class="code-listing"><figcaption>代码清单 21.1：把 k 个对象分配到 n 个槽位</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">from</span> <span class="va">itertools</span> <span class="kw">import</span> <span class="va">combinations_with_replacement</span>
 <span class="co">#---------------------------------------</span>
 <span class="kw">def</span> <span class="fu">pigeonHole</span><span class="op">(</span><span class="va">k</span><span class="op">,</span><span class="va">n</span><span class="op">)</span><span class="op">:</span>
     <span class="co"># Pigeonhole problem (organize k objects in n slots)</span>
@@ -74,9 +74,9 @@
         <span class="kw">for</span> <span class="va">i</span> <span class="kw">in</span> <span class="va">j</span><span class="op">:</span>
             <span class="va">r</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">+=</span><span class="dv">1</span>
         <span class="kw">yield</span> <span class="va">r</span></code></pre></div></figure>
-<h3 id="sec-21-5-2">21.5.2 可行静态解</h3>
-<p>我们希望计算在任意给定投资期限下所有可行解的集合 <span class="math inline">\(h\)</span>，记为 <span class="math inline">\(\Omega\)</span>。考虑将 <span class="math inline">\(K\)</span> 单位资本分配给 <span class="math inline">\(N\)</span> 种资产的分拆集合， <span class="math inline">\(p^{K,N}\)</span>。对于每个分拆 <span class="math inline">\(\{p_i\}_{i=1,\ldots,N}\in p^{K,N}\)</span>，我们可以定义一个绝对权重向量，使得 <span class="math inline">\(|\omega_i|=\frac{1}{K}p_i\)</span>，其中 <span class="math inline">\(\sum_{i=1}^{N}|\omega_i|=1\)</span> （满仓约束）。该满仓（无杠杆）约束意味着每个权重可以为正也可以为负，因此对于每个绝对权重向量 <span class="math inline">\(\{|\omega_i|\}_{i=1,\ldots,N}\)</span> ，我们可以生成 <span class="math inline">\(2^N\)</span> 个（带符号的）权重向量。具体做法是将 <span class="math inline">\(\{|\omega_i|\}_{i=1,\ldots,N}\)</span> 中各元素与以下集合的笛卡尔积中各元素相乘： <span class="math inline">\(\{-1,1\}\)</span> 与 <span class="math inline">\(N\)</span> 次重复。代码清单 21.2 展示了如何生成所有划分对应的 <span class="math inline">\(\Omega\)</span> 权重向量集合，</p><div class="math display">\[\Omega=\left\{\left\{\frac{s_j}{K}p_j\right\}_{j=1,\ldots,N}\ \middle|\ \{s_j\}_{j=1,\ldots,N}\in\underbrace{\{-1,1\}\times\cdots\times\{-1,1\}}_{N},\ \{p_i\}_{i=1,\ldots,N}\in p^{K,N}\right\}.\]</div>
-<figure class="code-listing"><figcaption>代码清单 21.2：所有划分对应的 <span class="math inline">\(\Omega\)</span> 全部向量集合</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
+<h3 id="sec-21-5-2">21.5.2 可行的静态解</h3>
+<p>我们希望计算任意给定时间区间 <span class="math inline">\(h\)</span>上的全部可行解集合，记为 <span class="math inline">\(\Omega\)</span>。考虑把 <span class="math inline">\(K\)</span>个单位分到 <span class="math inline">\(N\)</span>项资产所形成的分拆集合 <span class="math inline">\(p^{K,N}\)</span>。对每个分拆 <span class="math inline">\(\{p_i\}_{i=1,\ldots,N}\in p^{K,N}\)</span>，都可以定义一个绝对权重向量，使 <span class="math inline">\(|\omega_i|=\frac{1}{K}p_i\)</span>，其中 <span class="math inline">\(\sum_{i=1}^{N}|\omega_i|=1\)</span>，即资金全部投入约束。这个不带杠杆的全额投资约束允许每个权重取正或负，因此对每个绝对权重向量 <span class="math inline">\(\{|\omega_i|\}_{i=1,\ldots,N}\)</span>，都可以生成 <span class="math inline">\(2^N\)</span>个带符号权重向量。方法是把 <span class="math inline">\(\{|\omega_i|\}_{i=1,\ldots,N}\)</span>中的元素与以下笛卡儿积中的元素逐项相乘：<span class="math inline">\(\{-1,1\}\)</span>重复 <span class="math inline">\(N\)</span>次。代码清单 21.2 展示怎样生成集合 <span class="math inline">\(\Omega\)</span>，它包含与所有分拆对应的全部权重向量</p><div class="math display">\[\Omega=\left\{\left\{\frac{s_j}{K}p_j\right\}_{j=1,\ldots,N}\ \middle|\ \{s_j\}_{j=1,\ldots,N}\in\underbrace{\{-1,1\}\times\cdots\times\{-1,1\}}_{N},\ \{p_i\}_{i=1,\ldots,N}\in p^{K,N}\right\}.\]</div>
+<figure class="code-listing"><figcaption>代码清单 21.2：集合 <span class="math inline">\(\Omega\)</span> ——与所有分拆对应的全部向量</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
 <span class="kw">from</span> <span class="va">itertools</span> <span class="kw">import</span> <span class="va">product</span>
 <span class="co">#---------------------------------------</span>
 <span class="kw">def</span> <span class="fu">getAllWeights</span><span class="op">(</span><span class="va">k</span><span class="op">,</span><span class="va">n</span><span class="op">)</span><span class="op">:</span>
@@ -97,10 +97,10 @@
             <span class="kw">else</span><span class="op">:</span>
                 <span class="va">w</span><span class="op">=</span><span class="va">np</span><span class="op">.</span><span class="va">append</span><span class="op">(</span><span class="va">w</span><span class="op">,</span><span class="va">w_signed_</span><span class="op">,</span><span class="va">axis</span><span class="op">=</span><span class="dv">1</span><span class="op">)</span>
     <span class="kw">return</span> <span class="va">w</span></code></pre></div></figure>
-<h3 id="sec-21-5-3">21.5.3 评估轨迹</h3>
-<p>给定所有向量的集合 <span class="math inline">\(\Omega\)</span>，我们将所有可能轨迹的集合定义为 <span class="math inline">\(\Phi=\underbrace{\Omega\times\cdots\times\Omega}_{H}\)</span> 的笛卡尔积，共 <span class="math inline">\(\Omega\)</span> 与 <span class="math inline">\(H\)</span> 次重复。然后，对每条轨迹可以计算其交易成本与 <span class="math inline">\(SR\)</span>，并在 <span class="math inline">\(\Phi\)</span>中选出性能最优的轨迹。代码清单 21.3 实现了该功能。对象 <code>params</code> 是一个字典列表，包含 <span class="math inline">\(C\)</span>, <span class="math inline">\(\mu\)</span>, <span class="math inline">\(V\)</span>.</p>
+<h3 id="sec-21-5-3">21.5.3 评估交易轨迹</h3>
+<p>给定全部权重向量的集合 <span class="math inline">\(\Omega\)</span>，定义所有可能轨迹的集合 <span class="math inline">\(\Phi=\underbrace{\Omega\times\cdots\times\Omega}_{H}\)</span>；它是将集合 <span class="math inline">\(\Omega\)</span>重复 <span class="math inline">\(H\)</span>次做笛卡儿积得到的。随后，对每条轨迹计算交易成本和 <span class="math inline">\(SR\)</span>，并在 <span class="math inline">\(\Phi\)</span>中选出表现最优的轨迹。代码清单 21.3 实现了这一功能。对象 <code>params</code>是一个字典列表，其中保存以下参数的取值：<span class="math inline">\(C\)</span>，<span class="math inline">\(\mu\)</span>，<span class="math inline">\(V\)</span>。</p>
 <span class="pdf-page-anchor" id="pdf-page-351"></span>
-<figure class="code-listing"><figcaption>代码清单 21.3：评估所有轨迹</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
+<figure class="code-listing"><figcaption>代码清单 21.3：评估所有交易轨迹</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
 <span class="kw">from</span> <span class="va">itertools</span> <span class="kw">import</span> <span class="va">product</span>
 <span class="co">#---------------------------------------</span>
 <span class="kw">def</span> <span class="fu">evalTCosts</span><span class="op">(</span><span class="va">w</span><span class="op">,</span><span class="va">params</span><span class="op">,</span><span class="va">w0</span><span class="op">=</span><span class="kw">None</span><span class="op">)</span><span class="op">:</span>
@@ -139,13 +139,13 @@
             <span class="co"># store trajectory if better</span>
             <span class="va">sr</span><span class="op">,</span><span class="va">w</span><span class="op">=</span><span class="va">sr_</span><span class="op">,</span><span class="va">w_</span><span class="op">.</span><span class="va">copy</span><span class="op">(</span><span class="op">)</span>
     <span class="kw">return</span> <span class="va">w</span></code></pre></div></figure>
-<p>注意，该流程无需依赖凸优化即可选出全局最优轨迹。即使协方差矩阵病态、交易成本函数不光滑等情形下，同样能找到解。为此付出的代价是，计算该解极为耗时。事实上，遍历所有轨迹与旅行商问题类似。</p>
+<p>注意，这一过程不依赖凸优化，也能选出全局最优轨迹。即使协方差矩阵条件很差、交易成本函数不光滑等，仍然能找到解。获得这种普适性的代价，是计算量极其庞大。事实上，评估全部轨迹与旅行商问题很相似。</p>
 <span class="pdf-page-anchor" id="pdf-page-352"></span>
-<p>数字计算机不适于求解此类 NP-完全或 NP-困难问题；然而，量子计算机借助线性叠加原理，能够同时评估多个解。本章所呈现的方法为 Rosenberg 等人的工作奠定了基础。 <span class="citation">[2016]</span>该工作利用量子退火器求解了最优交易轨迹问题。同样的逻辑可应用于涉及路径依赖的众多金融问题，例如交易轨迹。难以处理的 ML 算法可以被离散化并转化为暴力搜索，专门供量子计算机执行。</p>
+<p>数字计算机不适合求解这类 NP 完全或 NP 难问题；量子计算机凭借线性叠加，可以同时评估多个解。本章方法为 Rosenberg 等人 <span class="citation">[2016]</span>的工作奠定了基础；他们使用量子退火器求解最优交易轨迹问题。同样的逻辑可以用于许多具有路径依赖性的金融问题，交易轨迹就是一例。难以直接求解的机器学习算法，也可以先离散化，再转换成面向量子计算机的暴力搜索。</p>
 <h2 id="sec-21-6">21.6 数值示例</h2>
-<p>以下我们以数字计算机为例，说明如何在实践中找到全局最优解。量子计算机可以同时评估所有轨迹，而数字计算机则是逐一顺序评估。</p>
+<p>下面说明怎样使用数字计算机在实践中寻找全局最优解。量子计算机会同时评估全部轨迹，而数字计算机只能依次评估。</p>
 <h3 id="sec-21-6-1">21.6.1 随机矩阵</h3>
-<p>代码清单 21.4 返回一个具有已知秩的高斯随机矩阵，在许多应用场景中十分有用（详见练习题）。下次需要执行多元蒙特卡洛实验或情景分析时，不妨参考此代码。</p>
+<p>代码清单 21.4 返回一个秩已知、元素服从高斯分布的随机矩阵，在许多应用中都很有用，见练习。下次进行多元蒙特卡洛实验或情景分析时，可以考虑使用这段代码。</p>
 <figure class="code-listing"><figcaption>代码清单 21.4：生成指定秩的随机矩阵</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
 <span class="co">#---------------------------------------</span>
 <span class="kw">def</span> <span class="fu">rndMatWithRank</span><span class="op">(</span><span class="va">nSamples</span><span class="op">,</span><span class="va">nCols</span><span class="op">,</span><span class="va">rank</span><span class="op">,</span><span class="va">sigma</span><span class="op">=</span><span class="dv">0</span><span class="op">,</span><span class="va">homNoise</span><span class="op">=</span><span class="kw">True</span><span class="op">)</span><span class="op">:</span>
@@ -159,9 +159,9 @@
         <span class="va">sigmas</span><span class="op">=</span><span class="va">sigma</span><span class="op">*</span><span class="op">(</span><span class="va">rng</span><span class="op">.</span><span class="va">rand</span><span class="op">(</span><span class="va">nCols</span><span class="op">)</span><span class="op">+</span><span class="dv">.5</span><span class="op">)</span> <span class="co"># Adding heteroscedastic noise</span>
         <span class="va">x</span><span class="op">+=</span><span class="va">rng</span><span class="op">.</span><span class="va">randn</span><span class="op">(</span><span class="va">nSamples</span><span class="op">,</span><span class="va">nCols</span><span class="op">)</span><span class="op">*</span><span class="va">sigmas</span>
     <span class="kw">return</span> <span class="va">x</span></code></pre></div></figure>
-<p>代码清单 21.5 生成 <span class="math inline">\(H\)</span> 均值向量、协方差矩阵和交易成本因子， <span class="math inline">\(C\)</span>, <span class="math inline">\(\mu\)</span>, <span class="math inline">\(V\)</span>。这些变量存储在一个 <code>params</code> 列表中。</p>
+<p>代码清单 21.5 生成 <span class="math inline">\(H\)</span>组参数，包括交易成本因子、均值向量和协方差矩阵，分别记为 <span class="math inline">\(C\)</span>，<span class="math inline">\(\mu\)</span>，<span class="math inline">\(V\)</span>。这些变量存储在一个 <code>params</code>列表中。</p>
 <span class="pdf-page-anchor" id="pdf-page-353"></span>
-<figure class="code-listing"><figcaption>代码清单 21.5：生成问题的参数</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
+<figure class="code-listing"><figcaption>代码清单 21.5：生成问题参数</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
 <span class="co">#---------------------------------------</span>
 <span class="kw">def</span> <span class="fu">genMean</span><span class="op">(</span><span class="va">size</span><span class="op">)</span><span class="op">:</span>
     <span class="co"># Generate a random vector of means</span>
@@ -177,7 +177,7 @@
     <span class="va">c_</span><span class="op">=</span><span class="va">np</span><span class="op">.</span><span class="va">random</span><span class="op">.</span><span class="va">uniform</span><span class="op">(</span><span class="va">size</span><span class="op">=</span><span class="va">cov_</span><span class="op">.</span><span class="va">shape</span><span class="op">[</span><span class="dv">0</span><span class="op">]</span><span class="op">)</span><span class="op">*</span><span class="va">np</span><span class="op">.</span><span class="va">diag</span><span class="op">(</span><span class="va">cov_</span><span class="op">)</span><span class="op">**</span><span class="dv">.5</span>
     <span class="va">params</span><span class="op">.</span><span class="va">append</span><span class="op">(</span><span class="op">{</span><span class="st">'mean'</span><span class="op">:</span><span class="va">mean_</span><span class="op">,</span><span class="st">'cov'</span><span class="op">:</span><span class="va">cov_</span><span class="op">,</span><span class="st">'c'</span><span class="op">:</span><span class="va">c_</span><span class="op">}</span><span class="op">)</span></code></pre></div></figure>
 <h3 id="sec-21-6-2">21.6.2 静态解</h3>
-<p>代码清单 21.6 计算局部（静态）最优轨迹所对应的绩效表现。</p>
+<p>代码清单 21.6 计算由局部静态最优解构成的交易轨迹表现。</p>
 <figure class="code-listing"><figcaption>代码清单 21.6：计算并评估静态解</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
 <span class="co">#---------------------------------------</span>
 <span class="kw">def</span> <span class="fu">statOptPortf</span><span class="op">(</span><span class="va">cov</span><span class="op">,</span><span class="va">a</span><span class="op">)</span><span class="op">:</span>
@@ -201,7 +201,7 @@
 <span class="va">sr_stat</span><span class="op">=</span><span class="va">evalSR</span><span class="op">(</span><span class="va">params</span><span class="op">,</span><span class="va">w_stat</span><span class="op">,</span><span class="va">tcost_stat</span><span class="op">)</span>
 <span class="va">print</span> <span class="st">'static SR:'</span><span class="op">,</span><span class="va">sr_stat</span></code></pre></div></figure>
 <h3 id="sec-21-6-3">21.6.3 动态解</h3>
-<p>代码清单 21.7 运用本章所介绍的各函数，计算全局动态最优轨迹对应的绩效表现。</p>
+<p>代码清单 21.7 使用本章介绍的函数，计算全局动态最优轨迹对应的表现。</p>
 <figure class="code-listing"><figcaption>代码清单 21.7：计算并评估动态解</figcaption><button class="copy-code" type="button">复制</button><div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">import</span> <span class="va">numpy</span> <span class="kw">as</span> <span class="va">np</span>
 <span class="co">#---------------------------------------</span>
 <span class="co">#3) Dynamic optimal portfolios</span>

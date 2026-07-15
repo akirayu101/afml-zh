@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / "book"
 ZH = ROOT / "zh"
-EXCLUDED_PAGES = {"book-index.html"}
+EXCLUDED_PAGES: set[str] = set()
 STRIP_SELECTORS = (
     "script",
     "style",

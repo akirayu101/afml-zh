@@ -1,0 +1,651 @@
+{
+  "chapter": "chapter-07",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_e84f0ee2957c177b9bf7",
+      "source": "Cross-Validation in Finance | Advances in Financial Machine Learning",
+      "translation": "金融领域的交叉验证 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_da8dfe259f6c4e21d93c",
+      "source": "Part 2: Modelling",
+      "translation": "第二部分：建模"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_5f5926025f924f92e100",
+      "source": "Cross-Validation in Finance",
+      "translation": "金融领域的交叉验证"
+    },
+    {
+      "key": "t_deb8926a2ad955b3e69e",
+      "source": "7.1 Motivation",
+      "translation": "7.1 动机"
+    },
+    {
+      "key": "t_8d0fa9cdfcc31d59fe41",
+      "source": "The purpose of cross-validation (CV) is to determine the generalization error of an ML algorithm, so as to prevent overfitting. CV is yet another instance where standard ML techniques fail when applied to financial problems. Overfitting will take place, and CV will not be able to detect it. In fact, CV will contribute to overfitting through hyper-parameter tuning. In this chapter we will learn why standard CV fails in finance, and what can be done about it.",
+      "translation": "交叉验证（CV）的作用，是估计 ML 算法面对未见数据时的泛化误差，从而防止过拟合。然而，把标准 ML 技术直接用于金融问题时，交叉验证同样可能失效：过拟合已经发生，CV 却识别不出来；更糟的是，用 CV 调整超参数本身还会助长过拟合。本章将解释标准 CV 为什么在金融中失效，以及如何解决这个问题。"
+    },
+    {
+      "key": "t_cf45949f6e11e25e060b",
+      "source": "7.2 The Goal of Cross-Validation",
+      "translation": "7.2 交叉验证的目标"
+    },
+    {
+      "key": "t_b639ecd64df0432b7863",
+      "source": "One of the purposes of ML is to learn the general structure of the data, so that we can produce predictions on future, unseen features. When we test an ML algorithm on the same dataset as was used for training, not surprisingly, we achieve spectacular results. When ML algorithms are misused that way, they are no different from lossy file-compression algorithms: They can summarize the data with extreme fidelity, yet with zero forecasting power.",
+      "translation": "ML 的目标之一，是学到数据背后的通用结构，以便对未来从未见过的特征作出预测。如果用训练模型的同一份数据测试模型，结果自然会非常漂亮。但这种用法下的 ML 算法，与有损文件压缩算法没有本质区别：它能高度精确地概括已有数据，却完全没有预测能力。"
+    },
+    {
+      "key": "t_aebb4396c0e7fe0bbe76",
+      "source": "CV splits observations drawn from an IID process into two sets: the training set and the testing set. Each observation in the complete dataset belongs to one, and only one, set. This is done to prevent leakage from one set into the other, since that would defeat the purpose of testing on unseen data. Further details can be found in the books and articles listed in the references section.",
+      "translation": "CV 把来自独立同分布（IID）过程的观测划分为训练集和测试集。完整数据集中的每个观测只能属于其中一个集合。这样做是为了防止信息从一个集合泄漏到另一个集合，否则在未见数据上测试就失去了意义。更多细节可参阅参考文献中列出的书籍和文章。"
+    },
+    {
+      "key": "t_0f78f9319c9a96c2e98c",
+      "source": "There are many alternative CV schemes, of which one of the most popular is",
+      "translation": "交叉验证有多种方案，其中最常用的一种是"
+    },
+    {
+      "key": "t_8b28e890ffaf24afac20",
+      "source": "-fold CV. Figure 7.1 illustrates the",
+      "translation": "折交叉验证。图 7.1 展示了采用"
+    },
+    {
+      "key": "t_5efaf64f01915582cfad",
+      "source": "train/test splits carried out by a",
+      "translation": "折交叉验证时得到的"
+    },
+    {
+      "key": "t_5052257889ba5dc785d7",
+      "source": "-fold CV, where",
+      "translation": "组训练集/测试集划分，其中"
+    },
+    {
+      "key": "t_941a4a23f7e2012429af",
+      "source": ". In this scheme:",
+      "translation": "。具体步骤如下："
+    },
+    {
+      "key": "t_3da56b1a4be167c7969c",
+      "source": "The dataset is partitioned into",
+      "translation": "把数据集划分为"
+    },
+    {
+      "key": "t_9da74be029214f5415d8",
+      "source": "subsets.",
+      "translation": "个子集。"
+    },
+    {
+      "key": "t_ca15ebc05a3c5c134875",
+      "source": "For",
+      "translation": "对于"
+    },
+    {
+      "key": "t_05b3f5911cebe24fa937",
+      "source": "The ML algorithm is trained on all subsets excluding",
+      "translation": "训练 ML 算法时，唯一不使用的子集是"
+    },
+    {
+      "key": "t_35745566778adb0c9232",
+      "source": "The fitted ML algorithm is tested on",
+      "translation": "训练完成后，用来测试该 ML 算法的子集是"
+    },
+    {
+      "key": "t_178bdd52266d447534d6",
+      "source": "Figure 7.1: Train/test splits in a 5-fold CV scheme",
+      "translation": "图 7.1：5 折交叉验证中的训练集/测试集划分"
+    },
+    {
+      "key": "t_2f47444f36790ef28901",
+      "source": "The outcome from",
+      "translation": "采用"
+    },
+    {
+      "key": "t_908a95be713d1e05d4c1",
+      "source": "-fold CV is a",
+      "translation": "折交叉验证会得到一个"
+    },
+    {
+      "key": "t_991741d2c6c2f6c46140",
+      "source": "array of cross-validated performance metrics. For example, in a binary classifier, the model is deemed to have learned something if the cross-validated accuracy is over",
+      "translation": "的交叉验证性能指标数组。例如，对二分类器而言，如果交叉验证准确率高于"
+    },
+    {
+      "key": "t_c330cdad0f885ce51262",
+      "source": ", since that is the accuracy we would achieve by tossing a fair coin.",
+      "translation": "，就可以认为模型学到了有效规律，因为随机抛一枚正反面概率各半的硬币，也只能达到这一准确率。"
+    },
+    {
+      "key": "t_38144620b2aaade09a61",
+      "source": "In finance, CV is typically used in two settings: model development, like hyper-parameter tuning, and backtesting. Backtesting is a complex subject that we will discuss thoroughly in Chapters 10-16. In this chapter, we will focus on CV for model development.",
+      "translation": "在金融领域，CV 通常用于两类场景：模型开发（如超参数调优）和回测。回测是一个复杂主题，第 10～16 章会详细讨论。本章只关注模型开发中的 CV。"
+    },
+    {
+      "key": "t_c74bd15b03573f31891d",
+      "source": "7.3 Why K-Fold CV Fails in Finance",
+      "translation": "7.3 为什么 K 折 CV 在金融中会失效"
+    },
+    {
+      "key": "t_d94adda954c99758ff2c",
+      "source": "By now you may have read quite a few papers in finance that present",
+      "translation": "你可能已经读过不少金融论文，其中用"
+    },
+    {
+      "key": "t_97a7f27b9c7cdd52e85d",
+      "source": "-fold CV evidence that an ML algorithm performs well. Unfortunately, it is almost certain that those results are wrong. One reason",
+      "translation": "折交叉验证来证明某个 ML 算法表现良好。遗憾的是，这些结果几乎肯定有误。"
+    },
+    {
+      "key": "t_818e5bdefdeafa5e3aef",
+      "source": "-fold CV fails in finance is because observations cannot be assumed to be drawn from an IID process. A second reason for CV's failure is that the testing set is used multiple times in the process of developing a model, leading to multiple testing and selection bias. We will revisit this second cause of failure in Chapters 11-13. For the time being, let us concern ourselves exclusively with the first cause of failure.",
+      "translation": "折交叉验证在金融中失效的第一个原因，是不能假定观测来自 IID 过程。第二个原因是，模型开发过程中会多次使用测试集，因而产生多重检验和选择偏差。第 11～13 章会重新讨论第二个原因；这里先只分析第一个原因。"
+    },
+    {
+      "key": "t_9a733f41c26824196e3c",
+      "source": "Leakage takes place when the training set contains information that also appears in the testing set. Consider a serially correlated feature",
+      "translation": "当训练集包含了同样出现在测试集中的信息时，就发生了信息泄漏。考虑一个存在序列相关性的特征"
+    },
+    {
+      "key": "t_7565fbed03bb3d8625be",
+      "source": "that is associated with labels",
+      "translation": "，它对应的标签"
+    },
+    {
+      "key": "t_2d154f50e0bacfcd09c3",
+      "source": "that are formed on overlapping data:",
+      "translation": "由相互重叠的数据生成："
+    },
+    {
+      "key": "t_f0958a2eb34a602f35a3",
+      "source": "Because of the serial correlation,",
+      "translation": "由于存在序列相关性，"
+    },
+    {
+      "key": "t_f8c3e5a5409e2ae74a9c",
+      "source": "Because labels are derived from overlapping datapoints,",
+      "translation": "由于标签来自相互重叠的数据点，"
+    },
+    {
+      "key": "t_338282e23b4cb68c32fc",
+      "source": "By placing",
+      "translation": "把"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "和"
+    },
+    {
+      "key": "t_d3c4877e5582ea9374a6",
+      "source": "in different sets, information is leaked. When a classifier is first trained on",
+      "translation": "分到不同集合，就会造成信息泄漏。假设分类器先在"
+    },
+    {
+      "key": "t_6df3fc1ad1ae05f1e0aa",
+      "source": ", and then it is asked to predict",
+      "translation": "上训练，然后要求它预测"
+    },
+    {
+      "key": "t_03d29e82a11e499abfd8",
+      "source": "based on an observed",
+      "translation": "，依据的观测特征是"
+    },
+    {
+      "key": "t_c38054c9e3f7f7e2a768",
+      "source": ", this classifier is more likely to achieve",
+      "translation": "。这样，分类器更容易得到"
+    },
+    {
+      "key": "t_3891f62bbf7e2b40535f",
+      "source": "even if",
+      "translation": "这一正确结果，即使"
+    },
+    {
+      "key": "t_37069b84f71fc72364cf",
+      "source": "is an irrelevant feature.",
+      "translation": "其实是无关特征。"
+    },
+    {
+      "key": "t_1e3abf61a37e3cad36b1",
+      "source": "If",
+      "translation": "如果"
+    },
+    {
+      "key": "t_c940fa8a30944d9066d7",
+      "source": "is a predictive feature, leakage will enhance the performance of an already valuable strategy. The problem is leakage in the presence of irrelevant features, as this leads to false discoveries. There are at least two ways to reduce the likelihood of leakage:",
+      "translation": "确实具有预测力，信息泄漏只会让一个原本有效的策略显得更好。真正危险的是无关特征存在时的泄漏，因为它会带来虚假发现。至少可以用以下两种方法降低泄漏概率："
+    },
+    {
+      "key": "t_58960ad62ead964160ab",
+      "source": "Drop from the training set any observation",
+      "translation": "从训练集中剔除观测"
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_ba0cea5ca5b2161e8cc1",
+      "source": "is a function of information used to determine",
+      "translation": "由同样用于确定"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "的信息决定，而观测"
+    },
+    {
+      "key": "t_dcca2ce0fc185dc93fe8",
+      "source": "belongs to the testing set.",
+      "translation": "属于测试集。"
+    },
+    {
+      "key": "t_74d2d951a827ab7fff55",
+      "source": "For example,",
+      "translation": "例如，标签"
+    },
+    {
+      "key": "t_7f79d9d17802b9b5f087",
+      "source": "should not span overlapping periods (see Chapter 4 for a discussion of sample uniqueness).",
+      "translation": "不应跨越相互重叠的时间区间（样本唯一性见第 4 章）。"
+    },
+    {
+      "key": "t_a6da6aa1996d0ad97cf9",
+      "source": "Avoid overfitting the classifier. In this way, even if some leakage occurs, the classifier will not be able to profit from it. Use:",
+      "translation": "避免分类器过拟合。这样，即使出现少量信息泄漏，分类器也无法利用它获利。可采用以下方法："
+    },
+    {
+      "key": "t_d072333d9955ddd9df4a",
+      "source": "Early stopping of the base estimators (see Chapter 6).",
+      "translation": "让基估计器提前停止（见第 6 章）。"
+    },
+    {
+      "key": "t_0e420ca2365aa65d559c",
+      "source": "Bagging of classifiers, while controlling for oversampling on redundant examples, so that the individual classifiers are as diverse as possible.",
+      "translation": "对分类器采用 bagging，并控制冗余样本的过度抽样，使各个分类器尽可能多样化。"
+    },
+    {
+      "key": "t_b6f6f3ad07b3c05fa0bb",
+      "source": "Set",
+      "translation": "将"
+    },
+    {
+      "key": "t_939e5da1955ec86288f2",
+      "source": "to the average uniqueness.",
+      "translation": "设为平均唯一性。"
+    },
+    {
+      "key": "t_e8479b7498e0182e1c18",
+      "source": "Apply sequential bootstrap (Chapter 4).",
+      "translation": "采用序贯自助法（第 4 章）。"
+    },
+    {
+      "key": "t_8ee2c11f37b83f3813ac",
+      "source": "Consider the case where",
+      "translation": "考虑以下情况：特征"
+    },
+    {
+      "key": "t_791f8f1f8379f3a20d6a",
+      "source": "are formed on overlapping information, where",
+      "translation": "基于有重叠的信息形成，其中观测"
+    },
+    {
+      "key": "t_f94c74e1040017c5a839",
+      "source": "belongs to the training set and",
+      "translation": "属于训练集，观测"
+    },
+    {
+      "key": "t_d59db97452a47ea9556a",
+      "source": "belongs to the testing set. Is this a case of informational leakage? Not necessarily, as long as",
+      "translation": "属于测试集。这一定算信息泄漏吗？不一定。只要标签"
+    },
+    {
+      "key": "t_d576d37bef8e3b91ba3c",
+      "source": "are independent. For leakage to take place, it must occur that",
+      "translation": "相互独立，就不构成泄漏。要发生泄漏，必须满足"
+    },
+    {
+      "key": "t_57caed90149ba7575ca2",
+      "source": ", and it does not suffice that",
+      "translation": "；而以下任一条件都不够："
+    },
+    {
+      "key": "t_4ea7361bb3644adb7183",
+      "source": "or even",
+      "translation": "，或"
+    },
+    {
+      "key": "t_baa6c0b6d45769ca6bbc",
+      "source": "7.4 A Solution: Purged K-Fold CV",
+      "translation": "7.4 解决方案：清除式 K 折 CV"
+    },
+    {
+      "key": "t_8081d91edde701fbcd13",
+      "source": "One way to reduce leakage is to purge from the training set all observations whose labels overlapped in time with those labels included in the testing set. I call this process “purging.” In addition, since financial features often incorporate series that exhibit serial correlation (like ARMA processes), we should eliminate from the training set observations that immediately follow an observation in the testing set. I call this process “embargo.”",
+      "translation": "减少信息泄漏的一种方法，是从训练集中清除所有标签时间区间与测试集标签重叠的观测。我把这一过程称为“清除重叠样本（purging）”。此外，金融特征常包含具有序列相关性的序列（如 ARMA 过程），所以还应从训练集中剔除紧跟在测试观测之后的观测。我把这段隔离称为“禁运期（embargo）”。"
+    },
+    {
+      "key": "t_4bf684d05cfd853b4007",
+      "source": "7.4.1 Purging the Training Set",
+      "translation": "7.4.1 清除训练集中的重叠样本"
+    },
+    {
+      "key": "t_64f80711ce65b22b2ddc",
+      "source": "Suppose a testing observation whose label",
+      "translation": "假设测试集中的一个观测，其标签"
+    },
+    {
+      "key": "t_dde40458cd862ccdf1b7",
+      "source": "is decided based on the information set",
+      "translation": "由信息集"
+    },
+    {
+      "key": "t_8e21d90db8161c62c45d",
+      "source": ". In order to prevent the type of leakage described in the previous section, we would like to purge from the training set any observation whose label",
+      "translation": "决定。为防止上一节所述的信息泄漏，只要某个观测的标签"
+    },
+    {
+      "key": "t_6a6f53b834dc24488c17",
+      "source": ", such that",
+      "translation": "决定，并满足以下条件，就要把该观测从训练集中清除："
+    },
+    {
+      "key": "t_50184b38ace3a7281e25",
+      "source": "In particular, we will determine that there is informational overlap between two observations",
+      "translation": "具体来说，只要两个观测"
+    },
+    {
+      "key": "t_d2e44a77c2ea0c2d6ca3",
+      "source": "whenever",
+      "translation": "的标签"
+    },
+    {
+      "key": "t_b05bc04cd2c6334224d3",
+      "source": "are concurrent (see Chapter 4, Section 4.3), in the sense that both labels are contingent on at least one common random draw. For example, consider a label",
+      "translation": "在时间上有重叠（见第 4 章第 4.3 节），我们就认为它们存在信息重叠。这里的“重叠”是指两个标签至少依赖同一次随机抽样。例如，设标签"
+    },
+    {
+      "key": "t_28bdb4451ad517f5324d",
+      "source": "that is a function of observations in the closed range",
+      "translation": "取决于闭区间内的观测"
+    },
+    {
+      "key": "t_583a40abc08391ff5b08",
+      "source": "(with some abuse of notation). In the context of the triple-barrier labeling method (Chapter 3), it means that the label is the sign of the return spanning between price bars with indices",
+      "translation": "（这里略微借用了记号）。在三重障碍标签法（第 3 章）中，这表示该标签就是以价格条"
+    },
+    {
+      "key": "t_214a2307330ad303f35f",
+      "source": ", that is",
+      "translation": "为起止点的收益率符号，即"
+    },
+    {
+      "key": "t_6beb6b9150f107591574",
+      "source": ". A label",
+      "translation": "。标签"
+    },
+    {
+      "key": "t_9b3cbe47474d2de5117b",
+      "source": "overlaps with",
+      "translation": "与"
+    },
+    {
+      "key": "t_d60e3f6cff4a98ee5cf4",
+      "source": "if any of the three sufficient conditions is met:",
+      "translation": "重叠，只要以下三个充分条件中的任一个成立："
+    },
+    {
+      "key": "t_60296945b6213e75e841",
+      "source": "Snippet 7.1 implements this purging of observations from the training set. If the testing set is contiguous, in the sense that no training observations occur between the first and last testing observation, then purging can be accelerated: The object",
+      "translation": "代码清单 7.1 实现了从训练集中清除这些观测的过程。如果测试集在时间上连续，即首个与最后一个测试观测之间不存在训练观测，就可以加快清除过程：此时"
+    },
+    {
+      "key": "t_6b49c31e06f0f9608ecc",
+      "source": "can be a pandas series with a single item, spanning the entire testing set.",
+      "translation": "可以是只有一个元素的 pandas Series，该元素的时间区间覆盖整个测试集。"
+    },
+    {
+      "key": "t_1af593be5cec445bedde",
+      "source": "Snippet 7.1: Purging Observation in the Training Set",
+      "translation": "代码清单 7.1：从训练集中清除重叠观测"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_83d4a28fc2d05bcfa6d5",
+      "source": "When leakage takes place, performance improves merely by increasing",
+      "translation": "发生信息泄漏时，若令"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_0bcc7f791340df897be8",
+      "source": "is the number of bars. The reason is that the larger the number of testing splits, the greater the number of overlapping observations in the training set. In many cases, purging suffices to prevent leakage: Performance will improve as we increase",
+      "translation": "是数据条的数量，性能就会提高。原因是，测试划分越多，训练集中与测试集重叠的观测也越多。很多情况下，仅清除重叠样本就足以防止泄漏：随着"
+    },
+    {
+      "key": "t_fcb678f101e21bf25f34",
+      "source": ", because we allow the model to recalibrate more often. But beyond a certain value",
+      "translation": "增大，性能会提高，因为模型可以更频繁地重新校准。但当超过某个值"
+    },
+    {
+      "key": "t_d75c2607778b5159e75d",
+      "source": ", performance will not improve, indicating that the backtest is not profiting from leaks. Figure 7.2 plots one partition of the",
+      "translation": "后，性能将不再提高，这说明回测没有从信息泄漏中获利。图 7.2 展示了"
+    },
+    {
+      "key": "t_c7e77fa01b4cd7c4fc5a",
+      "source": "-fold CV. The test set is surrounded by two train sets, generating two overlaps that must be purged to prevent leakage.",
+      "translation": "折 CV 的一次划分。测试集两侧各有一个训练集，形成两处重叠；必须清除这些重叠才能避免信息泄漏。"
+    },
+    {
+      "key": "t_712e651698477d19209e",
+      "source": "Figure 7.2: Purging overlap in the training set",
+      "translation": "图 7.2：清除训练集中的重叠部分"
+    },
+    {
+      "key": "t_7ca515f5a8b3e50f2c88",
+      "source": "7.4.2 Embargo",
+      "translation": "7.4.2 禁运期（embargo）"
+    },
+    {
+      "key": "t_0231eef3db863cddc293",
+      "source": "For those cases where purging is not able to prevent all leakage, we can impose an embargo on training observations after every test set. The embargo does not need to affect training observations prior to a test set, because training labels",
+      "translation": "如果清除重叠样本仍无法杜绝信息泄漏，可以对每个测试集之后的训练观测设置禁运期。测试集之前的训练观测无需禁运，因为训练标签"
+    },
+    {
+      "key": "t_2b817ed349b0f4f5c443",
+      "source": "(training ends before testing begins), contain information that was available at the testing time",
+      "translation": "（即训练在测试开始前结束），只使用截至测试时点"
+    },
+    {
+      "key": "t_ac83a1d2f35c4a38597e",
+      "source": ". In other words, we are only concerned with training labels",
+      "translation": "已经可用的信息。换句话说，我们只需要关注紧接在测试集之后的训练标签"
+    },
+    {
+      "key": "t_fd24d85412db2781b87f",
+      "source": "that take place immediately after the test,",
+      "translation": "，也就是"
+    },
+    {
+      "key": "t_d09af0e947f54e0eb211",
+      "source": ". We can implement this embargo period",
+      "translation": "。可以把禁运期"
+    },
+    {
+      "key": "t_3dc17ff5317bc8fd9332",
+      "source": "by setting",
+      "translation": "写入标签区间：先令"
+    },
+    {
+      "key": "t_d4b47b96eec3e5fb1bd0",
+      "source": "before purging. A small value",
+      "translation": "，再执行清除。通常只需设置较小的"
+    },
+    {
+      "key": "t_ff7e1bafb6273147db9b",
+      "source": "often suffices to prevent all leakage, as can be confirmed by testing that performance does not improve indefinitely by increasing",
+      "translation": "就能防止所有信息泄漏。可以这样验证：当"
+    },
+    {
+      "key": "t_7c7423c04785d580e5c0",
+      "source": ". Figure 7.3 illustrates the embargoing of train observations immediately after the testing set. Snippet 7.2 implements the embargo logic.",
+      "translation": "时，性能不会继续提高。图 7.3 展示了如何对测试集之后紧邻的训练观测设置禁运期。代码清单 7.2 实现了相应逻辑。"
+    },
+    {
+      "key": "t_44d71de72de22f90ee24",
+      "source": "Figure 7.3: Embargo of post-test train observations",
+      "translation": "图 7.3：对测试后训练观测设置禁运期"
+    },
+    {
+      "key": "t_faadcd60f6fde9c2e9a5",
+      "source": "Snippet 7.2: Embargo on Training Observations",
+      "translation": "代码清单 7.2：对训练观测设置禁运期"
+    },
+    {
+      "key": "t_e63a26b4f2267af38ef2",
+      "source": "7.4.3 The Purged K-Fold Class",
+      "translation": "7.4.3 清除式 K 折交叉验证类"
+    },
+    {
+      "key": "t_678ec4c7da1f44e2a494",
+      "source": "In the previous sections we have discussed how to produce training/testing splits when labels overlap. That introduced the notion of purging and embargoing, in the particular context of model development. In general, we need to purge and embargo overlapping training observations whenever we produce a train/test split, whether it is for hyper-parameter fitting, backtesting, or performance evaluation. Snippet 7.3 extends scikit-learn's",
+      "translation": "前几节讨论了标签重叠时如何划分训练集和测试集，并在模型开发场景中引入了清除重叠样本和设置禁运期的概念。一般来说，每次划分训练集/测试集时，无论是为了拟合超参数、回测还是评估性能，都需要对重叠的训练观测执行清除和禁运期处理。代码清单 7.3 扩展了 scikit-learn 的"
+    },
+    {
+      "key": "t_02f0115241f8b7af21b4",
+      "source": "class to account for the possibility of leakages of testing information into the training set.",
+      "translation": "类，用来防止测试信息泄漏到训练集。"
+    },
+    {
+      "key": "t_6e2d492159b3412e7465",
+      "source": "Snippet 7.3: Cross-validation Class When Observations Overlap",
+      "translation": "代码清单 7.3：观测重叠时的交叉验证类"
+    },
+    {
+      "key": "t_601b713f989af55b2f27",
+      "source": "7.5 Bugs in Sklearn's Cross-Validation",
+      "translation": "7.5 sklearn 交叉验证中的缺陷"
+    },
+    {
+      "key": "t_d6b381e28a50f84cb882",
+      "source": "You would think that something as critical as cross-validation would be perfectly implemented in one of the most popular ML libraries. Unfortunately that is not the case, and this is one of the reasons you must always read all the code you run, and a strong point in favor of open source. One of the many upsides of open-source code is that you can verify everything and adjust it to your needs. Snippet 7.4 addresses two known sklearn bugs:",
+      "translation": "交叉验证如此关键，你也许会以为最流行的 ML 库之一必定把它实现得毫无问题。可惜事实并非如此。这也是为什么凡是要运行的代码都应通读一遍，同时也体现了开源的价值。开源代码的一大优点，就是可以逐项核验并按需要修改。代码清单 7.4 处理了 sklearn 中两个已知缺陷："
+    },
+    {
+      "key": "t_e2588f683d3de5005793",
+      "source": "Scoring functions do not know",
+      "translation": "评分函数无法识别"
+    },
+    {
+      "key": "t_fd2173649f5cd260012d",
+      "source": ", as a consequence of sklearn's reliance on",
+      "translation": "，原因是 sklearn 使用"
+    },
+    {
+      "key": "t_6c6f792c634e57df99cf",
+      "source": "arrays rather than",
+      "translation": "数组，而非"
+    },
+    {
+      "key": "t_43df34a3663ae2a50a3f",
+      "source": "series:",
+      "translation": "Series："
+    },
+    {
+      "key": "t_2f720adcfcdb3cb81608",
+      "source": "will give different results because it passes weights to the",
+      "translation": "会产生不同结果，因为它把权重传给"
+    },
+    {
+      "key": "t_1bd83b10d7cbcef0acd9",
+      "source": "method, but not to the",
+      "translation": "方法，却没有传给"
+    },
+    {
+      "key": "t_a0be2a1622e1fb6242ad",
+      "source": "method:",
+      "translation": "方法："
+    },
+    {
+      "key": "t_19eee479ec7810d3ad93",
+      "source": "Snippet 7.4: Using the PurgedKFold Class",
+      "translation": "代码清单 7.4：使用 PurgedKFold 类"
+    },
+    {
+      "key": "t_43b5da8890736e681758",
+      "source": "Please understand that it may take a long time until a fix for these bugs is agreed upon, implemented, tested, and released. Until then, you should use",
+      "translation": "请注意，这些缺陷从形成修复方案，到完成实现、测试和发布，可能需要很长时间。在此之前，应使用代码清单 7.4 中的"
+    },
+    {
+      "key": "t_4b3e2d2f9f58e3926558",
+      "source": "in Snippet 7.4, and avoid running the function",
+      "translation": "，并避免运行函数"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_f1394cb6fbc012efaca4",
+      "source": "Previous: Ensemble Methods",
+      "translation": "上一章：集成方法"
+    },
+    {
+      "key": "t_4f2c6817db9d7b801a19",
+      "source": "Next: Feature Importance",
+      "translation": "下一章：特征重要性"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_461361fdf31dba514e35",
+      "source": "Figure 7.1",
+      "translation": "图 7.1"
+    },
+    {
+      "key": "t_1c16001dc8cc52cbdcc9",
+      "source": "Figure 7.2",
+      "translation": "图 7.2"
+    },
+    {
+      "key": "t_330314b36bffedbfc14e",
+      "source": "Figure 7.3",
+      "translation": "图 7.3"
+    }
+  ]
+}

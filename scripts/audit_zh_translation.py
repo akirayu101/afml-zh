@@ -13,7 +13,7 @@ BOOK = ROOT / "book"
 ZH = ROOT / "zh"
 CHINESE_RE = re.compile(r"[\u4e00-\u9fff]")
 PLACEHOLDER_RE = re.compile(r"__AFML_KEEP_\d+__")
-EXCLUDED_PAGES = {"book-index.html"}
+EXCLUDED_PAGES: set[str] = set()
 BAD_TEXT_PATTERNS = [
     re.compile(pattern)
     for pattern in (
@@ -98,14 +98,14 @@ def main() -> int:
             failures.append(f"{zh_page.name}: html lang is not zh-CN")
         if page.name == "front-matter.html":
             h1 = zh.select_one("article h1")
-            article_text = zh.select_one("article").get_text(" ", strip=True) if zh.select_one("article") else ""
-            if zh.select_one("body.cover-page") is None:
-                failures.append("front-matter.html: cover page body class is missing")
-            if h1 is None or h1.get_text(strip=True) != "封面":
-                failures.append("front-matter.html: page title should be 封面")
-            for dirty_text in ("推荐语", "关于作者", "pdf-page", "CONTENTS"):
-                if dirty_text in article_text:
-                    failures.append(f"front-matter.html: dirty front-matter text remains: {dirty_text}")
+            if h1 is None or h1.get_text(strip=True) != "前置页":
+                failures.append("front-matter.html: page title should be 前置页")
+            if len(src.select("article p")) != len(zh.select("article p")):
+                failures.append("front-matter.html: body paragraph count differs from source")
+            src_pages = [tag.get("id") for tag in src.select('[id^="pdf-page-"]')]
+            zh_pages = [tag.get("id") for tag in zh.select('[id^="pdf-page-"]')]
+            if src_pages != zh_pages:
+                failures.append("front-matter.html: PDF page anchors differ from source")
         src_math = text_of_math(src)
         zh_math = text_of_math(zh)
         if src_math != zh_math:
