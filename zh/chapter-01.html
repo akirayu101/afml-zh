@@ -3,9 +3,20 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<!-- pwa-head:start -->
+<meta content="#0f1318" name="theme-color"/>
+<meta content="dark light" name="color-scheme"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="AFML" name="apple-mobile-web-app-title"/>
+<link href="../manifest.webmanifest" rel="manifest"/>
+<link href="../assets/icons/pwa-192.png" rel="icon" sizes="192x192" type="image/png"/>
+<link href="../assets/icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<!-- pwa-head:end -->
 <title>金融机器学习：一门独立的学科 | 金融机器学习进阶</title>
-<link href="../assets/afml-book.css?v=20260706-selection-dialogs" rel="stylesheet"/><link href="../assets/afml-book-zh.css?v=20260706-selection-dialogs" rel="stylesheet"/>
+<link href="../assets/afml-book.css?v=20260719-pwa-mobile-reader" rel="stylesheet"/><link href="../assets/afml-book-zh.css?v=20260719-pwa-mobile-reader" rel="stylesheet"/>
 <script>
       window.MathJax = {
         tex: {
@@ -16,9 +27,9 @@
       };
     </script>
 <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-<script defer="" src="../assets/afml-book-zh.js?v=20260706-selection-dialogs"></script>
+<script defer="" src="../assets/afml-book-zh.js?v=20260719-pwa-mobile-reader"></script>
 </head>
-<body>
+<body class="reading-page">
 <header class="book-topbar">
 <div>
 <a class="book-title" href="index.html">金融机器学习进阶</a>
@@ -122,5 +133,6 @@
 </article>
 </main>
 </div>
+<nav aria-label="书籍导航" class="mobile-reader-nav"><a class="mobile-reader-link mobile-reader-previous" href="front-matter.html">上一章</a><a class="mobile-reader-link mobile-reader-contents" href="index.html">目录</a><a class="mobile-reader-link mobile-reader-next" href="chapter-02.html">下一章</a></nav>
 </body>
 </html>

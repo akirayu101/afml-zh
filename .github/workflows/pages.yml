@@ -28,11 +28,15 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir _site
-          cp index.html .nojekyll _site/
+          cp index.html manifest.webmanifest service-worker.js .nojekyll _site/
           cp -R assets zh _site/
           test -f _site/zh/index.html
+          test -f _site/manifest.webmanifest
+          test -f _site/service-worker.js
           test -f _site/assets/afml-book.css
           test -f _site/assets/afml-book-zh.css
+          test -f _site/assets/icons/pwa-192.png
+          test -f _site/assets/icons/pwa-512.png
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
