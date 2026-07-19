@@ -16,6 +16,8 @@ Then open:
 http://127.0.0.1:8787/zh/index.html
 ```
 
+The Chinese reader is installable as a Progressive Web App. On supported mobile browsers, use the reader's **Install** button or the browser's **Add to Home Screen** action. The service worker caches the book shell, chapters, figures, and MathJax runtime for offline reading.
+
 ## Build and Review
 
 Regenerate the static site:
@@ -46,6 +48,16 @@ python3 scripts/audit_zh_translation.py
 
 The repository includes a GitHub Pages workflow at `.github/workflows/pages.yml`.
 
-The deployed site artifact contains only the static website files: `index.html`, `.nojekyll`, `assets/`, and `zh/`.
+The deployed site artifact contains only the static website files: `index.html`, `manifest.webmanifest`, `service-worker.js`, `.nojekyll`, `assets/`, and `zh/`.
+
+## OpenAI Sites
+
+Build the Cloudflare Worker-compatible Sites artifact:
+
+```bash
+python3 scripts/build_sites_dist.py
+```
+
+The generated deployment entrypoint is `dist/server/index.js`, with the static reader under `dist/client/`.
 
 See `docs/github-pages.md` before making the repository or site public.

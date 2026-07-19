@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import html
 import io
+import json
 import keyword
 import re
 import shutil
@@ -23,7 +25,11 @@ TMP = ROOT / "tmp" / "webbook"
 XML = TMP / "afml.xml"
 ASSET_CSS = ROOT / "assets" / "afml-book.css"
 ASSET_JS = ROOT / "assets" / "afml-book.js"
-ASSET_VERSION = "20260706-selection-dialogs"
+MANIFEST = ROOT / "manifest.webmanifest"
+SERVICE_WORKER = ROOT / "service-worker.js"
+PWA_ICON_DIR = ROOT / "assets" / "icons"
+ASSET_VERSION = "20260719-pwa-mobile-reader"
+MATHJAX_URL = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
 
 
 @dataclass(frozen=True)
@@ -12120,6 +12126,38 @@ def nav_html(active: Chapter) -> str:
     return "\n".join(parts)
 
 
+def pwa_head_html(prefix: str = "../") -> str:
+    return f"""<!-- pwa-head:start -->
+    <meta name="theme-color" content="#0f1318">
+    <meta name="color-scheme" content="dark light">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AFML">
+    <link rel="manifest" href="{prefix}manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="{prefix}assets/icons/pwa-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="{prefix}assets/icons/apple-touch-icon.png">
+    <!-- pwa-head:end -->"""
+
+
+def mobile_reader_nav_html(prev_chapter: Chapter | None, next_chapter: Chapter | None) -> str:
+    previous = (
+        f'<a class="mobile-reader-link mobile-reader-previous" href="{prev_chapter.file}">Previous</a>'
+        if prev_chapter
+        else '<span class="mobile-reader-link is-disabled" aria-hidden="true">Previous</span>'
+    )
+    following = (
+        f'<a class="mobile-reader-link mobile-reader-next" href="{next_chapter.file}">Next</a>'
+        if next_chapter
+        else '<span class="mobile-reader-link is-disabled" aria-hidden="true">Next</span>'
+    )
+    return (
+        '<nav class="mobile-reader-nav" aria-label="Book navigation">'
+        f'{previous}<a class="mobile-reader-link mobile-reader-contents" href="index.html">Contents</a>{following}'
+        '</nav>'
+    )
+
+
 def block_html(block: Block, chapter: Chapter, math_index: int = -1) -> str:
     if block.kind == "page-anchor":
         return f'<span class="pdf-page-anchor" id="{block.section_id}"></span>'
@@ -12554,11 +12592,13 @@ def page_shell(chapter: Chapter, content: str, sections: list[Block]) -> str:
     if next_chapter:
         top_links.append(f'<a href="{next_chapter.file}">Next</a>')
     top_nav = "\n".join(top_links)
+    mobile_nav = mobile_reader_nav_html(prev_chapter, next_chapter)
     return f"""<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    {pwa_head_html()}
     <title>{html.escape(chapter.title)} | Advances in Financial Machine Learning</title>
     <link rel="stylesheet" href="../assets/afml-book.css?v={ASSET_VERSION}">
     <script>
@@ -12570,10 +12610,10 @@ def page_shell(chapter: Chapter, content: str, sections: list[Block]) -> str:
         svg: {{ fontCache: 'global' }}
       }};
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script defer src="{MATHJAX_URL}"></script>
     <script defer src="../assets/afml-book.js?v={ASSET_VERSION}"></script>
   </head>
-  <body>
+  <body class="reading-page">
     <header class="book-topbar">
       <div>
         <a class="book-title" href="index.html">Advances in Financial Machine Learning</a>
@@ -12595,6 +12635,7 @@ def page_shell(chapter: Chapter, content: str, sections: list[Block]) -> str:
         </article>
       </main>
     </div>
+    {mobile_nav}
   </body>
 </html>
 """
@@ -12602,11 +12643,12 @@ def page_shell(chapter: Chapter, content: str, sections: list[Block]) -> str:
 
 def write_root_index() -> None:
     (ROOT / "index.html").write_text(
-        """<!doctype html>
+        f"""<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    {pwa_head_html("")}
     <meta http-equiv="refresh" content="0; url=book/index.html">
     <title>Advances in Financial Machine Learning</title>
   </head>
@@ -12706,12 +12748,13 @@ def write_book_index() -> None:
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    {pwa_head_html()}
     <title>Contents | Advances in Financial Machine Learning</title>
     <link rel="stylesheet" href="../assets/afml-book.css?v={ASSET_VERSION}">
     <script defer src="../assets/afml-book.js?v={ASSET_VERSION}"></script>
   </head>
-  <body>
+  <body class="contents-page">
     <header class="book-topbar">
       <div>
         <a class="book-title" href="index.html">Advances in Financial Machine Learning</a>
@@ -12759,6 +12802,199 @@ def write_book_index() -> None:
     )
 
 
+def write_pwa_icons() -> None:
+    from PIL import Image, ImageDraw
+
+    PWA_ICON_DIR.mkdir(parents=True, exist_ok=True)
+
+    def render_icon(size: int, path: Path) -> None:
+        scale = size / 512
+        image = Image.new("RGB", (size, size), "#0f1318")
+        draw = ImageDraw.Draw(image)
+        outer = int(54 * scale)
+        draw.rounded_rectangle(
+            (outer, outer, size - outer, size - outer),
+            radius=int(96 * scale),
+            fill="#182531",
+            outline="#8fb4ff",
+            width=max(2, int(10 * scale)),
+        )
+        page_top = int(145 * scale)
+        page_bottom = int(373 * scale)
+        page_left = int(121 * scale)
+        page_right = int(391 * scale)
+        center = size // 2
+        draw.rounded_rectangle(
+            (page_left, page_top, center + int(8 * scale), page_bottom),
+            radius=int(22 * scale),
+            fill="#f1f5f9",
+        )
+        draw.rounded_rectangle(
+            (center - int(8 * scale), page_top, page_right, page_bottom),
+            radius=int(22 * scale),
+            fill="#dbeafe",
+        )
+        draw.line(
+            [
+                (int(286 * scale), int(314 * scale)),
+                (int(319 * scale), int(280 * scale)),
+                (int(344 * scale), int(295 * scale)),
+                (int(374 * scale), int(232 * scale)),
+            ],
+            fill="#304080",
+            width=max(3, int(12 * scale)),
+            joint="curve",
+        )
+        draw.polygon(
+            [
+                (int(374 * scale), int(232 * scale)),
+                (int(348 * scale), int(240 * scale)),
+                (int(366 * scale), int(258 * scale)),
+            ],
+            fill="#304080",
+        )
+        draw.line(
+            (center, int(156 * scale), center, int(360 * scale)),
+            fill="#9aa6b2",
+            width=max(2, int(5 * scale)),
+        )
+        image.save(path, format="PNG", optimize=True)
+
+    for size, filename in ((192, "pwa-192.png"), (512, "pwa-512.png"), (180, "apple-touch-icon.png")):
+        render_icon(size, PWA_ICON_DIR / filename)
+
+
+def write_pwa_assets() -> None:
+    write_pwa_icons()
+    manifest = {
+        "id": "./zh/index.html",
+        "name": "金融机器学习进阶",
+        "short_name": "AFML 中文",
+        "description": "适合移动端阅读的《金融机器学习进阶》中文静态网页版。",
+        "lang": "zh-CN",
+        "start_url": "./zh/index.html",
+        "scope": "./",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#0f1318",
+        "theme_color": "#0f1318",
+        "categories": ["books", "education", "finance"],
+        "icons": [
+            {"src": "./assets/icons/pwa-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+            {"src": "./assets/icons/pwa-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
+        ],
+        "shortcuts": [
+            {"name": "目录", "short_name": "目录", "url": "./zh/index.html"},
+            {"name": "开始阅读", "short_name": "开始阅读", "url": "./zh/chapter-01.html"},
+        ],
+    }
+    MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    chapter_urls = ["./zh/index.html", *(f"./zh/{chapter.file}" for chapter in CHAPTERS)]
+    core_urls = [
+        "./",
+        "./index.html",
+        "./manifest.webmanifest",
+        *chapter_urls,
+        f"./assets/afml-book.css?v={ASSET_VERSION}",
+        f"./assets/afml-book-zh.css?v={ASSET_VERSION}",
+        f"./assets/afml-book.js?v={ASSET_VERSION}",
+        f"./assets/afml-book-zh.js?v={ASSET_VERSION}",
+        "./assets/icons/pwa-192.png",
+        "./assets/icons/pwa-512.png",
+        "./assets/icons/apple-touch-icon.png",
+    ]
+    media_urls = [
+        f"./zh/{path.relative_to(BOOK).as_posix()}"
+        for path in sorted(MEDIA.rglob("*"))
+        if path.is_file()
+    ]
+    worker_source = """const CACHE_PREFIX = "afml-webbook-";
+const CACHE_NAME = "__CACHE_NAME__";
+const RUNTIME_CACHE = `${CACHE_NAME}-runtime`;
+const CORE_URLS = __CORE_URLS__;
+const OFFLINE_MEDIA_URLS = __MEDIA_URLS__;
+const MATHJAX_URL = "__MATHJAX_URL__";
+
+const cacheResponse = async (cacheName, request, response) => {
+  if (response && (response.ok || response.type === "opaque")) {
+    const cache = await caches.open(cacheName);
+    await cache.put(request, response.clone());
+  }
+  return response;
+};
+
+const warmOptionalAsset = async (cache, url) => {
+  try {
+    const request = new Request(url, { cache: "reload", mode: url.startsWith("http") ? "no-cors" : "same-origin" });
+    const response = await fetch(request);
+    if (response.ok || response.type === "opaque") await cache.put(request, response);
+  } catch {
+    // Optional media can still be cached on demand later.
+  }
+};
+
+self.addEventListener("install", event => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(CORE_URLS);
+    await Promise.allSettled(OFFLINE_MEDIA_URLS.map(url => warmOptionalAsset(cache, url)));
+    await warmOptionalAsset(await caches.open(RUNTIME_CACHE), MATHJAX_URL);
+    await self.skipWaiting();
+  })());
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => key.startsWith(CACHE_PREFIX) && ![CACHE_NAME, RUNTIME_CACHE].includes(key)).map(key => caches.delete(key)));
+    await self.clients.claim();
+  })());
+});
+
+const networkFirst = async request => {
+  try {
+    const response = await fetch(request);
+    return cacheResponse(CACHE_NAME, request, response);
+  } catch {
+    return (await caches.match(request, { ignoreSearch: true })) || caches.match("./zh/index.html");
+  }
+};
+
+const staleWhileRevalidate = async (event, request) => {
+  const cached = await caches.match(request);
+  const update = fetch(request)
+    .then(response => cacheResponse(request.url.startsWith(self.location.origin) ? CACHE_NAME : RUNTIME_CACHE, request, response))
+    .catch(() => null);
+  if (cached) {
+    event.waitUntil(update);
+    return cached;
+  }
+  return update;
+};
+
+self.addEventListener("fetch", event => {
+  const { request } = event;
+  if (request.method !== "GET") return;
+  const url = new URL(request.url);
+  if (request.mode === "navigate" && url.origin === self.location.origin) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+  if (["http:", "https:"].includes(url.protocol)) {
+    event.respondWith(staleWhileRevalidate(event, request));
+  }
+});
+"""
+    worker_source = (
+        worker_source.replace("__CACHE_NAME__", f"afml-webbook-{ASSET_VERSION}")
+        .replace("__CORE_URLS__", json.dumps(core_urls, ensure_ascii=False, indent=2))
+        .replace("__MEDIA_URLS__", json.dumps(media_urls, ensure_ascii=False, indent=2))
+        .replace("__MATHJAX_URL__", MATHJAX_URL)
+    )
+    SERVICE_WORKER.write_text(worker_source, encoding="utf-8")
+
+
 def write_css() -> None:
     ASSET_CSS.write_text(
         """* { box-sizing: border-box; }
@@ -12776,6 +13012,10 @@ def write_css() -> None:
   --panel-strong: #1d2530;
   --table-stripe: #131920;
   --focus: #496a9f;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 }
 :root[data-theme="light"] {
   color-scheme: light;
@@ -12792,7 +13032,13 @@ def write_css() -> None:
   --table-stripe: #fbfbfb;
   --focus: #c9d0e6;
 }
-html, body { min-height: 100%; }
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(1rem + var(--safe-top));
+}
+body { min-height: 100%; }
 body {
   margin: 0;
   background: var(--bg);
@@ -12838,7 +13084,8 @@ article a { overflow-wrap: anywhere; }
   white-space: nowrap;
 }
 .theme-toggle,
-.notes-toggle {
+.notes-toggle,
+.install-toggle {
   display: inline-flex;
   align-items: center;
   gap: .42rem;
@@ -12852,7 +13099,8 @@ article a { overflow-wrap: anywhere; }
   cursor: pointer;
 }
 .theme-toggle::before,
-.notes-toggle::before {
+.notes-toggle::before,
+.install-toggle::before {
   content: "";
   width: .72rem;
   height: .72rem;
@@ -12864,6 +13112,12 @@ article a { overflow-wrap: anywhere; }
   height: .82rem;
   border-radius: 2px;
 }
+.install-toggle::before {
+  width: .72rem;
+  height: .72rem;
+  border-radius: 2px 2px 5px 5px;
+  box-shadow: inset 0 -.18rem 0 var(--panel);
+}
 .notes-toggle.has-notes::after {
   content: "";
   width: .42rem;
@@ -12872,11 +13126,14 @@ article a { overflow-wrap: anywhere; }
   background: var(--link);
 }
 .theme-toggle:hover,
-.notes-toggle:hover {
+.notes-toggle:hover,
+.install-toggle:hover {
   border-color: var(--link);
 }
 .theme-toggle:focus-visible,
 .notes-toggle:focus-visible,
+.install-toggle:focus-visible,
+.pwa-install-close:focus-visible,
 .reader-notes-close:focus-visible,
 .reader-notes-command:focus-visible,
 .codex-selection-button:focus-visible,
@@ -13179,6 +13436,87 @@ article a { overflow-wrap: anywhere; }
 :root[data-theme="dark"] .selection-note-highlight:focus {
   background: rgba(250, 204, 21, .34);
 }
+.reading-progress {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 60;
+  height: 3px;
+  pointer-events: none;
+}
+.reading-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--link);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+.mobile-reader-nav {
+  display: none;
+}
+.pwa-toast {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + var(--safe-bottom));
+  z-index: 70;
+  max-width: min(22rem, calc(100vw - 2rem));
+  border: 1px solid var(--code-line);
+  border-radius: 999px;
+  padding: .58rem .85rem;
+  background: var(--panel-strong);
+  color: var(--ink);
+  box-shadow: 0 .8rem 2rem rgba(0, 0, 0, .28);
+  font-size: .82rem;
+  line-height: 1.35;
+}
+.pwa-toast[hidden] {
+  display: none;
+}
+.pwa-install-dialog {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(1rem + var(--safe-bottom));
+  z-index: 65;
+  width: min(24rem, calc(100vw - 2rem));
+  border: 1px solid var(--code-line);
+  border-radius: 10px;
+  padding: 1rem;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, .3);
+}
+.pwa-install-dialog[hidden] {
+  display: none;
+}
+.pwa-install-dialog h2 {
+  margin: 0 2.5rem .45rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.pwa-install-dialog p {
+  margin: 0;
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.55;
+}
+.pwa-install-close {
+  position: absolute;
+  top: .65rem;
+  right: .65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--code-line);
+  border-radius: 6px;
+  background: var(--panel-strong);
+  color: var(--ink);
+  cursor: pointer;
+}
 .book-layout {
   display: block;
   min-height: 100vh;
@@ -13192,6 +13530,9 @@ article {
   min-width: 0;
   margin: 0 auto;
   overflow-x: clip;
+}
+body.reading-page article {
+  max-width: 48rem;
 }
 .chapter-header {
   margin: .3rem 0 1.6rem;
@@ -13427,6 +13768,9 @@ h1, h2, h3, h4 {
   font-weight: 500;
   line-height: 1.2;
 }
+h1, h2, h3, h4, [id] {
+  scroll-margin-top: calc(1rem + var(--safe-top));
+}
 h1 { margin: 0; font-size: 2rem; }
 h2 { margin: 2rem 0 1rem; font-size: 1.5rem; }
 h3 { margin: 1.5rem 0 .8rem; font-size: 1.2rem; }
@@ -13589,6 +13933,8 @@ div.sourceCode {
   background: var(--code);
   border: 1px solid var(--code-line);
   border-radius: 2px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
 }
 pre.sourceCode {
   width: max-content;
@@ -13734,6 +14080,8 @@ code span.va { color: #c4b5fd; }
   overflow-y: hidden;
   contain: layout paint;
   padding-bottom: .1rem;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
 }
 .math.display mjx-container[jax="SVG"] > svg {
   overflow: hidden;
@@ -13755,6 +14103,8 @@ code span.va { color: #c4b5fd; }
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--code-line);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
 }
 table {
   width: 100%;
@@ -13800,34 +14150,139 @@ tr:nth-child(even) td { background: var(--table-stripe); }
   body { font-size: 18px; }
 }
 @media (max-width: 760px) {
+  body {
+    font-size: 17px;
+  }
+  body.reading-page {
+    padding-bottom: calc(4.6rem + var(--safe-bottom));
+  }
   .book-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    min-height: calc(3.45rem + var(--safe-top));
+    border-bottom: 1px solid var(--line);
+    padding: calc(.55rem + var(--safe-top)) max(.8rem, var(--safe-right)) .55rem max(.8rem, var(--safe-left));
+    background: var(--bg);
+    box-shadow: 0 .35rem 1rem rgba(0, 0, 0, .12);
+  }
+  .book-topbar > div {
+    flex: 1 1 auto;
+    display: flex;
+    min-width: 0;
+  }
+  .book-title {
     display: block;
-    padding: .85rem 1rem .35rem;
+    max-width: 100%;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .book-topbar > div > span,
+  .reading-page .book-topbar nav > a {
+    display: none;
   }
   .book-topbar nav {
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
     justify-content: flex-start;
-    margin-top: .35rem;
+    gap: .45rem;
+  }
+  .theme-toggle,
+  .notes-toggle,
+  .install-toggle {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    justify-content: center;
+    padding: .35rem .62rem;
+    touch-action: manipulation;
+  }
+  .theme-toggle::before,
+  .notes-toggle::before,
+  .install-toggle::before {
+    display: none;
   }
   .reader-notes-panel {
-    top: 5rem;
-    right: .75rem;
-    bottom: .75rem;
-    left: .75rem;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: auto;
+    max-height: min(82dvh, 46rem);
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: var(--safe-bottom);
   }
   .codex-selection-dialog {
-    top: 5rem;
-    right: .75rem;
-    left: .75rem;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: auto;
-    max-height: calc(100vh - 5.75rem);
+    max-height: min(82dvh, 46rem);
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: var(--safe-bottom);
   }
-  .content { padding: .5rem 1rem 3rem; }
+  .reader-notes-header,
+  .codex-selection-header {
+    min-height: 3.5rem;
+    padding: .75rem max(1rem, var(--safe-right)) .75rem max(1rem, var(--safe-left));
+  }
+  .reader-notes-body,
+  .codex-selection-body {
+    padding-right: max(1rem, var(--safe-right));
+    padding-left: max(1rem, var(--safe-left));
+  }
+  .reader-notes-close,
+  .codex-selection-close,
+  .pwa-install-close {
+    width: 2.75rem;
+    height: 2.75rem;
+    touch-action: manipulation;
+  }
+  .reader-notes-command,
+  .codex-selection-command {
+    min-height: 2.75rem;
+    padding: .55rem .8rem;
+    touch-action: manipulation;
+  }
+  .codex-selection-button {
+    min-height: 2.75rem;
+    padding: .55rem .85rem;
+    touch-action: manipulation;
+  }
+  .content {
+    padding: 1rem max(1.05rem, var(--safe-right)) 3rem max(1.05rem, var(--safe-left));
+  }
+  .reading-page .content {
+    padding-top: 1.25rem;
+  }
+  .chapter-header {
+    margin-bottom: 1.4rem;
+    padding-bottom: .85rem;
+  }
+  .chapter-header p {
+    font-size: .82rem;
+  }
+  p, li {
+    line-height: 1.72;
+  }
   .contents-actions {
     display: grid;
   }
   .contents-actions a {
     justify-content: center;
+    min-height: 2.75rem;
+    touch-action: manipulation;
   }
   .contents-body {
     grid-template-columns: 1fr;
@@ -13836,18 +14291,129 @@ tr:nth-child(even) td { background: var(--table-stripe); }
   .contents-sidebar {
     position: static;
   }
+  .toc-search {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
   .toc-part {
     grid-template-columns: 1fr;
     gap: .65rem;
   }
   .book-figure {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    margin-right: -.25rem;
+    margin-left: -.25rem;
+    padding-right: .25rem;
+    padding-left: .25rem;
   }
   .figure-panels {
     grid-template-columns: 1fr;
   }
-  h1 { font-size: 1.75rem; }
+  h1 { font-size: clamp(1.65rem, 7vw, 2rem); }
+  h2 { margin-top: 2.2rem; font-size: 1.4rem; }
+  h3 { font-size: 1.16rem; }
+  ul, ol { padding-left: 1.45rem; }
+  .math.display,
+  figure.table-figure,
+  figure.code-listing {
+    max-width: 100%;
+  }
+  pre.sourceCode {
+    padding: .85rem .9rem;
+  }
+  code, pre {
+    font-size: .78rem;
+  }
+  .chapter-pager {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .65rem;
+  }
+  .chapter-pager a {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: .6rem .75rem;
+    background: var(--panel);
+    touch-action: manipulation;
+  }
+  .mobile-reader-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-height: calc(3.65rem + var(--safe-bottom));
+    border-top: 1px solid var(--line);
+    padding: .4rem max(.55rem, var(--safe-right)) calc(.4rem + var(--safe-bottom)) max(.55rem, var(--safe-left));
+    background: var(--panel);
+    box-shadow: 0 -.6rem 1.5rem rgba(0, 0, 0, .2);
+  }
+  .mobile-reader-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    min-height: 2.75rem;
+    border-radius: 8px;
+    padding: .35rem .45rem;
+    color: var(--ink);
+    font-size: .78rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    touch-action: manipulation;
+  }
+  .mobile-reader-link:hover {
+    background: var(--panel-strong);
+    text-decoration: none;
+  }
+  .mobile-reader-previous::before {
+    content: "←";
+    margin-right: .35rem;
+  }
+  .mobile-reader-next::after {
+    content: "→";
+    margin-left: .35rem;
+  }
+  .mobile-reader-contents {
+    color: var(--link);
+  }
+  .mobile-reader-link.is-disabled {
+    opacity: .32;
+  }
+  .pwa-toast {
+    right: .75rem;
+    bottom: calc(4.5rem + var(--safe-bottom));
+    left: .75rem;
+    max-width: none;
+    border-radius: 10px;
+    text-align: center;
+  }
+  .pwa-install-dialog {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 16px 16px 0 0;
+    padding: 1.1rem max(1rem, var(--safe-right)) calc(1.1rem + var(--safe-bottom)) max(1rem, var(--safe-left));
+  }
+}
+@media (display-mode: standalone) {
+  .book-topbar {
+    padding-top: calc(.55rem + var(--safe-top));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-progress span {
+    transition: none;
+  }
 }
 """,
         encoding="utf-8",
@@ -14414,12 +14980,15 @@ const announceSelectionDialogOpen = panel => {
   document.dispatchEvent(new CustomEvent(SELECTION_DIALOG_OPEN_EVENT, { detail: { panel } }));
 };
 
-const positionCodexSelectionButton = (button, rect, slot = 0) => {
+const positionCodexSelectionButton = (button, rect, slot = 0, slotCount = 1) => {
   const margin = 8;
   const gap = 8;
   const buttonWidth = button.offsetWidth || 108;
   const buttonHeight = button.offsetHeight || 32;
-  const centeredLeft = rect.left + rect.width / 2 - buttonWidth / 2 + slot * (buttonWidth + gap);
+  const groupWidth = slotCount * buttonWidth + Math.max(0, slotCount - 1) * gap;
+  const centeredLeft = window.innerWidth <= 760 && slotCount > 1
+    ? (window.innerWidth - groupWidth) / 2 + slot * (buttonWidth + gap)
+    : rect.left + rect.width / 2 - buttonWidth / 2 + slot * (buttonWidth + gap);
   const maxLeft = Math.max(margin, window.innerWidth - buttonWidth - margin);
   const left = Math.min(Math.max(centeredLeft, margin), maxLeft);
   const below = rect.bottom + margin;
@@ -14518,7 +15087,7 @@ const installCodexSelectionPrompt = () => {
       return;
     }
     button.hidden = false;
-    positionCodexSelectionButton(button, pendingSelectionData.rect);
+    positionCodexSelectionButton(button, pendingSelectionData.rect, 0, codexAppEnabled() ? 2 : 1);
   };
 
   const scheduleSelectionRefresh = () => {
@@ -14896,7 +15465,7 @@ const installSelectionNotes = () => {
       return;
     }
     button.hidden = false;
-    positionCodexSelectionButton(button, pendingSelectionData.rect, codexAppEnabled() ? 1 : 0);
+    positionCodexSelectionButton(button, pendingSelectionData.rect, codexAppEnabled() ? 1 : 0, codexAppEnabled() ? 2 : 1);
   };
 
   const scheduleSelectionRefresh = () => {
@@ -15096,6 +15665,228 @@ if (document.readyState === "loading") {
   installSelectionNotes();
 }
 
+const PWA_READING_STORAGE_KEY = "afml-reading-position";
+let deferredPwaInstallPrompt = null;
+let pwaToastTimer = 0;
+
+const pwaLabels = () => {
+  const isZh = document.documentElement.lang.toLowerCase().startsWith("zh");
+  return {
+    install: isZh ? "安装" : "Install",
+    installLabel: isZh ? "将本书安装到主屏幕" : "Install this book on your home screen",
+    guideTitle: isZh ? "添加到主屏幕" : "Add to Home Screen",
+    guide: isZh
+      ? "在 Safari 中点按“分享”，再选择“添加到主屏幕”。安装后可以像 App 一样打开，并离线阅读已经缓存的内容。"
+      : "In Safari, tap Share and choose Add to Home Screen. The installed book opens like an app and keeps cached content available offline.",
+    close: isZh ? "关闭" : "Close",
+    installed: isZh ? "已安装到主屏幕" : "Installed on your home screen",
+    offline: isZh ? "当前处于离线阅读模式" : "You are reading offline",
+    online: isZh ? "网络已恢复" : "You are back online",
+    resume: isZh ? "继续上次阅读" : "Continue reading",
+    resumeLabel: title => isZh ? `继续阅读：${title}` : `Continue reading: ${title}`,
+    progress: isZh ? "本章阅读进度" : "Chapter reading progress",
+  };
+};
+
+const showPwaToast = message => {
+  let toast = document.querySelector(".pwa-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "pwa-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.hidden = false;
+  window.clearTimeout(pwaToastTimer);
+  pwaToastTimer = window.setTimeout(() => {
+    toast.hidden = true;
+  }, 3200);
+};
+
+const createPwaInstallDialog = labels => {
+  const panel = document.createElement("aside");
+  panel.className = "pwa-install-dialog";
+  panel.hidden = true;
+  panel.setAttribute("role", "dialog");
+  panel.setAttribute("aria-label", labels.guideTitle);
+  const title = document.createElement("h2");
+  title.textContent = labels.guideTitle;
+  const copy = document.createElement("p");
+  copy.textContent = labels.guide;
+  const close = document.createElement("button");
+  close.className = "pwa-install-close";
+  close.type = "button";
+  close.textContent = "×";
+  close.setAttribute("aria-label", labels.close);
+  close.addEventListener("click", () => {
+    panel.hidden = true;
+  });
+  panel.append(title, copy, close);
+  document.body.appendChild(panel);
+  return panel;
+};
+
+const installPwaControls = () => {
+  const nav = document.querySelector(".book-topbar nav");
+  if (!nav || nav.querySelector("[data-pwa-install]")) return;
+  const labels = pwaLabels();
+  const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const button = document.createElement("button");
+  button.className = "install-toggle";
+  button.type = "button";
+  button.dataset.pwaInstall = "";
+  button.textContent = labels.install;
+  button.setAttribute("aria-label", labels.installLabel);
+  button.hidden = standalone || (!deferredPwaInstallPrompt && !isIos);
+  nav.appendChild(button);
+  const guide = createPwaInstallDialog(labels);
+
+  button.addEventListener("click", async () => {
+    if (!deferredPwaInstallPrompt) {
+      guide.hidden = false;
+      guide.querySelector(".pwa-install-close")?.focus();
+      return;
+    }
+    const prompt = deferredPwaInstallPrompt;
+    deferredPwaInstallPrompt = null;
+    await prompt.prompt();
+    const choice = await prompt.userChoice;
+    button.hidden = true;
+    if (choice.outcome === "accepted") showPwaToast(labels.installed);
+  });
+};
+
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  deferredPwaInstallPrompt = event;
+  const button = document.querySelector("[data-pwa-install]");
+  if (button) button.hidden = false;
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredPwaInstallPrompt = null;
+  const button = document.querySelector("[data-pwa-install]");
+  if (button) button.hidden = true;
+  showPwaToast(pwaLabels().installed);
+});
+
+const registerPwaServiceWorker = () => {
+  if (!("serviceWorker" in navigator) || !["http:", "https:"].includes(location.protocol)) return;
+  const workerUrl = new URL("../service-worker.js", document.baseURI);
+  const scopeUrl = new URL("../", document.baseURI);
+  navigator.serviceWorker.register(workerUrl.href, { scope: scopeUrl.href, updateViaCache: "none" }).catch(() => {
+    // Reading remains fully usable when service workers are unavailable.
+  });
+};
+
+const readReadingPosition = () => {
+  try {
+    return JSON.parse(localStorage.getItem(PWA_READING_STORAGE_KEY) || "null");
+  } catch {
+    return null;
+  }
+};
+
+const writeReadingPosition = value => {
+  try {
+    localStorage.setItem(PWA_READING_STORAGE_KEY, JSON.stringify(value));
+  } catch {
+    // Private browsing may disable storage; progress still works in-page.
+  }
+};
+
+const installReadingProgress = () => {
+  if (!document.body.classList.contains("reading-page")) return;
+  const labels = pwaLabels();
+  const progress = document.createElement("div");
+  progress.className = "reading-progress";
+  progress.setAttribute("role", "progressbar");
+  progress.setAttribute("aria-label", labels.progress);
+  progress.setAttribute("aria-valuemin", "0");
+  progress.setAttribute("aria-valuemax", "100");
+  const bar = document.createElement("span");
+  progress.appendChild(bar);
+  document.body.appendChild(progress);
+  let frame = 0;
+  let saveTimer = 0;
+
+  const activeSectionHash = () => {
+    let active = "";
+    for (const heading of document.querySelectorAll("article h2[id], article h3[id]")) {
+      if (heading.getBoundingClientRect().top > window.innerHeight * .32) break;
+      active = `#${heading.id}`;
+    }
+    return active;
+  };
+
+  const savePosition = ratio => {
+    const file = location.pathname.split("/").pop() || "index.html";
+    writeReadingPosition({
+      file,
+      hash: activeSectionHash(),
+      title: currentPageHeading(labels),
+      language: document.documentElement.lang,
+      progress: Math.round(ratio * 100),
+      updatedAt: new Date().toISOString(),
+    });
+  };
+
+  const update = () => {
+    frame = 0;
+    const distance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const ratio = Math.min(1, Math.max(0, window.scrollY / distance));
+    bar.style.transform = `scaleX(${ratio})`;
+    progress.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+    window.clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(() => savePosition(ratio), 650);
+  };
+
+  const schedule = () => {
+    if (!frame) frame = window.requestAnimationFrame(update);
+  };
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", schedule, { passive: true });
+  window.addEventListener("pagehide", () => {
+    window.clearTimeout(saveTimer);
+    const distance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    savePosition(Math.min(1, Math.max(0, window.scrollY / distance)));
+  });
+  update();
+};
+
+const installResumeReading = () => {
+  const actions = document.querySelector(".contents-actions");
+  const state = readReadingPosition();
+  if (!actions || !state || !/^[a-z0-9-]+\\.html$/i.test(state.file || "")) return;
+  if ((state.language || "").split("-")[0] !== document.documentElement.lang.split("-")[0]) return;
+  const hash = /^#[a-z0-9._:-]+$/i.test(state.hash || "") ? state.hash : "";
+  const link = document.createElement("a");
+  link.className = "resume-reading";
+  link.href = `${state.file}${hash}`;
+  link.textContent = pwaLabels().resume;
+  link.setAttribute("aria-label", pwaLabels().resumeLabel(state.title || state.file));
+  link.title = pwaLabels().resumeLabel(state.title || state.file);
+  actions.prepend(link);
+};
+
+const installPwaReadingExperience = () => {
+  installPwaControls();
+  registerPwaServiceWorker();
+  installReadingProgress();
+  installResumeReading();
+  window.addEventListener("offline", () => showPwaToast(pwaLabels().offline));
+  window.addEventListener("online", () => showPwaToast(pwaLabels().online));
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", installPwaReadingExperience);
+} else {
+  installPwaReadingExperience();
+}
+
 document.addEventListener("click", async event => {
   const button = event.target.closest(".copy-code");
   if (!button) return;
@@ -15145,6 +15936,67 @@ if (tocSearch && tocEntries.length) {
     )
 
 
+def refresh_page_shell(source: str, body_class: str, mobile_nav: str = "") -> str:
+    viewport = '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+    source, replacements = re.subn(
+        r'<meta\s+name="viewport"\s+content="[^"]*"\s*/?>',
+        viewport,
+        source,
+        count=1,
+    )
+    if replacements != 1:
+        raise RuntimeError("generated page is missing its viewport metadata")
+    head_block = pwa_head_html()
+    if "<!-- pwa-head:start -->" in source:
+        source = re.sub(
+            r'\s*<!-- pwa-head:start -->.*?<!-- pwa-head:end -->',
+            "\n    " + head_block,
+            source,
+            count=1,
+            flags=re.S,
+        )
+    elif 'rel="manifest"' not in source:
+        source = source.replace(viewport, viewport + "\n    " + head_block, 1)
+    source = re.sub(
+        r'(afml-book(?:-zh)?\.(?:css|js)\?v=)[^"&]+',
+        rf'\g<1>{ASSET_VERSION}',
+        source,
+    )
+    source, replacements = re.subn(
+        r'<body(?:\s+class="[^"]*")?>',
+        f'<body class="{body_class}">',
+        source,
+        count=1,
+    )
+    if replacements != 1:
+        raise RuntimeError("generated page is missing its body element")
+    source = re.sub(r'\s*<nav class="mobile-reader-nav".*?</nav>\s*(?=</body>)', "\n", source, flags=re.S)
+    if mobile_nav:
+        source = source.replace("</body>", f"  {mobile_nav}\n  </body>", 1)
+    return source
+
+
+def refresh_reader_assets() -> None:
+    missing = [chapter.file for chapter in CHAPTERS if not (BOOK / chapter.file).exists()]
+    if missing:
+        raise RuntimeError(f"cannot refresh reader assets; generated chapters are missing: {', '.join(missing)}")
+    write_css()
+    write_js()
+    for idx, chapter in enumerate(CHAPTERS):
+        previous = CHAPTERS[idx - 1] if idx > 0 else None
+        following = CHAPTERS[idx + 1] if idx < len(CHAPTERS) - 1 else None
+        path = BOOK / chapter.file
+        refreshed = refresh_page_shell(
+            path.read_text(encoding="utf-8"),
+            "reading-page",
+            mobile_reader_nav_html(previous, following),
+        )
+        path.write_text(refreshed, encoding="utf-8")
+    write_book_index()
+    write_root_index()
+    write_pwa_assets()
+
+
 def build() -> None:
     xml_root = build_xml()
     pages = extract_layout_pages()
@@ -15176,6 +16028,7 @@ def build() -> None:
 
     write_book_index()
     write_root_index()
+    write_pwa_assets()
     if TMP.exists():
         shutil.rmtree(TMP)
     try:
@@ -15185,4 +16038,11 @@ def build() -> None:
 
 
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser(description="Build the AFML static web book.")
+    parser.add_argument(
+        "--refresh-reader",
+        action="store_true",
+        help="Regenerate reader CSS, JavaScript, PWA assets, and page shells without re-extracting the PDF.",
+    )
+    args = parser.parse_args()
+    refresh_reader_assets() if args.refresh_reader else build()

@@ -556,12 +556,15 @@ const announceSelectionDialogOpen = panel => {
   document.dispatchEvent(new CustomEvent(SELECTION_DIALOG_OPEN_EVENT, { detail: { panel } }));
 };
 
-const positionCodexSelectionButton = (button, rect, slot = 0) => {
+const positionCodexSelectionButton = (button, rect, slot = 0, slotCount = 1) => {
   const margin = 8;
   const gap = 8;
   const buttonWidth = button.offsetWidth || 108;
   const buttonHeight = button.offsetHeight || 32;
-  const centeredLeft = rect.left + rect.width / 2 - buttonWidth / 2 + slot * (buttonWidth + gap);
+  const groupWidth = slotCount * buttonWidth + Math.max(0, slotCount - 1) * gap;
+  const centeredLeft = window.innerWidth <= 760 && slotCount > 1
+    ? (window.innerWidth - groupWidth) / 2 + slot * (buttonWidth + gap)
+    : rect.left + rect.width / 2 - buttonWidth / 2 + slot * (buttonWidth + gap);
   const maxLeft = Math.max(margin, window.innerWidth - buttonWidth - margin);
   const left = Math.min(Math.max(centeredLeft, margin), maxLeft);
   const below = rect.bottom + margin;
@@ -660,7 +663,7 @@ const installCodexSelectionPrompt = () => {
       return;
     }
     button.hidden = false;
-    positionCodexSelectionButton(button, pendingSelectionData.rect);
+    positionCodexSelectionButton(button, pendingSelectionData.rect, 0, codexAppEnabled() ? 2 : 1);
   };
 
   const scheduleSelectionRefresh = () => {
@@ -1038,7 +1041,7 @@ const installSelectionNotes = () => {
       return;
     }
     button.hidden = false;
-    positionCodexSelectionButton(button, pendingSelectionData.rect, codexAppEnabled() ? 1 : 0);
+    positionCodexSelectionButton(button, pendingSelectionData.rect, codexAppEnabled() ? 1 : 0, codexAppEnabled() ? 2 : 1);
   };
 
   const scheduleSelectionRefresh = () => {
@@ -1236,6 +1239,228 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", installSelectionNotes);
 } else {
   installSelectionNotes();
+}
+
+const PWA_READING_STORAGE_KEY = "afml-reading-position";
+let deferredPwaInstallPrompt = null;
+let pwaToastTimer = 0;
+
+const pwaLabels = () => {
+  const isZh = document.documentElement.lang.toLowerCase().startsWith("zh");
+  return {
+    install: isZh ? "安装" : "Install",
+    installLabel: isZh ? "将本书安装到主屏幕" : "Install this book on your home screen",
+    guideTitle: isZh ? "添加到主屏幕" : "Add to Home Screen",
+    guide: isZh
+      ? "在 Safari 中点按“分享”，再选择“添加到主屏幕”。安装后可以像 App 一样打开，并离线阅读已经缓存的内容。"
+      : "In Safari, tap Share and choose Add to Home Screen. The installed book opens like an app and keeps cached content available offline.",
+    close: isZh ? "关闭" : "Close",
+    installed: isZh ? "已安装到主屏幕" : "Installed on your home screen",
+    offline: isZh ? "当前处于离线阅读模式" : "You are reading offline",
+    online: isZh ? "网络已恢复" : "You are back online",
+    resume: isZh ? "继续上次阅读" : "Continue reading",
+    resumeLabel: title => isZh ? `继续阅读：${title}` : `Continue reading: ${title}`,
+    progress: isZh ? "本章阅读进度" : "Chapter reading progress",
+  };
+};
+
+const showPwaToast = message => {
+  let toast = document.querySelector(".pwa-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "pwa-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.hidden = false;
+  window.clearTimeout(pwaToastTimer);
+  pwaToastTimer = window.setTimeout(() => {
+    toast.hidden = true;
+  }, 3200);
+};
+
+const createPwaInstallDialog = labels => {
+  const panel = document.createElement("aside");
+  panel.className = "pwa-install-dialog";
+  panel.hidden = true;
+  panel.setAttribute("role", "dialog");
+  panel.setAttribute("aria-label", labels.guideTitle);
+  const title = document.createElement("h2");
+  title.textContent = labels.guideTitle;
+  const copy = document.createElement("p");
+  copy.textContent = labels.guide;
+  const close = document.createElement("button");
+  close.className = "pwa-install-close";
+  close.type = "button";
+  close.textContent = "×";
+  close.setAttribute("aria-label", labels.close);
+  close.addEventListener("click", () => {
+    panel.hidden = true;
+  });
+  panel.append(title, copy, close);
+  document.body.appendChild(panel);
+  return panel;
+};
+
+const installPwaControls = () => {
+  const nav = document.querySelector(".book-topbar nav");
+  if (!nav || nav.querySelector("[data-pwa-install]")) return;
+  const labels = pwaLabels();
+  const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const button = document.createElement("button");
+  button.className = "install-toggle";
+  button.type = "button";
+  button.dataset.pwaInstall = "";
+  button.textContent = labels.install;
+  button.setAttribute("aria-label", labels.installLabel);
+  button.hidden = standalone || (!deferredPwaInstallPrompt && !isIos);
+  nav.appendChild(button);
+  const guide = createPwaInstallDialog(labels);
+
+  button.addEventListener("click", async () => {
+    if (!deferredPwaInstallPrompt) {
+      guide.hidden = false;
+      guide.querySelector(".pwa-install-close")?.focus();
+      return;
+    }
+    const prompt = deferredPwaInstallPrompt;
+    deferredPwaInstallPrompt = null;
+    await prompt.prompt();
+    const choice = await prompt.userChoice;
+    button.hidden = true;
+    if (choice.outcome === "accepted") showPwaToast(labels.installed);
+  });
+};
+
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  deferredPwaInstallPrompt = event;
+  const button = document.querySelector("[data-pwa-install]");
+  if (button) button.hidden = false;
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredPwaInstallPrompt = null;
+  const button = document.querySelector("[data-pwa-install]");
+  if (button) button.hidden = true;
+  showPwaToast(pwaLabels().installed);
+});
+
+const registerPwaServiceWorker = () => {
+  if (!("serviceWorker" in navigator) || !["http:", "https:"].includes(location.protocol)) return;
+  const workerUrl = new URL("../service-worker.js", document.baseURI);
+  const scopeUrl = new URL("../", document.baseURI);
+  navigator.serviceWorker.register(workerUrl.href, { scope: scopeUrl.href, updateViaCache: "none" }).catch(() => {
+    // Reading remains fully usable when service workers are unavailable.
+  });
+};
+
+const readReadingPosition = () => {
+  try {
+    return JSON.parse(localStorage.getItem(PWA_READING_STORAGE_KEY) || "null");
+  } catch {
+    return null;
+  }
+};
+
+const writeReadingPosition = value => {
+  try {
+    localStorage.setItem(PWA_READING_STORAGE_KEY, JSON.stringify(value));
+  } catch {
+    // Private browsing may disable storage; progress still works in-page.
+  }
+};
+
+const installReadingProgress = () => {
+  if (!document.body.classList.contains("reading-page")) return;
+  const labels = pwaLabels();
+  const progress = document.createElement("div");
+  progress.className = "reading-progress";
+  progress.setAttribute("role", "progressbar");
+  progress.setAttribute("aria-label", labels.progress);
+  progress.setAttribute("aria-valuemin", "0");
+  progress.setAttribute("aria-valuemax", "100");
+  const bar = document.createElement("span");
+  progress.appendChild(bar);
+  document.body.appendChild(progress);
+  let frame = 0;
+  let saveTimer = 0;
+
+  const activeSectionHash = () => {
+    let active = "";
+    for (const heading of document.querySelectorAll("article h2[id], article h3[id]")) {
+      if (heading.getBoundingClientRect().top > window.innerHeight * .32) break;
+      active = `#${heading.id}`;
+    }
+    return active;
+  };
+
+  const savePosition = ratio => {
+    const file = location.pathname.split("/").pop() || "index.html";
+    writeReadingPosition({
+      file,
+      hash: activeSectionHash(),
+      title: currentPageHeading(labels),
+      language: document.documentElement.lang,
+      progress: Math.round(ratio * 100),
+      updatedAt: new Date().toISOString(),
+    });
+  };
+
+  const update = () => {
+    frame = 0;
+    const distance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const ratio = Math.min(1, Math.max(0, window.scrollY / distance));
+    bar.style.transform = `scaleX(${ratio})`;
+    progress.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+    window.clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(() => savePosition(ratio), 650);
+  };
+
+  const schedule = () => {
+    if (!frame) frame = window.requestAnimationFrame(update);
+  };
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", schedule, { passive: true });
+  window.addEventListener("pagehide", () => {
+    window.clearTimeout(saveTimer);
+    const distance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    savePosition(Math.min(1, Math.max(0, window.scrollY / distance)));
+  });
+  update();
+};
+
+const installResumeReading = () => {
+  const actions = document.querySelector(".contents-actions");
+  const state = readReadingPosition();
+  if (!actions || !state || !/^[a-z0-9-]+\.html$/i.test(state.file || "")) return;
+  if ((state.language || "").split("-")[0] !== document.documentElement.lang.split("-")[0]) return;
+  const hash = /^#[a-z0-9._:-]+$/i.test(state.hash || "") ? state.hash : "";
+  const link = document.createElement("a");
+  link.className = "resume-reading";
+  link.href = `${state.file}${hash}`;
+  link.textContent = pwaLabels().resume;
+  link.setAttribute("aria-label", pwaLabels().resumeLabel(state.title || state.file));
+  link.title = pwaLabels().resumeLabel(state.title || state.file);
+  actions.prepend(link);
+};
+
+const installPwaReadingExperience = () => {
+  installPwaControls();
+  registerPwaServiceWorker();
+  installReadingProgress();
+  installResumeReading();
+  window.addEventListener("offline", () => showPwaToast(pwaLabels().offline));
+  window.addEventListener("online", () => showPwaToast(pwaLabels().online));
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", installPwaReadingExperience);
+} else {
+  installPwaReadingExperience();
 }
 
 document.addEventListener("click", async event => {

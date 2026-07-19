@@ -1,0 +1,44 @@
+{
+  "id": "./zh/index.html",
+  "name": "金融机器学习进阶",
+  "short_name": "AFML 中文",
+  "description": "适合移动端阅读的《金融机器学习进阶》中文静态网页版。",
+  "lang": "zh-CN",
+  "start_url": "./zh/index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f1318",
+  "theme_color": "#0f1318",
+  "categories": [
+    "books",
+    "education",
+    "finance"
+  ],
+  "icons": [
+    {
+      "src": "./assets/icons/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icons/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "目录",
+      "short_name": "目录",
+      "url": "./zh/index.html"
+    },
+    {
+      "name": "开始阅读",
+      "short_name": "开始阅读",
+      "url": "./zh/chapter-01.html"
+    }
+  ]
+}

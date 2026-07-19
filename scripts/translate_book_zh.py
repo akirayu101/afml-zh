@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Comment, NavigableString, Tag
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -230,6 +230,8 @@ def stable_key(text: str) -> str:
 
 
 def should_skip_text(node: NavigableString) -> bool:
+    if isinstance(node, Comment):
+        return True
     text = str(node)
     if not text.strip():
         return True
@@ -1448,7 +1450,16 @@ def translate_pages(args: argparse.Namespace) -> None:
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0f1318">
+    <meta name="color-scheme" content="dark light">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="AFML 中文">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/pwa-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
     <meta http-equiv="refresh" content="0; url=zh/index.html">
     <title>金融机器学习进阶</title>
   </head>

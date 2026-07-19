@@ -2,18 +2,23 @@
 from __future__ import annotations
 
 import io
+import json
 import re
 import sys
 import tokenize
 from pathlib import Path
 
 from bs4 import BeautifulSoup
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
 BOOK = ROOT / "book"
 CSS = ROOT / "assets" / "afml-book.css"
 JS = ROOT / "assets" / "afml-book.js"
+MANIFEST = ROOT / "manifest.webmanifest"
+SERVICE_WORKER = ROOT / "service-worker.js"
+PWA_ICON_DIR = ROOT / "assets" / "icons"
 
 PROSE_PREFIXES = (
     "Suppose that I =",
@@ -153,6 +158,18 @@ def main() -> int:
         semantic_table_block = re.search(r"\.semantic-table ul\s*\{(?P<body>[^}]*)\}", css)
         if semantic_table_block is None:
             failures.append("assets/afml-book.css: semantic table list style block is missing")
+        for expected in (
+            "--safe-bottom: env(safe-area-inset-bottom, 0px);",
+            ".mobile-reader-nav",
+            ".reading-progress",
+            ".pwa-install-dialog",
+            "body.reading-page article",
+            "min-height: 2.75rem;",
+            "overscroll-behavior-inline: contain;",
+            "@media (display-mode: standalone)",
+        ):
+            if expected not in css:
+                failures.append(f"assets/afml-book.css: mobile/PWA style missing `{expected}`")
     if not JS.exists():
         failures.append("assets/afml-book.js: generated script is missing")
     else:
@@ -198,10 +215,107 @@ def main() -> int:
         ):
             if expected not in js:
                 failures.append(f"assets/afml-book.js: Codex selection logic missing `{expected}`")
+        for expected in (
+            'PWA_READING_STORAGE_KEY = "afml-reading-position"',
+            "installPwaControls",
+            "registerPwaServiceWorker",
+            "installReadingProgress",
+            "installResumeReading",
+            'window.addEventListener("beforeinstallprompt"',
+            'window.addEventListener("offline"',
+            "slotCount = 1",
+        ):
+            if expected not in js:
+                failures.append(f"assets/afml-book.js: mobile/PWA logic missing `{expected}`")
+
+    if not MANIFEST.exists():
+        failures.append("manifest.webmanifest: generated PWA manifest is missing")
+    else:
+        try:
+            manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            failures.append(f"manifest.webmanifest: invalid JSON: {exc}")
+        else:
+            for key, expected in (("start_url", "./zh/index.html"), ("scope", "./"), ("display", "standalone")):
+                if manifest.get(key) != expected:
+                    failures.append(f"manifest.webmanifest: expected {key}={expected!r}")
+            icon_sizes = {icon.get("sizes") for icon in manifest.get("icons", [])}
+            if not {"192x192", "512x512"}.issubset(icon_sizes):
+                failures.append("manifest.webmanifest: required 192x192 and 512x512 icons are missing")
+
+    for filename, expected_size in (("pwa-192.png", (192, 192)), ("pwa-512.png", (512, 512)), ("apple-touch-icon.png", (180, 180))):
+        icon_path = PWA_ICON_DIR / filename
+        if not icon_path.exists():
+            failures.append(f"assets/icons/{filename}: generated PWA icon is missing")
+            continue
+        try:
+            with Image.open(icon_path) as icon:
+                if icon.size != expected_size:
+                    failures.append(f"assets/icons/{filename}: expected {expected_size}, found {icon.size}")
+        except OSError as exc:
+            failures.append(f"assets/icons/{filename}: unreadable image: {exc}")
+
+    if not SERVICE_WORKER.exists():
+        failures.append("service-worker.js: generated service worker is missing")
+    else:
+        worker = SERVICE_WORKER.read_text(encoding="utf-8")
+        for expected in (
+            'CACHE_PREFIX = "afml-webbook-"',
+            "./zh/index.html",
+            "./zh/chapter-22.html",
+            "OFFLINE_MEDIA_URLS",
+            "MATHJAX_URL",
+            'request.mode === "navigate"',
+            "staleWhileRevalidate",
+        ):
+            if expected not in worker:
+                failures.append(f"service-worker.js: offline strategy missing `{expected}`")
+        url_lists = re.search(
+            r"const CORE_URLS = (?P<core>\[[\s\S]*?\]);\s*const OFFLINE_MEDIA_URLS = (?P<media>\[[\s\S]*?\]);",
+            worker,
+        )
+        if url_lists is None:
+            failures.append("service-worker.js: generated offline URL lists are missing")
+        else:
+            try:
+                offline_urls = json.loads(url_lists.group("core")) + json.loads(url_lists.group("media"))
+            except json.JSONDecodeError as exc:
+                failures.append(f"service-worker.js: generated offline URL list is invalid JSON: {exc}")
+            else:
+                for url in offline_urls:
+                    clean_url = url.split("?", 1)[0]
+                    if clean_url == "./":
+                        clean_url = "./index.html"
+                    if not clean_url.startswith("./"):
+                        failures.append(f"service-worker.js: offline URL must be root-relative: {url}")
+                        continue
+                    target = ROOT / clean_url[2:]
+                    if not target.is_file():
+                        failures.append(f"service-worker.js: offline URL target is missing: {url}")
 
     for path in sorted(BOOK.glob("*.html")):
         soup = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
         ids_by_file[path.resolve()] = {tag.get("id") for tag in soup.select("[id]") if tag.get("id")}
+        viewport = soup.select_one('meta[name="viewport"]')
+        if viewport is None or "viewport-fit=cover" not in viewport.get("content", ""):
+            failures.append(f"{path.name}: mobile viewport should include viewport-fit=cover")
+        if not soup.select_one('meta[name="theme-color"]'):
+            failures.append(f"{path.name}: PWA theme-color metadata is missing")
+        manifest_link = soup.select_one('link[rel="manifest"]')
+        if manifest_link is None or manifest_link.get("href") != "../manifest.webmanifest":
+            failures.append(f"{path.name}: PWA manifest link is missing or incorrect")
+        if not soup.select_one('link[rel="apple-touch-icon"]'):
+            failures.append(f"{path.name}: Apple touch icon link is missing")
+        body = soup.body
+        if path.name == "index.html":
+            if body is None or "contents-page" not in (body.get("class") or []):
+                failures.append("book/index.html: contents-page body class is missing")
+        else:
+            if body is None or "reading-page" not in (body.get("class") or []):
+                failures.append(f"{path.name}: reading-page body class is missing")
+            nav = soup.select_one("nav.mobile-reader-nav")
+            if nav is None or not nav.select_one('a[href="index.html"]'):
+                failures.append(f"{path.name}: mobile chapter navigation is missing")
 
     contents_path = BOOK / "index.html"
     front_matter_path = BOOK / "front-matter.html"
