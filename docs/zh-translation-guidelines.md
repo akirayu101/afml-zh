@@ -18,6 +18,7 @@
 
 - 英文站点保留在 `book/`。
 - 中文站点生成到 `zh/`。
+- 人工重译和审查后的章节文本保存在 `translations/zh/chapters/*.json`。每条记录同时保存稳定键、英文源文和中文译文；生成时这些章节覆盖文件优先于旧版 `cache.json`，便于逐章对照审查，也避免重新生成时丢失人工修订。
 - 根入口 `index.html` 可在发布中文 Pages 时跳转到 `zh/index.html`。
 - 中文站点共享 `assets/`，并复制/复用正式图像资源。
 
@@ -39,6 +40,7 @@
 推荐每轮运行：
 
 ```bash
+python3 scripts/audit_zh_chapter_overrides.py --chapter chapter-XX
 python3 scripts/translate_book_zh.py --cache-path translations/zh/cache.json
 python3 scripts/audit_zh_translation.py
 python3 scripts/audit_zh_quality.py

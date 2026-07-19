@@ -1,0 +1,721 @@
+{
+  "chapter": "chapter-15",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_9675148df95d0bf8c85f",
+      "source": "Understanding Strategy Risk | Advances in Financial Machine Learning",
+      "translation": "理解策略风险｜金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_6c97bca7afd7fe168b80",
+      "source": "Part 3: Backtesting",
+      "translation": "第三部分：回测"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_3a4cae3c37f68599c897",
+      "source": "Understanding Strategy Risk",
+      "translation": "理解策略风险"
+    },
+    {
+      "key": "t_fb221341eca89e3674d7",
+      "source": "15.1 Motivation",
+      "translation": "15.1 动机"
+    },
+    {
+      "key": "t_df142e2b52db98e8fcad",
+      "source": "As we saw in Chapters 3 and 13, investment strategies are often implemented in terms of positions held until one of two conditions are met: (1) a condition to exit the position with profits (profit-taking), or (2) a condition to exit the position with losses (stop-loss). Even when a strategy does not explicitly declare a stop-loss, there is always an implicit stop-loss limit, at which the investor can no longer finance her position (margin call) or bear the pain caused by an increasing unrealized loss. Because most strategies have (implicitly or explicitly) these two exit conditions, it makes sense to model the distribution of outcomes through a binomial process. This in turn will help us understand what combinations of betting frequency, odds, and payouts are uneconomic. The goal of this chapter is to help you evaluate when a strategy is vulnerable to small changes in any of these variables.",
+      "translation": "第 3 章和第 13 章已经讲过，投资策略通常会一直持有仓位，直到满足以下两个条件之一：（1）盈利退出，即止盈；（2）亏损退出，即止损。即使策略没有明确设置止损，也一定存在隐含的止损极限：浮亏扩大到某个程度后，投资者可能无力继续为仓位融资（被追缴保证金），或无法再承受亏损。大多数策略都以显式或隐式方式设置了这两类退出条件，因此用二项过程描述结果分布是合理的。这样可以分析下注频率、命中概率和盈亏幅度怎样组合时不具备经济可行性。本章的目标，是帮助读者判断策略是否会因其中任一变量的小幅变化而变得脆弱。"
+    },
+    {
+      "key": "t_eee3094f45e7e1fbcce9",
+      "source": "15.2 Symmetric Payouts",
+      "translation": "15.2 对称盈亏"
+    },
+    {
+      "key": "t_1157a7bc843331cb6836",
+      "source": "Consider a strategy that produces",
+      "translation": "假设某策略每年产生"
+    },
+    {
+      "key": "t_8ce0a3e1a93c84d29058",
+      "source": "IID bets per year, where the outcome",
+      "translation": "次独立同分布（IID）的下注。随机变量"
+    },
+    {
+      "key": "t_ee704195cf0bdf6e06e0",
+      "source": "of a bet",
+      "translation": "表示一次下注的结果，下标为"
+    },
+    {
+      "key": "t_ed9055eacc14b3164797",
+      "source": "is a profit",
+      "translation": "；盈利结果为"
+    },
+    {
+      "key": "t_36dd5b51093446be135a",
+      "source": "with probability",
+      "translation": "的概率是"
+    },
+    {
+      "key": "t_ee06128c6e67cfc6090d",
+      "source": ", and a loss",
+      "translation": "；结果为亏损"
+    },
+    {
+      "key": "t_6333083ecdfbab32924a",
+      "source": ". You can think of",
+      "translation": "。可以把"
+    },
+    {
+      "key": "t_dd497f758468c0008fd1",
+      "source": "as the precision of a binary classifier where a positive means betting on an opportunity, and a negative means passing on an opportunity: True positives are rewarded, false positives are punished, and negatives (whether true or false) have no payout. Since the betting outcomes",
+      "translation": "理解为二元分类器的查准率，也就是下注命中率：正类表示对某个机会下注，负类表示放弃。真正类会获得收益，假正类会遭受损失，而负类无论真假都没有直接盈亏。由于下注结果"
+    },
+    {
+      "key": "t_e957a230a423505fb9d6",
+      "source": "are independent, we will compute the expected moments per bet. The expected profit from one bet is",
+      "translation": "相互独立，因此可以计算单次下注结果的期望与方差（前两阶矩）。单次下注的预期利润为"
+    },
+    {
+      "key": "t_b556e069452576845998",
+      "source": ". The variance is",
+      "translation": "，方差为"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_1ab38411881b9b22a3fe",
+      "source": ", thus",
+      "translation": "，因此"
+    },
+    {
+      "key": "t_0ebc2304150e265dacbc",
+      "source": ". For",
+      "translation": "。若每年进行"
+    },
+    {
+      "key": "t_1e7098900ebe7bfea362",
+      "source": "IID bets per year, the annualized Sharpe ratio",
+      "translation": "次独立同分布的下注，年化夏普比率记为"
+    },
+    {
+      "key": "t_fa51fd49abf67705d6a3",
+      "source": "is",
+      "translation": "，其值为"
+    },
+    {
+      "key": "t_f1200399a7e6bf7db61d",
+      "source": "Note how",
+      "translation": "注意，"
+    },
+    {
+      "key": "t_d85fd7f48693f66f5a08",
+      "source": "cancels out of the above equation, because the payouts are symmetric. Just as in the Gaussian case,",
+      "translation": "在上式中被约掉了，因为盈亏幅度对称。与高斯情形相同，"
+    },
+    {
+      "key": "t_93abf1eb3823b8ae603d",
+      "source": "can be understood as a re-scaled t-value. This illustrates the point that, even for a small",
+      "translation": "可以理解为经过缩放的 t 值。这说明，即使命中率"
+    },
+    {
+      "key": "t_15e6ce5055abd0991b60",
+      "source": ", the Sharpe ratio can be made high for a sufficiently large",
+      "translation": "只略高于一半，只要下注次数"
+    },
+    {
+      "key": "t_93b74f1daa1c64a9ee81",
+      "source": ". This is the economic basis for high-frequency trading, where",
+      "translation": "足够大，也能得到很高的夏普比率。这正是高频交易的经济基础：命中率"
+    },
+    {
+      "key": "t_3cc7ef33d470f04d529d",
+      "source": "can be barely above .5, and the key to a successful business is to increase",
+      "translation": "可能仅略高于 0.5，成功的关键是提高下注次数"
+    },
+    {
+      "key": "t_8e5777693f286b8ccd4c",
+      "source": ". The Sharpe ratio is a function of precision rather than accuracy, because passing on an opportunity (a negative) is not rewarded or punished directly (although too many negatives may lead to a small",
+      "translation": "。夏普比率由命中率而不是准确率决定，因为放弃机会（负类）不会直接得到奖励或惩罚；不过，负类太多可能导致下注次数"
+    },
+    {
+      "key": "t_942a245271a35c94f18e",
+      "source": ", which will depress the Sharpe ratio toward zero).",
+      "translation": "很少，使夏普比率趋近于零。"
+    },
+    {
+      "key": "t_c907d37b2a3ac76b7ebc",
+      "source": "For example, for",
+      "translation": "例如，当"
+    },
+    {
+      "key": "t_305ba497bfd2fe18ff1d",
+      "source": ", and achieving an annualized Sharpe ratio of 2 requires 396 bets per year. Snippet 15.1 verifies this result experimentally. Figure 15.1 plots the Sharpe ratio as a function of precision, for various betting frequencies.",
+      "translation": "时，要达到年化夏普比率 2，每年需要下注 396 次。代码清单 15.1 用实验验证了这个结果。图 15.1 展示不同下注频率下，夏普比率如何随命中率变化。"
+    },
+    {
+      "key": "t_67422b01b82f6f7f33be",
+      "source": "Figure 15.1: The relation between precision (x-axis) and Sharpe ratio (y-axis) for various bet frequencies (n)",
+      "translation": "图 15.1：不同下注频率（n）下，命中率（横轴）与夏普比率（纵轴）的关系"
+    },
+    {
+      "key": "t_7b077bd176747c6295da",
+      "source": "Snippet 15.1: Targeting a Sharpe Ratio as a Function of the Number of Bets",
+      "translation": "代码清单 15.1：根据下注次数求目标夏普比率"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_42e761a6e8c0dab21194",
+      "source": "Solving for",
+      "translation": "对以下命中率范围求解："
+    },
+    {
+      "key": "t_c39dfcbc84b753140ec0",
+      "source": ", we obtain",
+      "translation": "，可得"
+    },
+    {
+      "key": "t_746e5772b8d7539d7645",
+      "source": ", with solution",
+      "translation": "，解为"
+    },
+    {
+      "key": "t_02e65cdae71a9496516b",
+      "source": "This equation makes explicit the trade-off between precision",
+      "translation": "这个方程清楚地说明了命中率"
+    },
+    {
+      "key": "t_c1a8131f94004d709c33",
+      "source": "and frequency",
+      "translation": "与下注频率"
+    },
+    {
+      "key": "t_b47d0dcfd4fe60ae46af",
+      "source": "for a given Sharpe ratio",
+      "translation": "在给定夏普比率"
+    },
+    {
+      "key": "t_5064e0a7fa8f46014539",
+      "source": ". For example, a strategy that only produces weekly bets",
+      "translation": "时的权衡。例如，一项每周只下注一次的策略"
+    },
+    {
+      "key": "t_a1cab86811c15b470237",
+      "source": "will need a fairly high precision of",
+      "translation": "若想取得年化夏普比率 2，需要较高的命中率"
+    },
+    {
+      "key": "t_4d79dfa7ac103b7b56da",
+      "source": "to deliver an annualized Sharpe of 2.",
+      "translation": "。"
+    },
+    {
+      "key": "t_3e6dd86fecf5fe8afbe3",
+      "source": "15.3 Asymmetric Payouts",
+      "translation": "15.3 非对称盈亏"
+    },
+    {
+      "key": "t_184287ff623dbc33699a",
+      "source": ", and an outcome",
+      "translation": "；另一种结果为"
+    },
+    {
+      "key": "t_7d40024d63f6e6d197f4",
+      "source": "occurs with probability",
+      "translation": "，出现概率为"
+    },
+    {
+      "key": "t_2c070d0e6a5d281035d6",
+      "source": ". The expected profit from one bet is",
+      "translation": "。单次下注的预期利润为"
+    },
+    {
+      "key": "t_9dc8fad95505f0dc8753",
+      "source": "And for",
+      "translation": "当"
+    },
+    {
+      "key": "t_6973bff01bf2fad15ae9",
+      "source": "we can see that this equation reduces to the symmetric case:",
+      "translation": "时，这个方程会退化为对称盈亏的情形："
+    },
+    {
+      "key": "t_df4dfa916781b94cafc4",
+      "source": ", we get",
+      "translation": "时，得到"
+    },
+    {
+      "key": "t_1bfba2a4843160887dd4",
+      "source": "Finally, we can solve the previous equation for",
+      "translation": "最后，对前一个方程中的命中率范围"
+    },
+    {
+      "key": "t_a4618b0c5cf936692d9d",
+      "source": ", to obtain",
+      "translation": "求解，得到"
+    },
+    {
+      "key": "t_53e44550b63d1f321082",
+      "source": "where:",
+      "translation": "其中："
+    },
+    {
+      "key": "t_bcdd14ce2006b80d0d1a",
+      "source": "As a side note, Snippet 15.2 verifies these symbolic operations using SymPy Live:",
+      "translation": "顺带一提，代码清单 15.2 使用 SymPy Live 验证了这些符号运算："
+    },
+    {
+      "key": "t_aa29ac37be50f0776166",
+      "source": "Snippet 15.2: Using the SymPy Library for Symbolic Operations",
+      "translation": "代码清单 15.2：使用 SymPy 库进行符号运算"
+    },
+    {
+      "key": "t_ffb72707631b88128c80",
+      "source": "The above equation answers the following question: Given a trading rule characterized by parameters",
+      "translation": "上式回答了这个问题：给定参数为"
+    },
+    {
+      "key": "t_fb6437fb705ca33366e6",
+      "source": ", what is the precision rate",
+      "translation": "的交易规则，要达到的命中率"
+    },
+    {
+      "key": "t_6473eeafbc4b26755162",
+      "source": "required to achieve a Sharpe ratio of",
+      "translation": "需要多高，才能实现夏普比率"
+    },
+    {
+      "key": "t_bfb6fa154e56f8b5398e",
+      "source": "? For example, for",
+      "translation": "？例如，若"
+    },
+    {
+      "key": "t_75d64201168dcf4f8b0f",
+      "source": ", in order to get",
+      "translation": "，要得到"
+    },
+    {
+      "key": "t_0091aab2bb5f66eee395",
+      "source": "we require",
+      "translation": "，需要"
+    },
+    {
+      "key": "t_06f9c4ce042442e27cce",
+      "source": ". Thanks to the large number of bets, a very small change in",
+      "translation": "。由于下注次数很大，"
+    },
+    {
+      "key": "t_47b65e7c21dfe44f7c9f",
+      "source": "(from",
+      "translation": "从"
+    },
+    {
+      "key": "t_663ea1bfffe5038f3f0c",
+      "source": "to",
+      "translation": "变为"
+    },
+    {
+      "key": "t_a7c07fec03523377c16b",
+      "source": ") has propelled the Sharpe ratio from",
+      "translation": "，这点变化使夏普比率从"
+    },
+    {
+      "key": "t_287d6149e863ad0f0312",
+      "source": ". On the other hand, this also tells us that the strategy is vulnerable to small changes in",
+      "translation": "。反过来，这也说明策略很容易受到命中率"
+    },
+    {
+      "key": "t_8b0f655edad7da09afc6",
+      "source": ". Snippet 15.3 implements the derivation of the implied precision. Figure 15.2 displays the implied precision as a function of",
+      "translation": "微小变化的影响。代码清单 15.3 实现了隐含命中率的推导。图 15.2 展示隐含命中率的变化规律；变量为"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "和"
+    },
+    {
+      "key": "t_8b1b1863efb896e01ee9",
+      "source": ". As",
+      "translation": "。当"
+    },
+    {
+      "key": "t_dc664377d455b51289cc",
+      "source": "becomes more negative for a given",
+      "translation": "越来越负，而固定"
+    },
+    {
+      "key": "t_2326e5a4f836610536b8",
+      "source": ", a higher",
+      "translation": "时，就需要更高的"
+    },
+    {
+      "key": "t_9b5847977b48914731d8",
+      "source": "is required to achieve",
+      "translation": "，才能达到"
+    },
+    {
+      "key": "t_c8b1d26a13a5a9c5da8a",
+      "source": "for a given",
+      "translation": "；这里固定"
+    },
+    {
+      "key": "t_cbdef49e39d171d29ad0",
+      "source": "becomes smaller for a given",
+      "translation": "越小，而固定"
+    },
+    {
+      "key": "t_b76263a82ca7531fc24b",
+      "source": "Figure 15.2: Heat-map of the implied precision as a function of",
+      "translation": "图 15.2：隐含命中率热力图，变量为"
+    },
+    {
+      "key": "t_5dc7680cacec826b738a",
+      "source": ", with",
+      "translation": "，固定参数为"
+    },
+    {
+      "key": "t_bfcf59c8f35ea7986278",
+      "source": "Snippet 15.3: Computing the Implied Precision",
+      "translation": "代码清单 15.3：计算隐含命中率"
+    },
+    {
+      "key": "t_6f162323ef8ea917c6b9",
+      "source": "Snippet 15.4 solves",
+      "translation": "代码清单 15.4 对"
+    },
+    {
+      "key": "t_880fc95c623a1e1fd64c",
+      "source": "for the implied betting frequency,",
+      "translation": "求解，得到隐含下注频率"
+    },
+    {
+      "key": "t_8ae256cced5fe29663ba",
+      "source": ". Figure 15.3 plots the implied frequency as a function of",
+      "translation": "。图 15.3 展示隐含下注频率的变化规律；变量为"
+    },
+    {
+      "key": "t_c38be5cec89c1f90962d",
+      "source": "Figure 15.3: Implied frequency as a function of",
+      "translation": "图 15.3：隐含下注频率，变量为"
+    },
+    {
+      "key": "t_d4a0e55f800a79535417",
+      "source": "Snippet 15.4: Computing the Implied Betting Frequency",
+      "translation": "代码清单 15.4：计算隐含下注频率"
+    },
+    {
+      "key": "t_de1831fd334fc87461b4",
+      "source": "15.4 The Probability Of Strategy Failure",
+      "translation": "15.4 策略失败概率"
+    },
+    {
+      "key": "t_fcdde9ad0e3797ef0cdb",
+      "source": "In the example above, parameters",
+      "translation": "在上面的例子中，参数"
+    },
+    {
+      "key": "t_f2b084ac4517134e6344",
+      "source": "are set by the portfolio manager, and passed to the traders with the execution orders. Parameter",
+      "translation": "由投资组合经理设定，并随执行指令一起交给交易员。参数"
+    },
+    {
+      "key": "t_025f48f0dcd58185ccff",
+      "source": "is also set by the portfolio manager, as she decides what constitutes an opportunity worth betting on. The two parameters that are not under the control of the portfolio manager are",
+      "translation": "也由投资组合经理设定，因为由她决定什么样的机会值得下注。不受投资组合经理控制的两个参数是"
+    },
+    {
+      "key": "t_05d95bff361836094cde",
+      "source": "(determined by the market) and",
+      "translation": "（由市场决定）和"
+    },
+    {
+      "key": "t_a6382f2ab37b60c18150",
+      "source": "(the objective set by the investor). Because",
+      "translation": "（投资者设定的目标）。由于"
+    },
+    {
+      "key": "t_64866d72da87229a1fa0",
+      "source": "is unknown, we can model it as a random variable, with expected value",
+      "translation": "未知，可以把它建模为随机变量，期望为"
+    },
+    {
+      "key": "t_0f7dd734d12271c93ac7",
+      "source": ". Let us define",
+      "translation": "。定义"
+    },
+    {
+      "key": "t_d65e9c0bf724ad5961df",
+      "source": "as the value of",
+      "translation": "为命中率"
+    },
+    {
+      "key": "t_f3bd06cefdda79724a0d",
+      "source": "below which the strategy will underperform a target Sharpe ratio",
+      "translation": "的临界值：低于它时，策略将无法达到目标夏普比率"
+    },
+    {
+      "key": "t_e8abc4380512f6cfc401",
+      "source": ", that is,",
+      "translation": "，即"
+    },
+    {
+      "key": "t_60d4c1aa3ec030b49c6a",
+      "source": ". We can use the equations above (or the binHR function) to conclude that for",
+      "translation": "。根据上述方程（或 binHR 函数）可得临界值，并由此推出："
+    },
+    {
+      "key": "t_89e5692c3582bb0f8d9a",
+      "source": "This highlights the risks involved in this strategy, because a relatively small drop in",
+      "translation": "这说明该策略存在明显风险，因为"
+    },
+    {
+      "key": "t_7f220705ecfc485c1da5",
+      "source": ") will wipe out all the profits. The strategy is intrinsically risky, even if the holdings are not. That is the critical difference we wish to establish with this chapter: Strategy risk should not be confused with portfolio risk. Most firms and investors compute, monitor, and report portfolio risk without realizing that this tells us nothing about the risk of the strategy itself. Strategy risk is not the risk of the underlying portfolio, as computed by the chief risk officer. Strategy risk is the risk that the investment strategy will fail to succeed over time, a question of far greater relevance to the chief investment officer. The answer to the question “What is the probability that this strategy will fail?” is equivalent to computing",
+      "translation": "后，利润就会全部消失。即使所持资产本身风险不高，策略也可能内在地十分危险。这正是本章要强调的关键区别：策略风险不能与投资组合风险混为一谈。大多数机构和投资者都会计算、监控并报告投资组合风险，却没有意识到这些指标并不能说明策略本身的风险。首席风险官计算的底层投资组合风险，并不等于策略风险。策略风险是投资策略长期无法成功的风险，这个问题对首席投资官更为重要。“该策略失败的概率是多少？”等价于计算"
+    },
+    {
+      "key": "t_c2fe1afb4163d8bec994",
+      "source": ". The following algorithm will help us compute the strategy risk.",
+      "translation": "。下面的算法将帮助我们计算策略风险。"
+    },
+    {
+      "key": "t_05787042ae1e9d96c9e7",
+      "source": "15.4.1 Algorithm",
+      "translation": "15.4.1 算法"
+    },
+    {
+      "key": "t_6f1f9c6d182769958b5a",
+      "source": "In this section we will describe a procedure to compute",
+      "translation": "本节介绍如何计算"
+    },
+    {
+      "key": "t_9973c63e02be412fe58e",
+      "source": ". Given a time series of bet outcomes",
+      "translation": "。给定下注结果时间序列"
+    },
+    {
+      "key": "t_da67dc43c46ff9c640a1",
+      "source": ", first we estimate",
+      "translation": "，首先估计"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "与"
+    },
+    {
+      "key": "t_19208a0de4dc9610e517",
+      "source": ". Alternatively,",
+      "translation": "。另一种方法是，"
+    },
+    {
+      "key": "t_673b8db2b1c2246f7b25",
+      "source": "could be derived from fitting a mixture of two Gaussians, using the EF3M algorithm (López de Prado and Foreman",
+      "translation": "也可以通过 EF3M 算法拟合双高斯混合分布得到（López de Prado 和 Foreman"
+    },
+    {
+      "key": "t_16c3cc95c063352687d7",
+      "source": "). Second, the annual frequency",
+      "translation": "）。其次，年化下注频率"
+    },
+    {
+      "key": "t_aae4058b3197680ea10a",
+      "source": "is given by",
+      "translation": "为"
+    },
+    {
+      "key": "t_18157e41f6b620258689",
+      "source": "is the number of years elapsed between",
+      "translation": "表示以下两个时点之间经过的年数："
+    },
+    {
+      "key": "t_a70ae8bbaf3ab3a363ad",
+      "source": ". Third, we bootstrap the distribution of",
+      "translation": "。第三，按如下步骤用自助法估计"
+    },
+    {
+      "key": "t_6eb5c4111b089bf30a57",
+      "source": "as follows:",
+      "translation": "的分布："
+    },
+    {
+      "key": "t_dfd21f2ed4f32c046b91",
+      "source": "For iterations",
+      "translation": "对每次迭代"
+    },
+    {
+      "key": "t_61517c08b3bf84b42ac5",
+      "source": "Draw",
+      "translation": "抽取"
+    },
+    {
+      "key": "t_7795510913250487e931",
+      "source": "samples from",
+      "translation": "个样本，样本来自"
+    },
+    {
+      "key": "t_7db4e637b50e23dd9d22",
+      "source": "with replacement, where",
+      "translation": "，采用有放回抽样。其中"
+    },
+    {
+      "key": "t_daf3a04def521019c895",
+      "source": "is the number of years used by investors to assess a strategy (e.g., 2 years). We denote the set of these drawn samples as",
+      "translation": "是投资者评估策略时使用的年数（例如 2 年）。将抽到的样本集合记为"
+    },
+    {
+      "key": "t_68b906145228fb78d608",
+      "source": "Derive the observed precision from iteration",
+      "translation": "第"
+    },
+    {
+      "key": "t_f4bf9f7fcbedaba0392f",
+      "source": "as",
+      "translation": "次迭代观察到的命中率为"
+    },
+    {
+      "key": "t_82df1e4f4dd56090e120",
+      "source": "Fit the PDF of",
+      "translation": "使用核密度估计（KDE）拟合"
+    },
+    {
+      "key": "t_2d22d05fe2009724960b",
+      "source": ", denoted",
+      "translation": "的概率密度函数（PDF），记为"
+    },
+    {
+      "key": "t_2643dd0d46ddfecedb7a",
+      "source": ", by applying a Kernel Density Estimator (KDE) on",
+      "translation": "；所用样本为"
+    },
+    {
+      "key": "t_92d6b8e01d45a9da7b2a",
+      "source": "For a sufficiently large",
+      "translation": "当"
+    },
+    {
+      "key": "t_77ef4298ae7d00c57a86",
+      "source": ", we can approximate this third step as",
+      "translation": "足够大时，第三步可以近似为"
+    },
+    {
+      "key": "t_6003e09c697f429f3617",
+      "source": ". Fourth, given a threshold",
+      "translation": "。第四，给定阈值"
+    },
+    {
+      "key": "t_02af548d85eec846fa36",
+      "source": "(the Sharpe ratio that separates failure from success), derive",
+      "translation": "（区分失败和成功的夏普比率），求出"
+    },
+    {
+      "key": "t_9853197f588a8e404793",
+      "source": "(see Section 15.4). Fifth, the strategy risk is computed as",
+      "translation": "（见第 15.4 节）。第五，策略风险计算如下："
+    },
+    {
+      "key": "t_eecf040860c19f4505bf",
+      "source": "15.4.2 Implementation",
+      "translation": "15.4.2 实现"
+    },
+    {
+      "key": "t_098bd2cce712eb95bfa4",
+      "source": "Snippet 15.5 lists one possible implementation of this algorithm. Typically we would disregard strategies where",
+      "translation": "代码清单 15.5 给出了该算法的一种实现。通常，即使策略投资于低波动率工具，只要"
+    },
+    {
+      "key": "t_bf9bf9e00c549336d577",
+      "source": "as too risky, even if they invest in low volatility instruments. The reason is that even if they do not lose much money, the probability that they will fail to achieve their target is too high. In order to be deployed, the strategy developer must find a way to reduce",
+      "translation": "，我们也会认为它风险过高而放弃。原因是，即便它不会亏掉很多钱，无法达到目标的概率也太高。若要实际部署，策略开发者必须设法降低"
+    },
+    {
+      "key": "t_3e7673acf969aab090c4",
+      "source": "Snippet 15.5: Calculating the Strategy Risk in Practice",
+      "translation": "代码清单 15.5：在实践中计算策略风险"
+    },
+    {
+      "key": "t_7b255a7ba33e723ac9de",
+      "source": "This approach shares some similarities with",
+      "translation": "这种方法与"
+    },
+    {
+      "key": "t_6d178638949c0419a850",
+      "source": "(see Chapter 14, and Bailey and López de Prado [2012, 2014]).",
+      "translation": "有一些相似之处（见第 14 章以及 Bailey 和 López de Prado [2012, 2014]）。"
+    },
+    {
+      "key": "t_432b5988c0168859d5ae",
+      "source": "derives the probability that the true Sharpe ratio exceeds a given threshold under non-Gaussian returns. Similarly, the method introduced in this chapter derives the strategy’s probability of failure based on asymmetric binary outcomes. The key difference is that, while",
+      "translation": "用于计算非高斯收益下真实夏普比率超过给定阈值的概率。类似地，本章方法根据非对称的二元结果计算策略失败概率。关键区别是，"
+    },
+    {
+      "key": "t_80d5fc4e40c8f1a728c2",
+      "source": "does not distinguish between parameters under or outside the portfolio manager’s control, the method discussed here allows the portfolio manager to study the viability of the strategy subject to the parameters under her control:",
+      "translation": "并不区分投资组合经理能够控制和无法控制的参数；本章方法则允许投资组合经理在以下可控参数约束下研究策略是否可行："
+    },
+    {
+      "key": "t_e99406bd64a880f48d86",
+      "source": ". This is useful when designing or assessing the viability of a trading strategy.",
+      "translation": "。这对设计交易策略或评估其可行性很有帮助。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_ee89a38d9d0e55ca500f",
+      "source": "Previous: Backtest Statistics",
+      "translation": "上一章：回测统计量"
+    },
+    {
+      "key": "t_b759360abe70d51a226d",
+      "source": "Next: Machine Learning Asset Allocation",
+      "translation": "下一章：机器学习资产配置"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_ce8b011056b69036b89d",
+      "source": "Figure 15.2: Heat-map of the implied precision as a function of n and pi_-, with pi_+=0.1 and theta*=1.5",
+      "translation": "图 15.2：隐含命中率关于 n 和 pi_- 的热力图，其中 pi_+=0.1，theta*=1.5"
+    },
+    {
+      "key": "t_3580964d67d4a51c28a7",
+      "source": "Figure 15.3: Implied frequency as a function of p and pi_-, with pi_+=0.1 and theta*=1.5",
+      "translation": "图 15.3：隐含下注频率关于 p 和 pi_- 的函数，其中 pi_+=0.1，theta*=1.5"
+    }
+  ]
+}

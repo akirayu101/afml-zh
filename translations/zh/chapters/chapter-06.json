@@ -1,0 +1,731 @@
+{
+  "chapter": "chapter-06",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_0eecea4f8e1792cab425",
+      "source": "Ensemble Methods | Advances in Financial Machine Learning",
+      "translation": "集成方法 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_da8dfe259f6c4e21d93c",
+      "source": "Part 2: Modelling",
+      "translation": "第二部分：建模"
+    },
+    {
+      "key": "t_ac041e0c0a7fc3deaec7",
+      "source": "Ensemble Methods",
+      "translation": "集成方法"
+    },
+    {
+      "key": "t_e2f25e06efa069818d2b",
+      "source": "6.1 Motivation",
+      "translation": "6.1 动机"
+    },
+    {
+      "key": "t_8abdb1cfcbb17e5fa14f",
+      "source": "In this chapter we will discuss two of the most popular ML ensemble methods.",
+      "translation": "本章介绍两种最常用的 ML 集成方法。"
+    },
+    {
+      "key": "t_dbffa13faaa9563c8bc6",
+      "source": "In the references and footnotes you will find books and articles that introduce these techniques. As everywhere else in this book, the assumption is that you have already used these approaches. The goal of this chapter is to explain what makes them effective, and how to avoid common errors that lead to their misuse in finance.",
+      "translation": "参考文献和脚注列出了一些介绍这些方法的书籍与文章。与本书其他章节一样，这里假定你已经用过这些方法。本章的重点是解释它们为什么有效，以及怎样避免在金融问题中误用它们。"
+    },
+    {
+      "key": "t_673b40d1bf92ac92905f",
+      "source": "6.2 The Three Sources Of Errors",
+      "translation": "6.2 误差的三个来源"
+    },
+    {
+      "key": "t_cc6987bd3d5cfd602f0d",
+      "source": "ML models generally suffer from three errors:",
+      "translation": "ML 模型通常会受到三类误差影响："
+    },
+    {
+      "key": "t_ef533731d4e6a1b5a751",
+      "source": "Bias:",
+      "translation": "偏差："
+    },
+    {
+      "key": "t_31e363ba64a481d01c2d",
+      "source": "This error is caused by unrealistic assumptions. When bias is high, the ML algorithm has failed to recognize important relations between features and outcomes. In this situation, the algorithm is said to be “underfit.”",
+      "translation": "这类误差来自不切实际的假设。偏差较高，说明 ML 算法没有识别出特征与结果之间的重要关系，此时称模型“欠拟合”。"
+    },
+    {
+      "key": "t_7403376964e461810a1a",
+      "source": "Variance:",
+      "translation": "方差："
+    },
+    {
+      "key": "t_f954c40a79877886f89d",
+      "source": "This error is caused by sensitivity to small changes in the training set. When variance is high, the algorithm has overfit the training set, and that is why even minimal changes in the training set can produce wildly different predictions. Rather than modelling the general patterns in the training set, the algorithm has mistaken noise with signal.",
+      "translation": "这类误差来自模型对训练集细微变化过于敏感。方差较高，说明算法已经过拟合训练集，所以训练数据稍有变化，预测结果就可能大不相同。算法没有学到训练集中的一般规律，反而把噪声当成了信号。"
+    },
+    {
+      "key": "t_61b402f1ac4a2c68bc34",
+      "source": "Noise:",
+      "translation": "噪声："
+    },
+    {
+      "key": "t_e382e7a5abde11017760",
+      "source": "This error is caused by the variance of the observed values, like unpredictable changes or measurement errors. This is the irreducible error, which cannot be explained by any model.",
+      "translation": "这类误差来自观测值本身的波动，例如无法预测的变化或测量误差。它属于不可约误差，任何模型都无法解释。"
+    },
+    {
+      "key": "t_a7a90697adb39c4bc936",
+      "source": "For an introduction to ensemble methods, please visit",
+      "translation": "如需了解集成方法的入门知识，请访问"
+    },
+    {
+      "key": "t_ea29c98f225e60390ef9",
+      "source": "I would not typically cite Wikipedia, however, on this subject the user may find some of the illustrations in this article useful:",
+      "translation": "我通常不会引用维基百科，不过这篇文章中有几幅图能直观说明本节主题："
+    },
+    {
+      "key": "t_9ea7204caedd0a069024",
+      "source": "Consider a training set of observations",
+      "translation": "考虑训练集中的观测"
+    },
+    {
+      "key": "t_e96c01acc9ab0e259bf2",
+      "source": "and real-valued outcomes",
+      "translation": "和对应的实数结果"
+    },
+    {
+      "key": "t_76e465903b0cae564a09",
+      "source": ". Suppose a function",
+      "translation": "。假设存在函数"
+    },
+    {
+      "key": "t_10632544375f734dfd78",
+      "source": "exists, such that",
+      "translation": "，满足"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_25965a6b768adc7f245a",
+      "source": "is white noise with",
+      "translation": "是白噪声，且"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": "and",
+      "translation": "与"
+    },
+    {
+      "key": "t_295d4e495fa1540a788e",
+      "source": ". We would like to estimate the function",
+      "translation": "。我们希望估计函数"
+    },
+    {
+      "key": "t_2bfc2e19f18d3cfebec4",
+      "source": "that best fits",
+      "translation": "，使它尽可能贴合"
+    },
+    {
+      "key": "t_9db0d8ee1d2013b2c660",
+      "source": ", in the sense of making the mean squared estimation error",
+      "translation": "，也就是让均方估计误差"
+    },
+    {
+      "key": "t_b9949d259e99f3a96ee1",
+      "source": "minimal. The mean squared error cannot be zero because of the noise represented by",
+      "translation": "最小。由于存在噪声"
+    },
+    {
+      "key": "t_406f8fe345797948cc0d",
+      "source": ". This error can be decomposed as",
+      "translation": "，均方误差不可能为零。它可以分解为："
+    },
+    {
+      "key": "t_19e85bfea9a4618ef684",
+      "source": "An ensemble method is a method that combines a set of weak learners, all based on the same learning algorithm, in order to create a (stronger) learner that performs better than any of the individual ones. Ensemble methods help reduce bias and/or variance.",
+      "translation": "集成方法把一组采用同一种学习算法的弱学习器组合起来，得到一个比任何单个学习器表现都好的强学习器。集成方法可以降低偏差、方差，或同时降低两者。"
+    },
+    {
+      "key": "t_183ab4e0cd93dfe37952",
+      "source": "6.3 Bootstrap Aggregation",
+      "translation": "6.3 自助聚合（bagging）"
+    },
+    {
+      "key": "t_a4bcc6d5810d9f2adf38",
+      "source": "Bootstrap aggregation (bagging) is an effective way of reducing the variance in forecasts. It works as follows: First, generate N training datasets by random sampling with replacement. Second, fit N estimators, one on each training set. These estimators are fit independently from each other, hence the models can be fit in parallel. Third, the ensemble forecast is the simple average of the individual forecasts from the N models. In the case of categorical variables, the probability that an observation belongs to a class is given by the proportion of estimators that classify that observation as a member of that class (majority voting). When the base estimator can make forecasts with a prediction probability, the bagging classifier may derive a mean of the probabilities. If you use sklearn’s BaggingClassifier class to compute the out-of-bag accuracy, you should be aware of this bug: https://github.com/scikit-learn/scikitlearn/issues/8933. One workaround is to rename the labels in integer sequential order.",
+      "translation": "自助聚合（bootstrap aggregation，简称 bagging）可以有效降低预测方差。具体步骤如下。第一，有放回地随机抽样，生成 N 个训练集。第二，分别用每个训练集拟合一个估计器，共得到 N 个估计器。各估计器相互独立，因此可以并行拟合。第三，对 N 个模型的预测取简单平均，得到集成预测。对于分类问题，某个观测属于某一类别的概率，可以用把它判为该类别的估计器占比表示，这就是多数投票。如果基估计器能够给出预测概率，bagging 分类器也可以对这些概率取平均。使用 sklearn 的 BaggingClassifier 计算袋外准确率时，需要留意这个缺陷：https://github.com/scikit-learn/scikitlearn/issues/8933。一种规避方法是把标签依次重命名为连续整数。"
+    },
+    {
+      "key": "t_a3ae17aa16b553add73d",
+      "source": "6.3.1 Variance Reduction",
+      "translation": "6.3.1 降低方差"
+    },
+    {
+      "key": "t_e7977cb12f1615b6059a",
+      "source": "Bagging's main advantage is that it reduces forecasts' variance, hence helping address overfitting. The variance of the bagged prediction",
+      "translation": "bagging 的主要优点是降低预测方差，从而缓解过拟合。bagging 预测"
+    },
+    {
+      "key": "t_0314f44d8fbba080de12",
+      "source": "is a function of the number of bagged estimators",
+      "translation": "的方差取决于集成中估计器的数量"
+    },
+    {
+      "key": "t_e6f13b34db0ee8042e49",
+      "source": ", the average variance of a single estimator's prediction",
+      "translation": "、单个估计器预测的平均方差"
+    },
+    {
+      "key": "t_792da23ab8a211a71254",
+      "source": ", and the average correlation among their forecasts",
+      "translation": "，以及各估计器预测之间的平均相关性"
+    },
+    {
+      "key": "t_aa3b17600d88d3161605",
+      "source": "Here",
+      "translation": "其中，"
+    },
+    {
+      "key": "t_443618b15391231f7b1a",
+      "source": "is the covariance of predictions by estimators",
+      "translation": "是估计器"
+    },
+    {
+      "key": "t_17ac93be378088d244de",
+      "source": ". The average variance and average correlation are defined by",
+      "translation": "预测值之间的协方差。平均方差和平均相关性定义为："
+    },
+    {
+      "key": "t_168d24f4ff56e0459c80",
+      "source": "The equation above shows that bagging is only effective to the extent that",
+      "translation": "上式表明，只有在"
+    },
+    {
+      "key": "t_f1ad0673b80673d43610",
+      "source": "; as",
+      "translation": "时，bagging 才能降低方差；当"
+    },
+    {
+      "key": "t_a1b0c053a30fd72fe424",
+      "source": ". One of the goals of sequential bootstrapping (Chapter 4) is to produce samples as independent as possible, thereby reducing",
+      "translation": "。序贯自助法（第 4 章）的目标之一，是让样本尽可能相互独立，从而减小"
+    },
+    {
+      "key": "t_0561d768aded9c5ab14f",
+      "source": ", which should lower the variance of bagging classifiers. Figure 6.1 plots the standard deviation of the bagged prediction as a function of",
+      "translation": "，进而降低 bagging 分类器的方差。图 6.1 展示了 bagging 预测的标准差随"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "变化，计算中固定"
+    },
+    {
+      "key": "t_5029c0f44f978f225e3d",
+      "source": "Figure 6.1: Standard deviation of the bagged prediction",
+      "translation": "图 6.1：bagging 预测的标准差"
+    },
+    {
+      "key": "t_caf9088cf8cf045caccf",
+      "source": "6.3.2 Improved Accuracy",
+      "translation": "6.3.2 提高准确率"
+    },
+    {
+      "key": "t_481a4c15b3a5e9924924",
+      "source": "Consider a bagging classifier that makes a prediction on",
+      "translation": "考虑一个 bagging 分类器，它要从"
+    },
+    {
+      "key": "t_d9d429f1dd2904a91eeb",
+      "source": "classes by majority voting among",
+      "translation": "个类别中做出预测，预测结果由"
+    },
+    {
+      "key": "t_bcabe2bddd81d9591965",
+      "source": "independent classifiers. We can label the predictions as",
+      "translation": "个相互独立的分类器通过多数投票决定。把每个预测结果标记为"
+    },
+    {
+      "key": "t_260308a158ce3df5d569",
+      "source": "means a correct prediction. The accuracy of a classifier is the probability",
+      "translation": "表示预测正确。单个分类器的准确率就是概率"
+    },
+    {
+      "key": "t_7b28164bb26a690ade85",
+      "source": "of labeling a prediction as",
+      "translation": "，也就是把预测标记为"
+    },
+    {
+      "key": "t_0254ade47660767c5adf",
+      "source": ". On average we will get",
+      "translation": "的概率。平均会有"
+    },
+    {
+      "key": "t_7a92678522202ac7f4d5",
+      "source": "predictions labeled as",
+      "translation": "个预测被标为"
+    },
+    {
+      "key": "t_26a6d9b6bba24293e03b",
+      "source": ", with variance",
+      "translation": "，其方差为"
+    },
+    {
+      "key": "t_45f787eaa00ccd89e1fd",
+      "source": ". Majority voting makes the correct prediction when the most forecasted class is observed. For example, for",
+      "translation": "。被预测次数最多的类别与真实类别相同时，多数投票预测正确。例如，当"
+    },
+    {
+      "key": "t_4ddf2c60e8b0fccc880b",
+      "source": ", the bagging classifier made a correct prediction when class",
+      "translation": "时，如果真实类别为"
+    },
+    {
+      "key": "t_c1dcafc7996fb50d5cca",
+      "source": "was observed and the cast votes were",
+      "translation": "且投票数为"
+    },
+    {
+      "key": "t_422e45f3c47603538690",
+      "source": ". However, it made an incorrect prediction when class",
+      "translation": "，bagging 分类器会预测正确；但如果真实类别仍为"
+    },
+    {
+      "key": "t_6e4b58873641c4cbb6ee",
+      "source": ". A sufficient condition is that the sum of these labels is",
+      "translation": "，bagging 分类器会预测错误。一个充分条件是，正确标签的总数满足"
+    },
+    {
+      "key": "t_17ab1cd9986a8020e430",
+      "source": ". A necessary, non-sufficient condition is that",
+      "translation": "。一个必要但不充分的条件是"
+    },
+    {
+      "key": "t_eda9ab199dad35c9b7fa",
+      "source": ", which occurs with probability",
+      "translation": "，其发生概率为："
+    },
+    {
+      "key": "t_4152e6bde7003b2c76ee",
+      "source": "The implication is that for a sufficiently large",
+      "translation": "因此，只要"
+    },
+    {
+      "key": "t_83d27d55db7c6349e4d3",
+      "source": ", say",
+      "translation": "足够大，例如满足"
+    },
+    {
+      "key": "t_aae687415b64628689a4",
+      "source": ", then",
+      "translation": "，并且"
+    },
+    {
+      "key": "t_3d5befecc211e5c76c6f",
+      "source": ", hence the bagging classifier's accuracy exceeds the average accuracy of the individual classifiers. Snippet 6.1 implements this calculation.",
+      "translation": "，bagging 分类器的准确率就会高于各分类器的平均准确率。代码清单 6.1 实现了这一计算。"
+    },
+    {
+      "key": "t_c13a6e774c10dd4f29f1",
+      "source": "Snippet 6.1: Accuracy of the Bagging Classifier",
+      "translation": "代码清单 6.1：bagging 分类器的准确率"
+    },
+    {
+      "key": "t_b1f4c5019e0c2d151440",
+      "source": "This is a strong argument in favor of bagging any classifier in general, when computational requirements permit it. However, unlike boosting, bagging cannot improve the accuracy of poor classifiers: If the individual learners are poor classifiers (",
+      "translation": "这说明，只要计算资源允许，通常都值得对分类器使用 bagging。不过，bagging 与 boosting 不同，无法提高较差分类器的准确率：如果单个学习器表现很差（"
+    },
+    {
+      "key": "t_3b91ca488ac9503af101",
+      "source": "), majority voting will still perform poorly, although with lower variance. Figure 6.2 illustrates these facts. Because it is easier to achieve",
+      "translation": "），多数投票的表现仍然很差，只是方差会降低。图 6.2 展示了这些情况。由于实现"
+    },
+    {
+      "key": "t_7383711c1b05e72a1edd",
+      "source": "than",
+      "translation": "要比实现"
+    },
+    {
+      "key": "t_260a405eb28329584287",
+      "source": ", bagging is more likely to be successful in reducing variance than in reducing bias.",
+      "translation": "更容易，所以 bagging 更擅长降低方差，而不是降低偏差。"
+    },
+    {
+      "key": "t_8f19e8a274643b580640",
+      "source": "For further analysis on this topic, the reader is directed to Condorcet's Jury Theorem. Although the theorem is derived for the purposes of majority voting in political science, the problem addressed by this theorem shares similarities with the above discussion.",
+      "translation": "如需进一步分析，可以参阅孔多塞陪审团定理。这个定理原本用于研究政治学中的多数投票，但它处理的问题与上面的讨论十分相似。"
+    },
+    {
+      "key": "t_b154fa8e3ce61d2f5469",
+      "source": "Figure 6.2: Accuracy of a bagging classifier as a function of the individual estimator's accuracy",
+      "translation": "图 6.2：bagging 分类器的准确率随单个估计器准确率"
+    },
+    {
+      "key": "t_fb401830538654d34e3d",
+      "source": ", the number of estimators",
+      "translation": "和估计器数量"
+    },
+    {
+      "key": "t_2154f7fd87aad9d4b64f",
+      "source": "6.3.3 Observation Redundancy",
+      "translation": "6.3.3 观测冗余"
+    },
+    {
+      "key": "t_7c1b6b5c6240bb056d40",
+      "source": "In Chapter 4 we studied one reason why financial observations cannot be assumed to be IID. Redundant observations have two detrimental effects on bagging. First, the samples drawn with replacement are more likely to be virtually identical, even if they do not share the same observations. This makes",
+      "translation": "第 4 章介绍了金融观测不能假定为 IID 的一个原因。观测冗余会从两个方面损害 bagging。第一，即使有放回抽取的样本没有包含完全相同的观测，它们仍可能几乎一样。这会导致"
+    },
+    {
+      "key": "t_6f045dee90e80534c65f",
+      "source": ", and bagging will not reduce variance, regardless of",
+      "translation": "，因此无论"
+    },
+    {
+      "key": "t_193e63c597d9280280fa",
+      "source": ". For example, if each observation at",
+      "translation": "多大，bagging 都无法降低方差。例如，若时点"
+    },
+    {
+      "key": "t_7f0f09c0bc966fd3cda4",
+      "source": "is labeled according to the return between",
+      "translation": "的观测标签由"
+    },
+    {
+      "key": "t_2caecc8e2019f16901f8",
+      "source": ", we should sample 1% of the observations per bagged estimator, but not more. Chapter 4, Section 4.5 recommended three alternative solutions, one of which consisted of setting",
+      "translation": "之间的收益率决定，每个 bagging 估计器最多只应抽取 1% 的观测。第 4 章第 4.5 节给出了三种替代方案，其中一种是在 sklearn 的 BaggingClassifier 中设置"
+    },
+    {
+      "key": "t_42313df0fd301bf6f9db",
+      "source": "in sklearn's implementation of the bagging classifier class. Another, better solution was to apply the sequential bootstrap method.",
+      "translation": "。另一个更好的办法是使用序贯自助法。"
+    },
+    {
+      "key": "t_c70940530101dd9c5027",
+      "source": "The second detrimental effect from observation redundancy is that out-of-bag accuracy will be inflated. This happens because random sampling with replacement places in the training set samples that are very similar to those out-of-bag. In such a case, a proper stratified k-fold cross-validation without shuffling before partitioning will show a much lower testing-set accuracy than the one estimated out-of-bag. For this reason, it is advisable to set",
+      "translation": "观测冗余的第二个危害，是袋外准确率会被高估。这是因为有放回随机抽样会把与袋外样本非常相似的样本放入训练集。此时，如果划分前不打乱数据，正确进行分层 k 折交叉验证，测试集准确率会远低于袋外估计。因此，建议设置"
+    },
+    {
+      "key": "t_ab9571df1034c7fa3734",
+      "source": "when using that sklearn class, cross-validate the bagging classifier, and ignore the out-of-bag accuracy results. A low number",
+      "translation": "来划分数据，对 bagging 分类器进行交叉验证，并忽略袋外准确率。较小的"
+    },
+    {
+      "key": "t_6f8b51e50ee9518a39ac",
+      "source": "is preferred to a high one, as excessive partitioning would again place in the testing set samples too similar to those used in the training set.",
+      "translation": "通常比大 k 更合适，因为折数过多会再次让测试集包含与训练样本过于相似的样本。"
+    },
+    {
+      "key": "t_140a36d860e4cd1c3159",
+      "source": "6.4 Random Forest",
+      "translation": "6.4 随机森林"
+    },
+    {
+      "key": "t_ca951d4e6ba9c9425587",
+      "source": "Decision trees are known to be prone to overfitting, which increases the variance of the forecasts.",
+      "translation": "决策树很容易过拟合，从而增大预测方差。"
+    },
+    {
+      "key": "t_2c482582f5c567f8d9bc",
+      "source": "In order to address this concern, the random forest (RF) method was designed to produce ensemble forecasts with lower variance.",
+      "translation": "为解决这个问题，随机森林（RF）采用集成预测来降低方差。"
+    },
+    {
+      "key": "t_4276c0cefe4a32bb78f3",
+      "source": "RF shares some similarities with bagging, in the sense of training independent individual estimators over bootstrapped subsets of the data. The key difference with bagging is that random forests incorporate a second level of randomness: When optimizing each node split, only a random subsample, without replacement, of the attributes will be evaluated, with the purpose of further decorrelating the estimators.",
+      "translation": "RF 与 bagging 有相似之处：两者都会在数据的自助抽样子集上训练相互独立的估计器。主要区别是，随机森林又加入了一层随机性：优化每个节点的划分时，只评估从全部特征中无放回随机抽取的一部分，从而进一步降低估计器之间的相关性。"
+    },
+    {
+      "key": "t_063554b99405c608a16f",
+      "source": "Like bagging, RF reduces forecasts' variance without overfitting, as long as",
+      "translation": "和 bagging 一样，只要"
+    },
+    {
+      "key": "t_afa15200664059c59880",
+      "source": ". A second advantage is that RF evaluates feature importance, which we will discuss in depth in Chapter 8. A third advantage is that RF provides out-of-bag accuracy estimates, although in financial applications they are likely to be inflated, as discussed in Section 6.3.3. But like bagging, RF will not necessarily exhibit lower bias than individual decision trees.",
+      "translation": "，RF 就能在不过拟合的情况下降低预测方差。RF 的第二个优点是能够评估特征重要性，第 8 章会详细讨论。第三个优点是能估计袋外准确率，不过第 6.3.3 节已经说明，在金融应用中这个数值很可能偏高。与 bagging 一样，RF 的偏差也不一定低于单棵决策树。"
+    },
+    {
+      "key": "t_6171ed38dccdf9ba7141",
+      "source": "If a large number of samples are redundant, or non-IID, overfitting will still take place: Sampling randomly with replacement will build a large number of essentially identical trees (",
+      "translation": "如果大量样本冗余或不满足 IID，仍然会发生过拟合：有放回随机抽样会生成许多几乎相同的树（"
+    },
+    {
+      "key": "t_d51349089c8a1f3a484d",
+      "source": "), where each decision tree is overfit, a flaw for which decision trees are notorious. Unlike bagging, RF always fixes the size of the bootstrapped samples to match the size of the training dataset. Let us review ways we can address this RF overfitting problem in sklearn. For illustration purposes, I will refer to sklearn's classes; however, these solutions can be applied to any implementation:",
+      "translation": "），且每棵决策树都已经过拟合，这正是决策树的常见缺点。与 bagging 不同，RF 总是让自助样本的大小等于训练集大小。下面以 sklearn 的类为例，介绍几种缓解 RF 过拟合的方法；这些方法同样适用于其他实现："
+    },
+    {
+      "key": "t_016e839f7339d57a1175",
+      "source": "Set the parameter",
+      "translation": "减小参数"
+    },
+    {
+      "key": "t_18a0c9219f25e0c6df8f",
+      "source": "to a lower value, as a way of forcing discrepancy between trees.",
+      "translation": "的值，迫使不同树之间产生差异。"
+    },
+    {
+      "key": "t_d3609120e931480d70ae",
+      "source": "Early stopping:",
+      "translation": "提前停止："
+    },
+    {
+      "key": "t_8df7e9c2039e98346c30",
+      "source": "Set the regularization parameter",
+      "translation": "把正则化参数"
+    },
+    {
+      "key": "t_93bff11fec2c2cbd1cfb",
+      "source": "to a sufficiently large value, e.g. 5%, such that out-of-bag accuracy converges to out-of-sample, k-fold accuracy.",
+      "translation": "设得足够大，例如 5%，使袋外准确率接近样本外 k 折准确率。"
+    },
+    {
+      "key": "t_c36d819e7bc6d2b7da51",
+      "source": "Use",
+      "translation": "使用"
+    },
+    {
+      "key": "t_b8d31e852725afb1e26d",
+      "source": "on",
+      "translation": "封装"
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_f898f258242e7d28c6cd",
+      "source": "is set to the average uniqueness (",
+      "translation": "设为样本之间的平均唯一性（"
+    },
+    {
+      "key": "t_1035cf56bca45bd1d26e",
+      "source": ") between samples.",
+      "translation": "）。"
+    },
+    {
+      "key": "t_415fd5044918f3da2c1d",
+      "source": "Modify the RF class to replace standard bootstrapping with sequential bootstrapping.",
+      "translation": "修改 RF 类，用序贯自助法替代标准自助抽样。"
+    },
+    {
+      "key": "t_5993e29ee042fc4b93c0",
+      "source": "For an intuitive explanation of Random Forest, visit",
+      "translation": "如需直观了解随机森林，请访问"
+    },
+    {
+      "key": "t_04f46e84ad45fc0df416",
+      "source": "In summary, Snippet 6.2 demonstrates three alternative ways of setting up an RF, using different classes.",
+      "translation": "总之，代码清单 6.2 使用不同的类，展示了设置 RF 的三种方式。"
+    },
+    {
+      "key": "t_0b91caf9052dc6428f46",
+      "source": "Snippet 6.2: Three Ways of Setting Up an RF",
+      "translation": "代码清单 6.2：设置 RF 的三种方式"
+    },
+    {
+      "key": "t_6c24a835cfc86890f849",
+      "source": "When fitting decision trees, a rotation of the feature space in a direction that aligns with the axes typically reduces the number of levels needed by the tree. For this reason, I suggest you fit RF on a PCA of the features, as that may speed up calculations and reduce some overfitting, more on this in Chapter 8. Also, as discussed in Chapter 4, Section 4.8,",
+      "translation": "拟合决策树时，如果沿着与坐标轴对齐的方向旋转特征空间，通常可以减少决策树所需的层数。因此，我建议先对特征做 PCA，再拟合 RF；这样可能加快计算并减轻过拟合，第 8 章会进一步讨论。另外，正如第 4 章第 4.8 节所述，"
+    },
+    {
+      "key": "t_a64095ac1a00d2228ba5",
+      "source": "will help you prevent the trees from misclassifying minority classes.",
+      "translation": "有助于减少决策树对少数类别的误判。"
+    },
+    {
+      "key": "t_5ba1394ec5aa9d5774f4",
+      "source": "6.5 Boosting",
+      "translation": "6.5 提升法（boosting）"
+    },
+    {
+      "key": "t_5c8efc6321fabbdb707d",
+      "source": "Kearns and Valiant",
+      "translation": "Kearns 与 Valiant"
+    },
+    {
+      "key": "t_8cc4be5b8997638d5bfa",
+      "source": "were among the first to ask whether one could combine weak estimators in order to achieve one with high accuracy. Shortly after, Schapire",
+      "translation": "属于最早一批提出这一问题的研究者：能否把多个弱估计器组合成一个准确率较高的估计器？不久后，Schapire"
+    },
+    {
+      "key": "t_8f138030337a0a6e7d47",
+      "source": "demonstrated that the answer to that question was affirmative, using the procedure we today call boosting. In general terms, it works as follows: First, generate one training set by random sampling with replacement, according to some sample weights initialized with uniform weights. Second, fit one estimator using that training set. Third, if the single estimator achieves an accuracy greater than the acceptance threshold, for example 50% in a binary classifier, so that it performs better than chance, the estimator is kept; otherwise, it is discarded. Fourth, give more weight to misclassified observations, and less weight to correctly classified observations. Fifth, repeat the previous steps until",
+      "translation": "证明答案是肯定的，他使用的过程就是今天所说的 boosting。一般步骤如下。第一，先给样本设置相同的初始权重，再按这些权重有放回随机抽样，生成一个训练集。第二，用该训练集拟合一个估计器。第三，如果这个估计器的准确率高于接受阈值，例如二分类中高于 50%、优于随机猜测，就保留它；否则丢弃。第四，提高被误分类观测的权重，降低正确分类观测的权重。第五，重复上述步骤，直到得到"
+    },
+    {
+      "key": "t_23910f06037206a0e480",
+      "source": "estimators are produced. Sixth, the ensemble forecast is the weighted average of the individual forecasts from the",
+      "translation": "个估计器。第六，集成预测取"
+    },
+    {
+      "key": "t_8998b06fd90ce3e9d6d0",
+      "source": "models, where the weights are determined by the accuracy of the individual estimators. There are many boosting algorithms, of which AdaBoost is one of the most popular (Geron",
+      "translation": "个模型预测的加权平均值，各模型的权重由自身准确率决定。boosting 算法有很多种，AdaBoost 是其中最常见的一种（Geron"
+    },
+    {
+      "key": "t_ced97e88e27b9e02d493",
+      "source": "). Figure 6.3 summarizes the decision flow of a standard AdaBoost implementation.",
+      "translation": "）。图 6.3 总结了标准 AdaBoost 实现的决策流程。"
+    },
+    {
+      "key": "t_6ecd45729a6150829bfa",
+      "source": "Figure 6.3: AdaBoost decision flow",
+      "translation": "图 6.3：AdaBoost 决策流程"
+    },
+    {
+      "key": "t_92a1878c501356ffc97a",
+      "source": "6.6 Bagging Vs. Boosting In Finance",
+      "translation": "6.6 金融中的 bagging 与 boosting"
+    },
+    {
+      "key": "t_aa3cc15845a073cd2844",
+      "source": "From the above description, a few aspects make boosting quite different from bagging:",
+      "translation": "根据上面的说明，boosting 与 bagging 有几个明显区别："
+    },
+    {
+      "key": "t_06f61d920e52cca62618",
+      "source": "Individual classifiers are fit sequentially.",
+      "translation": "各分类器按顺序依次拟合。"
+    },
+    {
+      "key": "t_2c6619fb43b4240f5809",
+      "source": "Poor-performing classifiers are dismissed.",
+      "translation": "表现较差的分类器会被丢弃。"
+    },
+    {
+      "key": "t_323d7a4de8b0e05340fe",
+      "source": "Observations are weighted differently in each iteration.",
+      "translation": "每轮迭代会给观测设置不同的权重。"
+    },
+    {
+      "key": "t_361988195d63e37b5a43",
+      "source": "The ensemble forecast is a weighted average of the individual learners.",
+      "translation": "集成预测是各学习器预测的加权平均值。"
+    },
+    {
+      "key": "t_5a697768636e2333c868",
+      "source": "For a visual explanation of the difference between bagging and boosting, visit",
+      "translation": "如需通过图示了解 bagging 与 boosting 的区别，请访问"
+    },
+    {
+      "key": "t_5a204a0e8118dc90a109",
+      "source": "Boosting’s main advantage is that it reduces both variance and bias in forecasts. However, correcting bias comes at the cost of greater risk of overfitting. It could be argued that in financial applications bagging is generally preferable to boosting. Bagging addresses overfitting, while boosting addresses underfitting. Overfitting is often a greater concern than underfitting, as it is not difficult to overfit an ML algorithm to financial data, because of the low signal-to-noise ratio. Furthermore, bagging can be parallelized, while generally boosting requires sequential running.",
+      "translation": "boosting 的主要优点是能同时降低预测的方差和偏差，但修正偏差会提高过拟合风险。可以认为，在金融应用中，bagging 通常比 boosting 更合适。bagging 主要处理过拟合，boosting 主要处理欠拟合。金融数据的信噪比较低，ML 算法很容易过拟合，因此过拟合通常比欠拟合更值得担心。此外，bagging 可以并行运行，而 boosting 通常必须依次运行。"
+    },
+    {
+      "key": "t_cee2d8889b83fea17640",
+      "source": "6.7 Bagging For Scalability",
+      "translation": "6.7 利用 bagging 提升可扩展性"
+    },
+    {
+      "key": "t_ae149aa6fa796b9cc6a2",
+      "source": "As you know, several popular ML algorithms do not scale well with the sample size. Support vector machines (SVMs) are a prime example. If you attempt to fit an SVM on a million observations, it may take a while until the algorithm converges. And even once it has converged, there is no guarantee that the solution is a global optimum, or that it is not overfit.",
+      "translation": "很多常用 ML 算法无法随样本量有效扩展，支持向量机（SVM）就是典型例子。用一百万个观测拟合 SVM，算法可能需要很久才能收敛。即使最终收敛，也不能保证解是全局最优，更不能保证没有过拟合。"
+    },
+    {
+      "key": "t_0921d01599d9974f1bbc",
+      "source": "One practical approach is to build a bagging algorithm, where the base estimator belongs to a class that does not scale well with the sample size, like SVM. When defining that base estimator, we will impose a tight early stopping condition. For example, in sklearn's SVM implementation, you could set a low value for the",
+      "translation": "一种实用办法是构建 bagging 算法，并选用难以处理大样本的模型（如 SVM）作为基估计器，同时给基估计器设置严格的提前停止条件。例如，在 sklearn 的 SVM 实现中，可以把参数"
+    },
+    {
+      "key": "t_3cea84ba1292eda7c8fd",
+      "source": "parameter, say 1E5 iterations. The default value is",
+      "translation": "设为较小值，例如迭代 1E5 次。默认值是"
+    },
+    {
+      "key": "t_f6e1e277fe1fd31f0ac0",
+      "source": ", which tells the estimator to continue performing iterations until errors fall below a tolerance level. Alternatively, you could raise the tolerance level through the parameter",
+      "translation": "，表示估计器会一直迭代，直到误差低于容差。也可以通过参数"
+    },
+    {
+      "key": "t_7a3f2bc3fdcb8677ae44",
+      "source": ", which has a default value",
+      "translation": "提高容差，其默认值为"
+    },
+    {
+      "key": "t_406ae37c8d62450ddfac",
+      "source": ". Either of these two parameters will force an early stop. You can stop other algorithms early with equivalent parameters, like the number of levels in an RF (",
+      "translation": "。任一设置都能强制提前停止。其他算法也有类似参数，例如 RF 的层数（"
+    },
+    {
+      "key": "t_5ef8a515db402a2343b0",
+      "source": "), or the minimum weighted fraction of the sum total of weights, of all the input samples, required to be at a leaf node (",
+      "translation": "），或一个叶节点所需的输入样本权重占总权重的最小比例（"
+    },
+    {
+      "key": "t_26a0124d29dcff6bffbe",
+      "source": "Given that bagging algorithms can be parallelized, we are transforming a large sequential task into many smaller ones that are run simultaneously. Of course, the early stopping will increase the variance of the outputs from the individual base estimators; however, that increase can be more than offset by the variance reduction associated with the bagging algorithm. You can control that reduction by adding more independent base estimators. Used in this way, bagging will allow you to achieve fast and robust estimates on extremely large datasets.",
+      "translation": "bagging 可以并行运行，因此能把一个很大的串行任务拆成许多同时执行的小任务。提前停止固然会增大各基估计器输出的方差，但 bagging 带来的方差下降完全可能抵消这部分增加。增加更多相互独立的基估计器，还可以进一步控制方差。这样使用 bagging，就能在超大数据集上快速得到稳健的估计结果。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_5f88c1a1411d32d5a61d",
+      "source": "Figure 6.1",
+      "translation": "图 6.1"
+    },
+    {
+      "key": "t_727cdb4c2e8c996442d5",
+      "source": "Figure 6.2",
+      "translation": "图 6.2"
+    },
+    {
+      "key": "t_8429f7b35a6e3f8181a8",
+      "source": "Figure 6.3",
+      "translation": "图 6.3"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_15b1e997c364802f479d",
+      "source": "Previous: Fractionally Differentiated Features",
+      "translation": "上一章：分数阶差分特征"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_c718d61ed0c6921f5f38",
+      "source": "Next: Cross-Validation in Finance",
+      "translation": "下一章：金融领域的交叉验证"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    }
+  ]
+}

@@ -1,0 +1,1331 @@
+{
+  "chapter": "chapter-13",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_4a6c53560615bb131335",
+      "source": "Backtesting on Synthetic Data | Advances in Financial Machine Learning",
+      "translation": "基于合成数据的回测｜金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_6c97bca7afd7fe168b80",
+      "source": "Part 3: Backtesting",
+      "translation": "第三部分：回测"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_06fa024b948216c1620d",
+      "source": "Backtesting on Synthetic Data",
+      "translation": "基于合成数据的回测"
+    },
+    {
+      "key": "t_1e1598cae7613e71d3ee",
+      "source": "13.1 Motivation",
+      "translation": "13.1 动机"
+    },
+    {
+      "key": "t_9e3ce25b23fad59f56fe",
+      "source": "In this chapter we will study an alternative backtesting method, which uses history to generate a synthetic dataset with statistical characteristics estimated from the observed data. This will allow us to backtest a strategy on a large number of unseen, synthetic testing sets, hence reducing the likelihood that the strategy has been fit to a particular set of data points.",
+      "translation": "本章介绍另一种回测方法：先根据历史观测估计统计特征，再据此生成合成数据集。这样便能在大量未见过的合成测试集上回测策略，降低策略只适配某一组数据点的风险。"
+    },
+    {
+      "key": "t_3be1fc4869547ba5b55f",
+      "source": " This is a very extensive subject, and in order to reach some depth we will focus on the backtesting of trading rules.",
+      "translation": "这一主题十分庞大。为了讲得更深入，本章将重点讨论交易规则的回测。"
+    },
+    {
+      "key": "t_bd6d6106c758da3fe994",
+      "source": " I would like to thank Professor Peter Carr (New York University) for his contributions to this chapter.",
+      "translation": "感谢 Peter Carr 教授（纽约大学）对本章所作的贡献。"
+    },
+    {
+      "key": "t_6f763faf5a32d7f8010e",
+      "source": "13.2 Trading Rules",
+      "translation": "13.2 交易规则"
+    },
+    {
+      "key": "t_0ba5b108dd559c132a74",
+      "source": "Investment strategies can be defined as algorithms that postulate the existence of a market inefficiency. Some strategies rely on econometric models to predict prices, using macroeconomic variables such as GDP or inflation; other strategies use fundamental and accounting information to price securities, or search for arbitrage-like opportunities in the pricing of derivatives products. For instance, suppose that financial intermediaries tend to sell off-the-run bonds two days before U.S. Treasury auctions, in order to raise the cash needed for buying the new paper. One could monetize that knowledge by selling off-the-run bonds three days before auctions. But how? Each investment strategy requires an implementation tactic, often referred to as trading rules.",
+      "translation": "投资策略可以看成一种算法，其出发点是市场存在某种无效性。有些策略使用计量经济模型，依据 GDP、通胀等宏观变量预测价格；有些利用基本面和会计信息给证券定价；还有些寻找衍生品定价中的类套利机会。例如，假设金融中介通常会在美国国债拍卖前两天卖出旧券，以筹集认购新券所需的现金。知道这一规律后，可以在拍卖前三天卖出旧券来获利。但具体怎样执行？每个投资策略都需要一套实施办法，通常称为交易规则。"
+    },
+    {
+      "key": "t_d9a5da0d1b689c6bc648",
+      "source": "There are dozens of hedge fund styles, each running dozens of unique investment strategies. While strategies can be heterogeneous in nature, tactics are relatively homogeneous. Trading rules provide the algorithm that must be followed to enter and exit a position. For example, a position will be entered when the strategy's signal reaches a certain value. Conditions for exiting a position are often defined through thresholds for profit-taking and stop-losses. These entry and exit rules rely on parameters that are usually calibrated via historical simulations. This practice leads to backtest overfitting, because these parameters target specific in-sample observations, to the point that the investment strategy is so attached to the past that it becomes unfit for the future.",
+      "translation": "对冲基金有几十种风格，每种风格又运行几十种独特策略。策略的性质千差万别，执行手法却相对相似。交易规则规定了如何建立和退出仓位。例如，当策略信号达到某个数值时入场；退出条件通常由止盈和止损阈值界定。这些进出场规则依赖若干参数，而参数往往通过历史模拟校准。这种做法容易造成回测过拟合：参数专门贴合样本内的特定观测，最终使策略过度依赖过去，无法适应未来。"
+    },
+    {
+      "key": "t_71acea98b3e5dcb2bccc",
+      "source": "An important clarification is that we are interested in the exit corridor conditions that maximize performance. In other words, the position already exists, and the question is how to exit it optimally. This is the dilemma often faced by execution traders, and it should not be mistaken with the determination of entry and exit thresholds for investing in a security. For a study of that alternative question, see, for example, Bertram ",
+      "translation": "需要特别说明，本章关心的是怎样设置退出区间，才能让已有仓位的表现最好。换句话说，仓位已经存在，问题是如何以最优方式退出。这是执行交易员经常面对的难题，不应与确定某只证券的投资进出场阈值混为一谈。后一类问题可参见 Bertram "
+    },
+    {
+      "key": "t_da48ebe476405a0a0feb",
+      "source": "Bailey et al. [2014, 2017] discuss the problem of backtest overfitting, and provide methods to determine to what extent a simulated performance may be inflated due to overfitting. While assessing the probability of backtest overfitting is useful for discarding superfluous investment strategies, it would be better to avoid the risk of overfitting, at least when calibrating a trading rule. In theory this can be accomplished by deriving the optimal parameters for the trading rule directly from the stochastic process that generates the data, rather than engaging in historical simulations. This is the approach we take in this chapter.",
+      "translation": "Bailey 等人 [2014, 2017] 讨论了回测过拟合，并给出了衡量模拟业绩因过拟合而虚高程度的方法。估计回测过拟合概率有助于淘汰多余策略，但至少在校准交易规则时，最好能直接避开过拟合风险。理论上，可以从生成数据的随机过程直接推导交易规则的最优参数，而不做历史模拟。本章采用的正是这种方法。"
+    },
+    {
+      "key": "t_0530f33a8877fdda147c",
+      "source": "13.3 The Problem",
+      "translation": "13.3 问题定义"
+    },
+    {
+      "key": "t_4eff78a0771c6eea5509",
+      "source": "Suppose an investment strategy ",
+      "translation": "假设投资策略"
+    },
+    {
+      "key": "t_2bda6385ca343ba6b3cb",
+      "source": " invests in ",
+      "translation": "投资于"
+    },
+    {
+      "key": "t_d4c3523c6018d78bd884",
+      "source": " opportunities or bets. At each opportunity ",
+      "translation": "个机会（或下注）。在每个机会"
+    },
+    {
+      "key": "t_89b124e0ff87dba960a0",
+      "source": " takes a position of ",
+      "translation": "建立规模为"
+    },
+    {
+      "key": "t_f272fa6e4ce5467cb53e",
+      "source": " units of security ",
+      "translation": "单位的证券仓位，标的是"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where ",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_d3fd8646947042e1b736",
+      "source": ". The transaction that entered such opportunity was priced at ",
+      "translation": "。进入这一机会的交易金额为"
+    },
+    {
+      "key": "t_34b7a1e6d1b5b47a625b",
+      "source": " is the average price per unit. After ",
+      "translation": "表示每单位证券的平均成交价。观察到"
+    },
+    {
+      "key": "t_e5a960729834c540b70d",
+      "source": " observed transactions, its mark-to-market value is ",
+      "translation": "笔后续交易后，该仓位的盯市价值为"
+    },
+    {
+      "key": "t_dbffcc5777ea930b4272",
+      "source": ", and the mark-to-market profit/loss is ",
+      "translation": "，盯市损益为"
+    },
+    {
+      "key": "t_105a07753b0df5c94260",
+      "source": ". A standard trading rule exits opportunity ",
+      "translation": "。标准交易规则会退出机会"
+    },
+    {
+      "key": "t_b1d6b91b67c2afa5e322",
+      "source": " at ",
+      "translation": "，退出时刻为"
+    },
+    {
+      "key": "t_8d930e10a40802ea1ffd",
+      "source": " as soon as one of two conditions is verified:",
+      "translation": "；以下两个条件中，只要有一个首次满足，就立即退出："
+    },
+    {
+      "key": "t_94e01b0a49811b954c38",
+      "source": " is the profit-taking threshold.",
+      "translation": "为止盈阈值。"
+    },
+    {
+      "key": "t_f07743a5a342d4c36da5",
+      "source": " is the stop-loss threshold.",
+      "translation": "为止损阈值。"
+    },
+    {
+      "key": "t_840d09e18e0a4bae1a59",
+      "source": "These thresholds are equivalent to the horizontal barriers discussed in Chapter 3. Because ",
+      "translation": "这些阈值等同于第 3 章讨论的横向屏障。由于"
+    },
+    {
+      "key": "t_0cd430ab2291a225b151",
+      "source": ", one and only one of the two exit conditions can trigger the exit from opportunity ",
+      "translation": "，两个退出条件中恰好只有一个会触发机会"
+    },
+    {
+      "key": "t_6600f92feacfb207debd",
+      "source": ". Assuming that opportunity ",
+      "translation": "的退出。假设机会"
+    },
+    {
+      "key": "t_afaf5c05297d2c7627f7",
+      "source": " can be exited at ",
+      "translation": "能够在"
+    },
+    {
+      "key": "t_fec8e1dd81ad78f15a01",
+      "source": ", its final profit/loss is ",
+      "translation": "时退出，则最终损益为"
+    },
+    {
+      "key": "t_815edf31f408955134e4",
+      "source": ". At the onset of each opportunity, the goal is to realize an expected profit ",
+      "translation": "。每个机会开始时，目标是实现预期利润"
+    },
+    {
+      "key": "t_80f651115b4dbc984145",
+      "source": " is the forecasted price and ",
+      "translation": "为预测价格，而"
+    },
+    {
+      "key": "t_d0d1132e2f528ea33429",
+      "source": " is the entry level.",
+      "translation": "为入场价。"
+    },
+    {
+      "key": "t_1123338a100f1b9b5d83",
+      "source": "Definition 1: Trading Rule:",
+      "translation": "定义 1（交易规则）："
+    },
+    {
+      "key": "t_7f6e5e4e0c00611fc484",
+      "source": " A trading rule for strategy ",
+      "translation": "策略"
+    },
+    {
+      "key": "t_17e8827fd4c758d83832",
+      "source": " is defined by the set of parameters ",
+      "translation": "的交易规则由以下参数集合定义："
+    },
+    {
+      "key": "t_6474c814923a8b1670d4",
+      "source": "One way to calibrate (by brute force) the trading rule is to:",
+      "translation": "一种用穷举法校准交易规则的做法是："
+    },
+    {
+      "key": "t_b86eeeb2600749170d61",
+      "source": "Define a set of alternative values of ",
+      "translation": "列出交易规则参数的候选值"
+    },
+    {
+      "key": "t_8f893e43be98be2de78e",
+      "source": "Simulate historically the performance of ",
+      "translation": "用历史数据模拟策略"
+    },
+    {
+      "key": "t_bba289ff2ed54e91d925",
+      "source": " under alternative values ",
+      "translation": "采用以下候选值时的表现："
+    },
+    {
+      "key": "t_ab2120fe14870490d886",
+      "source": "Select the optimal ",
+      "translation": "选择最优的"
+    },
+    {
+      "key": "t_e97b387bd470ff50cf5f",
+      "source": "More formally:",
+      "translation": "更正式地写为："
+    },
+    {
+      "key": "t_b48111c10c65fc119368",
+      "source": "where ",
+      "translation": "其中，"
+    },
+    {
+      "key": "t_6201111b83a0cb5b0922",
+      "source": " and ",
+      "translation": "和"
+    },
+    {
+      "key": "t_35c81234ba866a895fce",
+      "source": " are respectively the expected value and standard deviation of ",
+      "translation": "分别表示以下变量的期望和标准差："
+    },
+    {
+      "key": "t_3f6b7d0458705b6546fe",
+      "source": ", conditional on trading rule ",
+      "translation": "；二者都以交易规则"
+    },
+    {
+      "key": "t_4a0778eca6adf841d865",
+      "source": ", over ",
+      "translation": "为条件，样本覆盖"
+    },
+    {
+      "key": "t_e6d9b2aa8fbde6a952b2",
+      "source": ". Equation (13.1) maximizes the Sharpe ratio of ",
+      "translation": "。式（13.1）在候选交易规则空间中最大化策略"
+    },
+    {
+      "key": "t_2870e8ec8190d21f9b01",
+      "source": " over the space of alternative trading rules ",
+      "translation": "的夏普比率；其中候选规则记为"
+    },
+    {
+      "key": "t_23d84db9f286c026091c",
+      "source": ". Because we count with two variables to maximize ",
+      "translation": "。由于需要用两个变量来最大化"
+    },
+    {
+      "key": "t_cafaa377d3158d5323c7",
+      "source": " over a sample of size ",
+      "translation": "，而样本量只有"
+    },
+    {
+      "key": "t_e2016aaafb42911270e5",
+      "source": ", it is easy to overfit ",
+      "translation": "，因此参数"
+    },
+    {
+      "key": "t_eaad5b1c3059346c4be2",
+      "source": ". A trivial overfit occurs when a pair ",
+      "translation": "很容易过拟合。最简单的过拟合，是让一对参数"
+    },
+    {
+      "key": "t_c9b74e6cd2a911728fa1",
+      "source": " targets a few outliers. Bailey et al. ",
+      "translation": "专门贴合少数离群值。Bailey 等人"
+    },
+    {
+      "key": "t_6bd70d1d292dc8d43bc0",
+      "source": " provide a rigorous definition of backtest overfitting, which can be applied to our study of trading rules as follows.",
+      "translation": "给出了严格的回测过拟合定义，可按如下方式用于交易规则。"
+    },
+    {
+      "key": "t_d3d11e8ec68e802a018d",
+      "source": "Definition 2: Overfit Trading Rule:",
+      "translation": "定义 2（过拟合的交易规则）："
+    },
+    {
+      "key": "t_90f7c3a8ebc10c8bd12d",
+      "source": " is overfit if",
+      "translation": "满足下式时，就属于过拟合："
+    },
+    {
+      "key": "t_33710f0c9bd040949c3b",
+      "source": " is the median.",
+      "translation": "，分别给出样本外索引范围和候选规则集合上的中位数。"
+    },
+    {
+      "key": "t_fbc2ae9ae2ad598dadd7",
+      "source": "Intuitively, an optimal in-sample (IS, ",
+      "translation": "直观地说，在样本内（IS，"
+    },
+    {
+      "key": "t_c0defeeaa6c90a7c7b01",
+      "source": ") trading rule ",
+      "translation": "）得到的最优交易规则"
+    },
+    {
+      "key": "t_838c5289803af69d9c6b",
+      "source": " is overfit when it is expected to underperform the median of alternative trading rules ",
+      "translation": "如果预计在样本外的表现会低于候选交易规则"
+    },
+    {
+      "key": "t_f1fab3954664a308f64a",
+      "source": " out-of-sample (OOS, ",
+      "translation": "的中位数（OOS，"
+    },
+    {
+      "key": "t_e2106acf6ef33a39107f",
+      "source": "). This is essentially the same definition used in Chapter 11 to derive PBO.",
+      "translation": "），就说明它过拟合了。这与第 11 章推导 PBO 时使用的定义基本相同。"
+    },
+    {
+      "key": "t_936b923ea3344e979c26",
+      "source": "Bailey et al. ",
+      "translation": "Bailey 等人"
+    },
+    {
+      "key": "t_c807faa25298b60cb73a",
+      "source": " argue that it is hard not to overfit a backtest, particularly when there are free variables able to target specific observations IS, or the number of elements in ",
+      "translation": "指出，回测几乎难免过拟合，特别是存在可以在样本内专门贴合某些观测的自由变量，或者候选集合"
+    },
+    {
+      "key": "t_9abe1ee20d60159a978a",
+      "source": " is large. A trading rule introduces such free variables, because ",
+      "translation": "中的元素很多时。交易规则正好引入了这样的自由变量，因为"
+    },
+    {
+      "key": "t_97e6853a84c1e521c6d5",
+      "source": " can be determined independently from ",
+      "translation": "可以独立于"
+    },
+    {
+      "key": "t_4989d9e6f47f6f558820",
+      "source": ". The outcome is that the backtest profits from random noise IS, making ",
+      "translation": "来确定。结果是，回测会在样本内利用随机噪声，使"
+    },
+    {
+      "key": "t_b3b4413c70ec55efbde1",
+      "source": " unfit for OOS opportunities. Those same authors show that overfitting leads to negative performance OOS when ",
+      "translation": "不适合样本外机会。他们还证明，当"
+    },
+    {
+      "key": "t_03e2144ac5ad3900b79f",
+      "source": " exhibits serial dependence. While PBO provides a useful method to evaluate to what extent a backtest has been overfit, it would be convenient to avoid this problem in the first place.",
+      "translation": "存在序列相关时，过拟合会导致样本外表现为负。PBO 可用于衡量回测的过拟合程度，但最好从一开始就避免这个问题。"
+    },
+    {
+      "key": "t_1cdc12d01811da4ec7a6",
+      "source": " The strategy may still be the result of backtest overfitting, but at least the trading rule would not have contributed to that problem.",
+      "translation": "策略本身仍可能来自回测过拟合，但至少交易规则没有进一步加重问题。"
+    },
+    {
+      "key": "t_9382d339cd45d62a6ef0",
+      "source": "13.4 Our Framework",
+      "translation": "13.4 分析框架"
+    },
+    {
+      "key": "t_6451c5bacec3bce84c8a",
+      "source": "Until now we have not characterized the stochastic process from which observations ",
+      "translation": "到目前为止，我们还没有描述生成观测"
+    },
+    {
+      "key": "t_3109f0c214d25d5d167a",
+      "source": " are drawn. We are interested in finding an optimal trading rule (OTR) for scenarios where overfitting would be most damaging, such as when ",
+      "translation": "的随机过程。我们希望在过拟合危害最大的场景下寻找最优交易规则（OTR），例如"
+    },
+    {
+      "key": "t_317f5384e7a95c94f55c",
+      "source": "13.6.1 Cases with Zero Long-Run Equilibrium",
+      "translation": "13.6.1 长期均衡值为零的情形"
+    },
+    {
+      "key": "t_b5187606ac66848e3126",
+      "source": "Cases with zero long-run equilibrium are consistent with market-makers, who provide liquidity under the assumption that price deviations from current levels will correct themselves over time. The smaller ",
+      "translation": "长期均衡值为零符合做市商的业务特点：做市商提供流动性，并假设价格偏离当前水平后会逐渐回归。"
+    },
+    {
+      "key": "t_fe6bc3cad8bfadfc4193",
+      "source": ", the smaller is the autoregressive coefficient ",
+      "translation": "越小，自回归系数"
+    },
+    {
+      "key": "t_abcb7b31f3fbd5ac08fc",
+      "source": ". A small autoregressive coefficient with zero expected profit means that most pairs ",
+      "translation": "也越小。当预期利润为零且自回归系数较小时，大多数参数对"
+    },
+    {
+      "key": "t_9601edf37b7305be48e5",
+      "source": " deliver zero performance.",
+      "translation": "的表现都接近零。"
+    },
+    {
+      "key": "t_718181cc2c21f49f674c",
+      "source": "Figure 13.1 shows the heat-map for ",
+      "translation": "图 13.1 展示以下参数对应的热力图："
+    },
+    {
+      "key": "t_482214014471ab9fd702",
+      "source": ". The half-life is so small that performance is maximized in a narrow range of small profit-taking with large stop-losses. The optimal trading rule is to hold inventory long enough for a small profit, even at the expense of experiencing 5-fold or 7-fold unrealized losses. Sharpe ratios are high, reaching levels of around 3.2.",
+      "translation": "。半衰期很短，因此最佳表现只出现在一个狭窄区域：止盈较小、止损较大。最优规则是耐心持有库存，等待较小的利润，即使期间要承受 5 倍甚至 7 倍的未实现亏损。夏普比率很高，约为 3.2。"
+    },
+    {
+      "key": "t_a372a61b97658aa033bc",
+      "source": "Figure 13.1: Heat-map for ",
+      "translation": "图 13.1：以下参数对应的热力图："
+    },
+    {
+      "key": "t_0ccfe32cbcadeafb8517",
+      "source": "Figure 13.2: Heat-map for ",
+      "translation": "图 13.2：以下参数对应的热力图："
+    },
+    {
+      "key": "t_b0fa8266711ce6e16636",
+      "source": "This is in fact what many market-makers do in practice, and is consistent with the asymmetric payoff dilemma described in Easley et al. ",
+      "translation": "现实中的许多做市商确实如此操作，这也符合 Easley 等人"
+    },
+    {
+      "key": "t_bb83d5f01b89de15d1df",
+      "source": ". The worst possible trading rule in this setting combines a short stop-loss with a large profit-taking threshold. Performance is closest to neutral in the diagonal of the mesh, where profit-taking and stop-losses are symmetric.",
+      "translation": "所描述的非对称收益困境。在这种设定下，最差的规则是较紧的止损配上很高的止盈阈值。网格对角线上止盈与止损对称，表现最接近中性。"
+    },
+    {
+      "key": "t_f732814f1d63560d6ed5",
+      "source": "Figure 13.2 shows that increasing ",
+      "translation": "图 13.2 表明，将"
+    },
+    {
+      "key": "t_dd3b39ef374150432b77",
+      "source": " from 5 to 10 spreads the areas of highest and lowest performance over the mesh of pairs ",
+      "translation": "从 5 提高到 10 后，最高和最低表现区域会扩散到更多参数对"
+    },
+    {
+      "key": "t_8f749397043d4210ee5f",
+      "source": ", while Sharpe ratios decrease.",
+      "translation": "，同时夏普比率下降。"
+    },
+    {
+      "key": "t_6bf1f46df0bc84d6eadb",
+      "source": "This happens because a larger half-life increases the magnitude of the autoregressive coefficient ",
+      "translation": "原因是半衰期越长，自回归系数"
+    },
+    {
+      "key": "t_36884fd6ecd0df547f27",
+      "source": ", bringing the process closer to a random walk. Figures 13.3, 13.4, and 13.5 continue that progression. Eventually, as ",
+      "translation": "越大，过程也越接近随机游走。图 13.3、13.4 和 13.5 延续了这一趋势。最终，当"
+    },
+    {
+      "key": "t_effa3b76381f147b2fff",
+      "source": ", there are no recognizable areas where performance can be maximized.",
+      "translation": "时，已经找不到能够稳定实现最佳表现的区域。"
+    },
+    {
+      "key": "t_da7d086c234b381cd5d9",
+      "source": "Figure 13.3: Heat-map for ",
+      "translation": "图 13.3：以下参数对应的热力图："
+    },
+    {
+      "key": "t_281984ebb296c8b275da",
+      "source": "Figure 13.4: Heat-map for ",
+      "translation": "图 13.4：以下参数对应的热力图："
+    },
+    {
+      "key": "t_b15e69dccee1e0b5ec17",
+      "source": "Figure 13.5: Heat-map for ",
+      "translation": "图 13.5：以下参数对应的热力图："
+    },
+    {
+      "key": "t_00755e56a3dde5f3a8a2",
+      "source": "Calibrating a trading rule on a random walk through historical simulations would lead to backtest overfitting, because one random combination of profit-taking and stop-loss that happened to maximize Sharpe ratio would be selected. This is why backtesting on synthetic data matters: it prevents overfitting by recognizing when performance exhibits no consistent pattern, indicating that there is no optimal trading rule.",
+      "translation": "如果用历史模拟为随机游走校准交易规则，就会产生回测过拟合：某个止盈和止损组合只是偶然取得最高夏普比率，却会被选为最优规则。这正是使用合成数据回测的意义。它能识别表现缺乏稳定模式的情况，指出实际上不存在最优交易规则，从而避免过拟合。"
+    },
+    {
+      "key": "t_629c711e3a53d551837a",
+      "source": "13.6.2 Cases with Positive Long-Run Equilibrium",
+      "translation": "13.6.2 长期均衡值为正的情形"
+    },
+    {
+      "key": "t_3da69e92df1559dfa7c2",
+      "source": "Cases with positive long-run equilibrium are consistent with the business of a position-taker, such as a hedge fund or asset manager. Figure 13.6 shows the results for ",
+      "translation": "长期均衡值为正符合方向性持仓者的业务特点，例如对冲基金或资产管理机构。图 13.6 展示以下参数的结果："
+    },
+    {
+      "key": "t_16d482385891fd440e62",
+      "source": ". Because positions tend to make money, the optimal profit-taking is higher than in the zero-equilibrium case, centered around 6, with stop-losses between 4 and 10. The optimal region takes a rectangular shape, combining a wide stop-loss range with a narrower profit-taking range. Performance is highest across all experiments, with Sharpe ratios around 12.",
+      "translation": "。由于仓位整体倾向于盈利，最优止盈高于零均衡情形，中心约在 6；止损位于 4 到 10 之间。最优区域呈矩形，用较宽的止损范围搭配较窄的止盈范围。该组实验的表现最好，夏普比率约为 12。"
+    },
+    {
+      "key": "t_a2c73022564c9be1e7d1",
+      "source": "Figure 13.7 increases the half-life from ",
+      "translation": "图 13.7 将半衰期从"
+    },
+    {
+      "key": "t_663ea1bfffe5038f3f0c",
+      "source": " to ",
+      "translation": "提高到"
+    },
+    {
+      "key": "t_a9623e93100cf138dd14",
+      "source": ". The optimal profit-taking is centered around 5, with stop-losses between 7 and 10. Figure 13.8 sets ",
+      "translation": "。最优止盈的中心约为 5，止损位于 7 到 10 之间。图 13.8 将半衰期设为"
+    },
+    {
+      "key": "t_de679ae24574e9ca4f6e",
+      "source": ", where optimal profit-taking centers around 3 and stop-losses range between 9 and 10.",
+      "translation": "，此时最优止盈的中心约为 3，止损位于 9 到 10 之间。"
+    },
+    {
+      "key": "t_235dbe5b7d31ff670528",
+      "source": "Figure 13.6: Heat-map for ",
+      "translation": "图 13.6：以下参数对应的热力图："
+    },
+    {
+      "key": "t_3fdd50c47df5da3e481f",
+      "source": "Figure 13.7: Heat-map for ",
+      "translation": "图 13.7：以下参数对应的热力图："
+    },
+    {
+      "key": "t_ece7d6c29e5c3c35863e",
+      "source": "Figure 13.8: Heat-map for ",
+      "translation": "图 13.8：以下参数对应的热力图："
+    },
+    {
+      "key": "t_88a5de2397bda850d72d",
+      "source": "The previous squared area of optimal performance gives way to a semi-circle of small profit-taking with large stop-loss thresholds. Figure 13.9 raises the half-life to ",
+      "translation": "先前近似方形的最优区域，逐渐变成由较小止盈和较大止损构成的半圆。图 13.9 将半衰期提高到"
+    },
+    {
+      "key": "t_acea951bdebedb51f660",
+      "source": ", spreading the optimal region while Sharpe ratios fall to 0.8. Figure 13.10 sets ",
+      "translation": "，最优区域随之扩散，夏普比率降至 0.8。图 13.10 将半衰期设为"
+    },
+    {
+      "key": "t_3b02e1ae3802f58b45f8",
+      "source": ", making the process so close to a random walk that the maximum Sharpe ratio is only 0.32. A similar pattern appears in Figures 13.11 through 13.15, where ",
+      "translation": "，此时过程已经非常接近随机游走，最大夏普比率只有 0.32。图 13.11 至图 13.15 也呈现类似模式，其中"
+    },
+    {
+      "key": "t_84d28851bf48d5b1961b",
+      "source": " increases from 5 to 100.",
+      "translation": "从 5 增加到 100。"
+    },
+    {
+      "key": "t_ea4cf6bc7fb96e3bcd58",
+      "source": "Figure 13.9: Heat-map for ",
+      "translation": "图 13.9：以下参数对应的热力图："
+    },
+    {
+      "key": "t_7be50e62571d1bdf69f9",
+      "source": "Figure 13.10: Heat-map for ",
+      "translation": "图 13.10：以下参数对应的热力图："
+    },
+    {
+      "key": "t_9b7ea9ddef5919a05f04",
+      "source": "Figure 13.11: Heat-map for ",
+      "translation": "图 13.11：以下参数对应的热力图："
+    },
+    {
+      "key": "t_314249fbe29de7b7a4c3",
+      "source": "Figure 13.12: Heat-map for ",
+      "translation": "图 13.12：以下参数对应的热力图："
+    },
+    {
+      "key": "t_efe37616f26c1f8c8ef9",
+      "source": "Figure 13.13: Heat-map for ",
+      "translation": "图 13.13：以下参数对应的热力图："
+    },
+    {
+      "key": "t_e97b51464e512f23edc8",
+      "source": "Figure 13.14: Heat-map for ",
+      "translation": "图 13.14：以下参数对应的热力图："
+    },
+    {
+      "key": "t_c4aec8d94e46ca52f4ea",
+      "source": "Figure 13.15: Heat-map for ",
+      "translation": "图 13.15：以下参数对应的热力图："
+    },
+    {
+      "key": "t_ca2d25a249e1bde50de5",
+      "source": "13.6.3 Cases with Negative Long-Run Equilibrium",
+      "translation": "13.6.3 长期均衡值为负的情形"
+    },
+    {
+      "key": "t_897a056072bcb690ed92",
+      "source": "A rational market participant would not initiate a position under the assumption that a loss is the expected outcome. However, if a trader recognizes that losses are the expected outcome of a pre-existing position, she still needs a strategy to stop out of that position while minimizing losses. Figure 13.16 uses ",
+      "translation": "理性的市场参与者不会在预期结果为亏损时主动建仓。但如果交易者发现已有仓位预期会亏损，仍需要制定退出方案，在止损离场时尽量少亏。图 13.16 使用以下参数："
+    },
+    {
+      "key": "t_e02579d4e4aac009572d",
+      "source": ". Compared with Figure 13.6, it appears as a rotated complement: the profit in Figure 13.6 becomes a loss in Figure 13.16, and vice versa.",
+      "translation": "。与图 13.6 相比，它像是旋转后的互补图形：图 13.6 中的盈利在图 13.16 中变成亏损，反之亦然。"
+    },
+    {
+      "key": "t_ab205908957bdf68a0d3",
+      "source": "Figure 13.16: Heat-map for ",
+      "translation": "图 13.16：以下参数对应的热力图："
+    },
+    {
+      "key": "t_d648d898f05abd9f79ce",
+      "source": "One case is a reverse image of the other, just as a gambler's loss is the house's gain. As expected, Sharpe ratios are negative, with a worst performance region centered around the stop-loss of 6 and profit-taking thresholds between 4 and 10. In Figure 13.17, ",
+      "translation": "两种情形互为镜像，就像赌徒的损失正是庄家的收益。正如预期，夏普比率为负；最差表现区域以止损 6 为中心，止盈阈值位于 4 到 10 之间。图 13.17 中，"
+    },
+    {
+      "key": "t_40a60dbaa72b5afa1388",
+      "source": " and proximity to a random walk plays in our favor: the worst-performance region spreads out and performance becomes less negative, with Sharpe ratios around -9. Figures 13.18, 13.19, and 13.20 show the same progression as ",
+      "translation": "；过程更接近随机游走反而对我们有利：最差表现区域变宽，整体亏损程度减轻，夏普比率约为 -9。图 13.18、13.19 和 13.20 展示了同样的变化，此时"
+    },
+    {
+      "key": "t_38b507fb89e29a18b6fd",
+      "source": " rises to 25, 50, and 100. Figures 13.21 through 13.25 repeat the process for ",
+      "translation": "依次提高到 25、50 和 100。图 13.21 至图 13.25 对"
+    },
+    {
+      "key": "t_5519405d5f7e74df47e0",
+      "source": ". The same rotated-complement pattern appears.",
+      "translation": "重复上述实验，也出现了相同的旋转互补模式。"
+    },
+    {
+      "key": "t_9f2c8b2c841b7548cc16",
+      "source": "Figure 13.17: Heat-map for ",
+      "translation": "图 13.17：以下参数对应的热力图："
+    },
+    {
+      "key": "t_004473bc5e147a8bb768",
+      "source": "Figure 13.18: Heat-map for ",
+      "translation": "图 13.18：以下参数对应的热力图："
+    },
+    {
+      "key": "t_8c45e6676cf1fd309d67",
+      "source": "Figure 13.19: Heat-map for ",
+      "translation": "图 13.19：以下参数对应的热力图："
+    },
+    {
+      "key": "t_cc76e4dec8568d39ca5a",
+      "source": "Figure 13.20: Heat-map for ",
+      "translation": "图 13.20：以下参数对应的热力图："
+    },
+    {
+      "key": "t_afb774c41b3bcf1791c1",
+      "source": "Figure 13.21: Heat-map for ",
+      "translation": "图 13.21：以下参数对应的热力图："
+    },
+    {
+      "key": "t_adbf7a8a896bac565634",
+      "source": "Figure 13.22: Heat-map for ",
+      "translation": "图 13.22：以下参数对应的热力图："
+    },
+    {
+      "key": "t_7af3a31166a646f40c6f",
+      "source": "Figure 13.23: Heat-map for ",
+      "translation": "图 13.23：以下参数对应的热力图："
+    },
+    {
+      "key": "t_dbe21b574dc78d2f10a0",
+      "source": "Figure 13.24: Heat-map for ",
+      "translation": "图 13.24：以下参数对应的热力图："
+    },
+    {
+      "key": "t_a5f168e12502cccd4755",
+      "source": "Figure 13.25: Heat-map for ",
+      "translation": "图 13.25：以下参数对应的热力图："
+    },
+    {
+      "key": "t_04568fb44a7d216ffe49",
+      "source": "13.7 Conclusion",
+      "translation": "13.7 结论"
+    },
+    {
+      "key": "t_e4f1c96bf031dac341df",
+      "source": "In this chapter we have shown how to determine experimentally the optimal trading strategy associated with prices following a discrete O-U process. Because the derivation of such trading strategy is not the result of a historical simulation, our procedure avoids the risks associated with overfitting the backtest to a single path. Instead, the optimal trading rule is derived from the characteristics of the underlying stochastic process that drives prices. The same approach can be applied to processes other than O-U, and we have focused on this particular process only for educational purposes. While we do not derive the closed-form solution to the optimal trading strategies problem in this chapter, our experimental results seem to support the following OTR conjecture:",
+      "translation": "本章说明了如何通过实验，为服从离散 O-U 过程的价格确定最优交易规则。由于这套规则不是从某一条历史路径的模拟结果中挑出来的，因此可以避免回测只贴合单一路径的风险。最优交易规则来自驱动价格的底层随机过程特征。同样的方法也适用于 O-U 以外的过程；这里只选用 O-U，是为了便于讲解。本章虽然没有推导最优交易规则的闭式解，但实验结果支持以下 OTR 猜想："
+    },
+    {
+      "key": "t_d9b797fb33e7ad27cd0f",
+      "source": "Conjecture: Given a financial instrument’s price characterized by a discrete O-U process, there is a unique optimal trading rule in terms of a combination of profit-taking and stop-loss that maximizes the rule’s Sharpe ratio.",
+      "translation": "猜想：如果一种金融工具的价格服从离散 O-U 过程，那么存在唯一的止盈与止损组合，能够使该交易规则的夏普比率达到最大。"
+    },
+    {
+      "key": "t_1850362e343e1681fd32",
+      "source": "Given that these optimal trading rules can be derived numerically within a few seconds, there is little practical incentive to obtain a closed-form solution. As it is becoming more common in mathematical research, the experimental analysis of a conjecture can help us achieve a goal even in the absence of a proof. It could take years if not decades to prove the above conjecture, and yet all experiments conducted so far confirm it empirically. Let me put it this way: The probability that this conjecture is false is negligible relative to the probability that you will overfit your trading rule by disregarding the conjecture. Hence, the rational course of action is to assume that the conjecture is right, and determine the OTR through synthetic data. In the worst case, the trading rule will be suboptimal, but still it will almost surely outperform an overfit trading rule.",
+      "translation": "这些最优交易规则只需几秒钟就能用数值方法求出，因此在实践中没有太大必要再寻找闭式解。在数学研究中，越来越常见的做法是通过实验考察猜想；即使没有证明，这种方法也能帮助我们解决实际问题。证明上述猜想也许需要几年甚至几十年，但迄今所有实验都在经验上支持它。换个更直接的说法：这个猜想为假的概率，远小于忽略它并把交易规则拟合过头的概率。因此，理性的做法是先假定猜想成立，再用合成数据求出 OTR。即使最坏情况下规则并非绝对最优，它也几乎必然优于一条过拟合的交易规则。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_26ccc921846f8bf26b1e",
+      "source": "Previous: Backtesting through Cross-Validation",
+      "translation": "上一章：通过交叉验证进行回测"
+    },
+    {
+      "key": "t_e951f3c093e9071f28a0",
+      "source": "Next: Backtest Statistics",
+      "translation": "下一章：回测统计量"
+    },
+    {
+      "key": "t_8a34fc889ada29b536d6",
+      "source": "exhibits serial correlation. In particular, suppose a discrete Ornstein-Uhlenbeck (O-U) process on prices",
+      "translation": "存在序列相关时。具体来说，假设价格服从离散 Ornstein–Uhlenbeck（O-U）过程："
+    },
+    {
+      "key": "t_d528eaf9cffaebe548e6",
+      "source": "such that the random shocks are IID distributed",
+      "translation": "其中，随机冲击独立同分布（IID）："
+    },
+    {
+      "key": "t_a6038b79f958ea1e2851",
+      "source": ". The seed value for this process is",
+      "translation": "。该过程的初始值为"
+    },
+    {
+      "key": "t_7153af28fa28f52ee274",
+      "source": ", the level targeted by opportunity",
+      "translation": "；机会"
+    },
+    {
+      "key": "t_fa51fd49abf67705d6a3",
+      "source": "is",
+      "translation": "的目标水平为"
+    },
+    {
+      "key": "t_4aa9bfd2f175a94ad5a7",
+      "source": ", and",
+      "translation": "；而"
+    },
+    {
+      "key": "t_3b9e17a9f7381dfcd480",
+      "source": "determines the speed at which",
+      "translation": "决定"
+    },
+    {
+      "key": "t_437fa424e9ed1ab1b127",
+      "source": "converges toward",
+      "translation": "向"
+    },
+    {
+      "key": "t_c9d4295d7cba2dc77b25",
+      "source": ". Because",
+      "translation": "收敛的速度。由于"
+    },
+    {
+      "key": "t_f3c35fab65c537f88db3",
+      "source": ", equation (13.2) implies that opportunity performance is characterized by",
+      "translation": "，式（13.2）说明机会的表现可写为："
+    },
+    {
+      "key": "t_5255c80914d487c16051",
+      "source": "From the proof to Proposition 4 in Bailey and López de Prado",
+      "translation": "根据 Bailey 和 López de Prado "
+    },
+    {
+      "key": "t_b90df6dc5772fb3599fe",
+      "source": ", the distribution of the process specified in equation (13.2) is Gaussian with parameters",
+      "translation": "对命题 4 的证明，式（13.2）给出的过程服从高斯分布，参数为："
+    },
+    {
+      "key": "t_7d15ae06ebabe5fb03ab",
+      "source": "A necessary and sufficient condition for stationarity is",
+      "translation": "平稳的充要条件是"
+    },
+    {
+      "key": "t_4757ee1da7a1fdafb1e2",
+      "source": ". Given input parameters",
+      "translation": "。给定输入参数"
+    },
+    {
+      "key": "t_2e47bbbb288e5dbc6a0c",
+      "source": "and initial conditions",
+      "translation": "以及初始条件"
+    },
+    {
+      "key": "t_b8a630b011bbbf13c199",
+      "source": "associated with opportunity",
+      "translation": "，它们对应机会"
+    },
+    {
+      "key": "t_0f206c52b47789a06980",
+      "source": ", is there an OTR",
+      "translation": "，是否存在最优交易规则"
+    },
+    {
+      "key": "t_780c668c9f07bdbf44e1",
+      "source": "? Similarly, if strategy",
+      "translation": "？类似地，如果策略"
+    },
+    {
+      "key": "t_d61e20cfeb28e3dbaa16",
+      "source": "predicts a profit target",
+      "translation": "给出止盈目标"
+    },
+    {
+      "key": "t_0e7502a5981b6c792385",
+      "source": ", can we compute the optimal stop-loss",
+      "translation": "，能否求出最优止损"
+    },
+    {
+      "key": "t_5b729e0f619797fd6110",
+      "source": "given",
+      "translation": "？给定参数"
+    },
+    {
+      "key": "t_52aa5578884f98f7eaa1",
+      "source": "? If the answer is affirmative, no backtest is needed to determine",
+      "translation": "后，如果答案是肯定的，就无需回测来确定"
+    },
+    {
+      "key": "t_276ccb7cd753201def02",
+      "source": ", thus avoiding overfitting the trading rule.",
+      "translation": "，从而避免交易规则过拟合。"
+    },
+    {
+      "key": "t_4ede84f1956e599d8ba3",
+      "source": "13.5 Numerical Determination Of Optimal Trading Rules",
+      "translation": "13.5 用数值方法确定最优交易规则"
+    },
+    {
+      "key": "t_6324c864a3b1c1c1df95",
+      "source": "In the previous section we used an O-U specification to characterize the stochastic process generating the returns of strategy S. In this section we will present a procedure to numerically derive the OTR for any specification in general, and the O-U specification in particular.",
+      "translation": "上一节用 O-U 模型描述了生成策略 S 收益的随机过程。本节给出一套数值方法，可用于一般随机过程，也特别适用于 O-U 过程。"
+    },
+    {
+      "key": "t_1fede57bc52a34a4d7c4",
+      "source": "13.5.1 The Algorithm",
+      "translation": "13.5.1 算法"
+    },
+    {
+      "key": "t_38926fde97bde53397d2",
+      "source": "The algorithm consists of five sequential steps.",
+      "translation": "算法依次执行五个步骤。"
+    },
+    {
+      "key": "t_ae4d4a3682504b03a2e4",
+      "source": "Estimate the input parameters",
+      "translation": "将式（13.2）线性化，以估计输入参数"
+    },
+    {
+      "key": "t_5afd1585408a89e45468",
+      "source": "by linearizing equation (13.2) as",
+      "translation": "："
+    },
+    {
+      "key": "t_d46ee6522cc546203033",
+      "source": "Then form vectors",
+      "translation": "随后按各个机会的先后顺序构造向量："
+    },
+    {
+      "key": "t_df1e89c27d7fef318d13",
+      "source": "by sequencing opportunities:",
+      "translation": "则按同样顺序构造："
+    },
+    {
+      "key": "t_e4ec6b76e6750e8b39b5",
+      "source": "Applying OLS on equation (13.5), estimate the original O-U parameters as",
+      "translation": "对式（13.5）使用普通最小二乘法（OLS），再按下式估计原始 O-U 参数："
+    },
+    {
+      "key": "t_fde7ec150d8af34bb06e",
+      "source": "is the covariance operator.",
+      "translation": "表示协方差算子。"
+    },
+    {
+      "key": "t_38260556fecd7bffc544",
+      "source": "Construct a mesh of stop-loss and profit-taking pairs,",
+      "translation": "构造由止损和止盈参数对组成的网格："
+    },
+    {
+      "key": "t_97a77bfbe86eee66aa96",
+      "source": ". For example, the Cartesian product of",
+      "translation": "。例如，取以下两个集合的笛卡尔积："
+    },
+    {
+      "key": "t_9d90bf94f94cb2788710",
+      "source": "gives 20 x 20 nodes, each an alternative trading rule",
+      "translation": "，可得到 20 × 20 个网格节点，每个节点代表一种候选交易规则"
+    },
+    {
+      "key": "t_169c63fd6a2262f09797",
+      "source": "Generate a large number of paths, for example 100,000, for",
+      "translation": "生成大量损益路径（例如 100,000 条），对应的过程为"
+    },
+    {
+      "key": "t_6db536170348e5b49950",
+      "source": "using the estimates",
+      "translation": "；所用估计参数为"
+    },
+    {
+      "key": "t_6cb92b81019cc3ae511c",
+      "source": "and the observed initial conditions",
+      "translation": "，观测到的初始条件为"
+    },
+    {
+      "key": "t_8a8752a11c7d0a40e3ec",
+      "source": ". A maximum holding period may be imposed as a vertical barrier, so a position exits even when",
+      "translation": "。还可以把最大持有期设为纵向屏障，使仓位在第 100 期强制退出，即使当时仍满足"
+    },
+    {
+      "key": "t_348d3f09abd8cd2fdc84",
+      "source": "Apply the simulated paths to each node of the",
+      "translation": "把模拟路径应用到"
+    },
+    {
+      "key": "t_691faf621a4fc237488c",
+      "source": "mesh. For each node, apply stop-loss and profit-taking logic, obtain simulated values of",
+      "translation": "网格的每个节点。对每个节点执行止损和止盈逻辑，得到模拟的"
+    },
+    {
+      "key": "t_33daf2c84b94633b87e9",
+      "source": ", and compute the Sharpe ratio in equation (13.1).",
+      "translation": "，再按式（13.1）计算夏普比率。"
+    },
+    {
+      "key": "t_ec608fd1cde5f42739f3",
+      "source": "Use the resulting surface in three ways:",
+      "translation": "所得曲面有三种用法："
+    },
+    {
+      "key": "t_f851134befde48ca28fa",
+      "source": "Step 5a:",
+      "translation": "步骤 5a："
+    },
+    {
+      "key": "t_9590cf5aeee0608258fb",
+      "source": "determine the optimal pair",
+      "translation": "求出最优参数对"
+    },
+    {
+      "key": "t_93567db899613a5d3912",
+      "source": "for the input parameters and initial conditions",
+      "translation": "，对应的输入参数和初始条件为"
+    },
+    {
+      "key": "t_23654d90ad91d816664e",
+      "source": "Step 5b:",
+      "translation": "步骤 5b："
+    },
+    {
+      "key": "t_5f42c1057ab71ac22a9e",
+      "source": "given a profit target",
+      "translation": "给定止盈目标"
+    },
+    {
+      "key": "t_e1c7dc304852eaac5cc7",
+      "source": ", determine the optimal stop-loss",
+      "translation": "，求最优止损"
+    },
+    {
+      "key": "t_11f61ec257c52e7430f9",
+      "source": "Step 5c:",
+      "translation": "步骤 5c："
+    },
+    {
+      "key": "t_6e32dc65867c6f91794e",
+      "source": "given a maximum stop-loss",
+      "translation": "给定最大止损"
+    },
+    {
+      "key": "t_94034d7435d830bf2626",
+      "source": ", determine the optimal profit-taking level",
+      "translation": "，求最优止盈水平"
+    },
+    {
+      "key": "t_73bebf4f4d2b913e6348",
+      "source": "within the stop-loss range.",
+      "translation": "，并在给定的止损范围内进行优化。"
+    },
+    {
+      "key": "t_8821c046b499e5ae522c",
+      "source": "The trading rule",
+      "translation": "交易规则"
+    },
+    {
+      "key": "t_5cb9d3f7ae455b392075",
+      "source": "could be characterized as a function of the three barriers, instead of the horizontal ones. That change would merely add one more dimension to the mesh (20 x 20 x 20). In this chapter we do not consider that setting, because it would make the visualization of the method less intuitive.",
+      "translation": "也可以定义为三个屏障的函数，而不只是两个横向屏障。这样只会给网格再增加一个维度（20 × 20 × 20）。本章不讨论这种设定，因为它会让方法的可视化不够直观。"
+    },
+    {
+      "key": "t_acb19fd4d6894c9251dd",
+      "source": "Bailey and López de Prado",
+      "translation": "Bailey 和 López de Prado "
+    },
+    {
+      "key": "t_d0cdfd3cf3299aed86f4",
+      "source": "prove that the half-life of the process in equation (13.2) is",
+      "translation": "证明，式（13.2）所示过程的半衰期为"
+    },
+    {
+      "key": "t_5dc7680cacec826b738a",
+      "source": ", with",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_ee2adf953b58eb0131a8",
+      "source": ". From that result, the value of",
+      "translation": "。由此可知，参数"
+    },
+    {
+      "key": "t_ab7c389b2b4040d44ebc",
+      "source": "associated with a half-life",
+      "translation": "与半衰期（"
+    },
+    {
+      "key": "t_0026f246a99ff2cae9ec",
+      "source": "13.5.2 Implementation",
+      "translation": "13.5.2 实现"
+    },
+    {
+      "key": "t_9c7b7f512c6f51bb8979",
+      "source": "Snippet 13.1 provides a Python implementation of the experiments conducted in this chapter. Function",
+      "translation": "代码清单 13.1 给出了本章实验的 Python 实现。函数"
+    },
+    {
+      "key": "t_18eeaa165829e541c944",
+      "source": "produces a Cartesian product of parameters",
+      "translation": "会对以下参数取笛卡尔积："
+    },
+    {
+      "key": "t_8dc4a4a30211f3c5d19e",
+      "source": ", which characterize the stochastic process from equation (13.5). Without loss of generality, all simulations use",
+      "translation": "；这些参数描述式（13.5）的随机过程。在不失一般性的前提下，所有模拟都令"
+    },
+    {
+      "key": "t_c3641022a40604de3b66",
+      "source": ". Then, for each pair",
+      "translation": "。随后，对每一组参数"
+    },
+    {
+      "key": "t_5949fba579ca189e04ad",
+      "source": ", function",
+      "translation": "，函数"
+    },
+    {
+      "key": "t_52496389cb636ac09e84",
+      "source": "computes Sharpe ratios associated with various trading rules.",
+      "translation": "都会计算各种交易规则对应的夏普比率。"
+    },
+    {
+      "key": "t_d1009abb09c132aa14cb",
+      "source": "Snippet 13.1: Python Code for the Determination of Optimal Trading Rules",
+      "translation": "代码清单 13.1：确定最优交易规则的 Python 代码"
+    },
+    {
+      "key": "t_e21f935f11d7e966dbba",
+      "source": "Copy",
+      "translation": "复制"
+    },
+    {
+      "key": "t_51c455d7f3bc35ae3ef2",
+      "source": "Snippet 13.2 computes a",
+      "translation": "代码清单 13.2 会计算一个"
+    },
+    {
+      "key": "t_3835f414b48919e1b0e8",
+      "source": "mesh of Sharpe ratios, one for each trading rule",
+      "translation": "夏普比率网格，每种交易规则"
+    },
+    {
+      "key": "t_9629b392b363b75f6bdc",
+      "source": ", given a pair of parameters",
+      "translation": "对应一个网格值；给定的过程参数为"
+    },
+    {
+      "key": "t_e75d3564c66c469ab396",
+      "source": ". The maximum holding period is set at 100. We fix",
+      "translation": "。最大持有期设为 100。令"
+    },
+    {
+      "key": "t_d6f23f4768b268879029",
+      "source": ", since the distance",
+      "translation": "，因为式（13.5）中真正驱动收敛的是距离"
+    },
+    {
+      "key": "t_dff64241be75df17d9a0",
+      "source": "in equation (13.5) drives convergence, not absolute price levels. Once one of the three barriers is touched, the exit price is stored and the next iteration starts. After all iterations are completed, the Sharpe ratio is computed for that pair and the algorithm moves to the next pair.",
+      "translation": "，而不是绝对价格水平。一旦触及三个屏障中的任何一个，就记录退出价格并开始下一次迭代。全部迭代完成后，计算该参数对的夏普比率，再处理下一组参数。"
+    },
+    {
+      "key": "t_68f67d4db7873e57cd52",
+      "source": "Snippet 13.2: Python Code for the Determination of Optimal Trading Rules",
+      "translation": "代码清单 13.2：确定最优交易规则的 Python 代码"
+    },
+    {
+      "key": "t_5bd3562a86ad65a3e807",
+      "source": "13.6 Experimental Results",
+      "translation": "13.6 实验结果"
+    },
+    {
+      "key": "t_78afbec20594e8a06b33",
+      "source": "Table 13.1 lists the combinations analyzed in this study. Although different values for these inputs would render different numerical results, the combinations applied allow us to analyze the most general cases. Column “Forecast” refers to",
+      "translation": "表 13.1 列出了本研究分析的参数组合。不同输入值会产生不同数值结果，但这里采用的组合足以分析最一般、最具代表性的情形。“预测值”列对应"
+    },
+    {
+      "key": "t_277ad8aa1ec23585a061",
+      "source": "; column “Half-Life” refers to",
+      "translation": "；“半衰期”列对应"
+    },
+    {
+      "key": "t_a7ec99322a34a1f94981",
+      "source": "; column “Sigma” refers to",
+      "translation": "；“波动率（σ）”列对应"
+    },
+    {
+      "key": "t_129eafb386a42ae5fc9e",
+      "source": "; column “maxHP” stands for maximum holding period.",
+      "translation": "；“最大持有期”列表示允许持仓的最长时间。"
+    },
+    {
+      "key": "t_01257b06e7aa14a4c588",
+      "source": "Table 13.1: Input Parameter Combinations Used in the Simulations",
+      "translation": "表 13.1：模拟采用的输入参数组合"
+    },
+    {
+      "key": "t_1f5be66894e5ef6a6919",
+      "source": "Figure",
+      "translation": "图"
+    },
+    {
+      "key": "t_75205de8b342f506fdd2",
+      "source": "Forecast",
+      "translation": "预测值"
+    },
+    {
+      "key": "t_ed0dddb6f1a358ee6f35",
+      "source": "Half-Life",
+      "translation": "半衰期"
+    },
+    {
+      "key": "t_445edbc9f894c1c5af55",
+      "source": "Sigma",
+      "translation": "波动率（σ）"
+    },
+    {
+      "key": "t_9988d1f4cf778980b8b4",
+      "source": "maxHP",
+      "translation": "最大持有期"
+    },
+    {
+      "key": "t_8c5762502bc32a39464a",
+      "source": "In the following figures, we have plotted the non-annualized Sharpe ratios that result from various combinations of profit-taking and stop-loss exit conditions. We have omitted the negative sign in the y-axis (stop-losses) for simplicity. Sharpe ratios are represented in grayscale, with lighter areas indicating better performance and darker areas indicating worse performance. Performance",
+      "translation": "下面各图展示不同止盈、止损退出条件组合得到的未年化夏普比率。为简化图形，纵轴的止损数值省略了负号。夏普比率用灰度表示：颜色越浅，表现越好；颜色越深，表现越差。损益"
+    },
+    {
+      "key": "t_e4886e29aabd4c359a9e",
+      "source": "is computed per unit held",
+      "translation": "按持有一个单位计算"
+    },
+    {
+      "key": "t_bc9ef0ae77beecfdc550",
+      "source": ", since other values of",
+      "translation": "，因为其他"
+    },
+    {
+      "key": "t_a05a0a274bf49585dacd",
+      "source": "simply rescale performance with no impact on the Sharpe ratio.",
+      "translation": "取值只会按比例缩放损益，不会影响夏普比率。"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_95b55f9f8056d07a53d4",
+      "source": "Figure 13.1: heat-map for forecast 0, half-life 5, sigma 1",
+      "translation": "图 13.1：预测值 0、半衰期 5、波动率 1 的热力图"
+    },
+    {
+      "key": "t_53829d49865e3fb2bb16",
+      "source": "Figure 13.2: heat-map for forecast 0, half-life 10, sigma 1",
+      "translation": "图 13.2：预测值 0、半衰期 10、波动率 1 的热力图"
+    },
+    {
+      "key": "t_1fd0637de3d3a4178232",
+      "source": "Figure 13.3: heat-map for forecast 0, half-life 25, sigma 1",
+      "translation": "图 13.3：预测值 0、半衰期 25、波动率 1 的热力图"
+    },
+    {
+      "key": "t_eec8cc6fe52ded10cfcd",
+      "source": "Figure 13.4: heat-map for forecast 0, half-life 50, sigma 1",
+      "translation": "图 13.4：预测值 0、半衰期 50、波动率 1 的热力图"
+    },
+    {
+      "key": "t_881de3df6ed3d418d767",
+      "source": "Figure 13.5: heat-map for forecast 0, half-life 100, sigma 1",
+      "translation": "图 13.5：预测值 0、半衰期 100、波动率 1 的热力图"
+    },
+    {
+      "key": "t_e2fd21647014cb80c644",
+      "source": "Figure 13.6: heat-map for forecast 5, half-life 5, sigma 1",
+      "translation": "图 13.6：预测值 5、半衰期 5、波动率 1 的热力图"
+    },
+    {
+      "key": "t_76c41bf92a5b621565b1",
+      "source": "Figure 13.7: heat-map for forecast 5, half-life 10, sigma 1",
+      "translation": "图 13.7：预测值 5、半衰期 10、波动率 1 的热力图"
+    },
+    {
+      "key": "t_325de0b9f19f2e79247d",
+      "source": "Figure 13.8: heat-map for forecast 5, half-life 25, sigma 1",
+      "translation": "图 13.8：预测值 5、半衰期 25、波动率 1 的热力图"
+    },
+    {
+      "key": "t_32c3428059927d13cf96",
+      "source": "Figure 13.9: heat-map for forecast 5, half-life 50, sigma 1",
+      "translation": "图 13.9：预测值 5、半衰期 50、波动率 1 的热力图"
+    },
+    {
+      "key": "t_1d5b58ce3bf91bf3c66b",
+      "source": "Figure 13.10: heat-map for forecast 5, half-life 100, sigma 1",
+      "translation": "图 13.10：预测值 5、半衰期 100、波动率 1 的热力图"
+    },
+    {
+      "key": "t_e3ae75e18aa25341783a",
+      "source": "Figure 13.11: heat-map for forecast 10, half-life 5, sigma 1",
+      "translation": "图 13.11：预测值 10、半衰期 5、波动率 1 的热力图"
+    },
+    {
+      "key": "t_58e1ad590eaec00c7e8a",
+      "source": "Figure 13.12: heat-map for forecast 10, half-life 10, sigma 1",
+      "translation": "图 13.12：预测值 10、半衰期 10、波动率 1 的热力图"
+    },
+    {
+      "key": "t_2891bf7814e2faf06530",
+      "source": "Figure 13.13: heat-map for forecast 10, half-life 25, sigma 1",
+      "translation": "图 13.13：预测值 10、半衰期 25、波动率 1 的热力图"
+    },
+    {
+      "key": "t_2d783fe126c10d4f45e9",
+      "source": "Figure 13.14: heat-map for forecast 10, half-life 50, sigma 1",
+      "translation": "图 13.14：预测值 10、半衰期 50、波动率 1 的热力图"
+    },
+    {
+      "key": "t_6269f1d25bf5d5ecdd6e",
+      "source": "Figure 13.15: heat-map for forecast 10, half-life 100, sigma 1",
+      "translation": "图 13.15：预测值 10、半衰期 100、波动率 1 的热力图"
+    },
+    {
+      "key": "t_d891fd798a56ede596a7",
+      "source": "Figure 13.16: heat-map for forecast -5, half-life 5, sigma 1",
+      "translation": "图 13.16：预测值 -5、半衰期 5、波动率 1 的热力图"
+    },
+    {
+      "key": "t_4b7950c9c651264c1d7f",
+      "source": "Figure 13.17: heat-map for forecast -5, half-life 10, sigma 1",
+      "translation": "图 13.17：预测值 -5、半衰期 10、波动率 1 的热力图"
+    },
+    {
+      "key": "t_b7e3a8bac9e08f9fd6ed",
+      "source": "Figure 13.18: heat-map for forecast -5, half-life 25, sigma 1",
+      "translation": "图 13.18：预测值 -5、半衰期 25、波动率 1 的热力图"
+    },
+    {
+      "key": "t_da27ba9bb8b1dd7d78ca",
+      "source": "Figure 13.19: heat-map for forecast -5, half-life 50, sigma 1",
+      "translation": "图 13.19：预测值 -5、半衰期 50、波动率 1 的热力图"
+    },
+    {
+      "key": "t_bb278bf49390e4d78498",
+      "source": "Figure 13.20: heat-map for forecast -5, half-life 100, sigma 1",
+      "translation": "图 13.20：预测值 -5、半衰期 100、波动率 1 的热力图"
+    },
+    {
+      "key": "t_d0a5dae146f5c864b1da",
+      "source": "Figure 13.21: heat-map for forecast -10, half-life 5, sigma 1",
+      "translation": "图 13.21：预测值 -10、半衰期 5、波动率 1 的热力图"
+    },
+    {
+      "key": "t_f8895e6133d3618e231d",
+      "source": "Figure 13.22: heat-map for forecast -10, half-life 10, sigma 1",
+      "translation": "图 13.22：预测值 -10、半衰期 10、波动率 1 的热力图"
+    },
+    {
+      "key": "t_4dfbaa664cc7a94aa3ce",
+      "source": "Figure 13.23: heat-map for forecast -10, half-life 25, sigma 1",
+      "translation": "图 13.23：预测值 -10、半衰期 25、波动率 1 的热力图"
+    },
+    {
+      "key": "t_0d305dac0c80ce8d1933",
+      "source": "Figure 13.24: heat-map for forecast -10, half-life 50, sigma 1",
+      "translation": "图 13.24：预测值 -10、半衰期 50、波动率 1 的热力图"
+    },
+    {
+      "key": "t_4366a89de2faf66d7c4d",
+      "source": "Figure 13.25: heat-map for forecast -10, half-life 100, sigma 1",
+      "translation": "图 13.25：预测值 -10、半衰期 100、波动率 1 的热力图"
+    }
+  ]
+}

@@ -1,0 +1,646 @@
+{
+  "chapter": "chapter-11",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_29bc4ce3f800942ecb7e",
+      "source": "The Dangers of Backtesting | Advances in Financial Machine Learning",
+      "translation": "回测的危险 | 金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_6c97bca7afd7fe168b80",
+      "source": "Part 3: Backtesting",
+      "translation": "第三部分：回测"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_efe237de73384f15003d",
+      "source": "The Dangers of Backtesting",
+      "translation": "回测的危险"
+    },
+    {
+      "key": "t_e5df62a108a29498fd8b",
+      "source": "11.1 Motivation",
+      "translation": "11.1 动机"
+    },
+    {
+      "key": "t_958953d2dc7851d99389",
+      "source": "Backtesting is one of the most essential, and yet least understood, techniques in the quant arsenal. A common misunderstanding is to think of backtesting as a research tool. Researching and backtesting is like drinking and driving. Do not research under the influence of a backtest. Most backtests published in journals are flawed, as the result of selection bias on multiple tests (Bailey, Borwein, López de Prado, and Zhu",
+      "translation": "回测是量化工具箱中最重要、却也最容易被误解的技术之一。常见误区是把回测当成研究工具。边研究边回测，就像酒后驾车；不要在回测的影响下做研究。期刊发表的大多数回测都有缺陷，原因是反复进行多重检验后产生了选择偏差（Bailey、Borwein、López de Prado 和 Zhu"
+    },
+    {
+      "key": "t_d051f5616fbe80356f04",
+      "source": "; Harvey et al.",
+      "translation": "；Harvey 等人"
+    },
+    {
+      "key": "t_257044f1415a5936ca7e",
+      "source": "). A full book could be written listing all the different errors people make while backtesting. I may be the academic author with the largest number of journal articles on backtesting",
+      "translation": "）。人们在回测中会犯的错误，多到足以写成一本书。我可能是发表回测论文最多的学术作者之一"
+    },
+    {
+      "key": "t_2ee86875592c2de454d3",
+      "source": "and investment performance metrics, and still I do not feel I would have the stamina to compile all the different errors I have seen over the past 20 years. This chapter is not a crash course on backtesting, but a short list of some of the common errors that even seasoned professionals make.",
+      "translation": "，同时也发表过大量投资绩效指标论文，但仍没有精力把过去 20 年见过的所有错误逐一整理出来。本章不是回测速成课，只列举一些连资深专业人士也常犯的错误。"
+    },
+    {
+      "key": "t_e43463796c8b68b49b91",
+      "source": "11.2 Mission Impossible: The Flawless Backtest",
+      "translation": "11.2 不可能的任务：无懈可击的回测"
+    },
+    {
+      "key": "t_87da1b247911dc325967",
+      "source": "In its narrowest definition, a backtest is a historical simulation of how a strategy would have performed should it have been run over a past period of time. As such, it is a hypothetical, and by no means an experiment. At a physics laboratory, like Berkeley Lab, we can repeat an experiment while controlling for environmental variables, in order to deduce a precise cause-effect relationship. In contrast, a backtest is not an experiment, and it does not prove anything. A backtest guarantees nothing, not even achieving that Sharpe ratio if we could travel back in time in our retrofitted DeLorean DMC-12 (Bailey and López de Prado",
+      "translation": "最狭义地说，回测是历史模拟：假设某个策略在过去一段时间运行，它会有怎样的表现。因此，回测只是假设情景，绝不是实验。在 Berkeley Lab 这样的物理实验室里，我们可以控制环境变量、重复实验，从而推断精确的因果关系。回测则不同：它不是实验，也证明不了任何事情。回测不作任何保证；即便我们开着改装后的 DeLorean DMC-12 回到过去，也不能保证重现同样的夏普比率（Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_ea1346f22a1a20f4f00a",
+      "source": "). Random draws would have been different. The past would not repeat itself.",
+      "translation": "）。随机抽样会不同，过去也不会原样重演。"
+    },
+    {
+      "key": "t_ba8bc43bd7581afe77b1",
+      "source": "What is the point of a backtest then? It is a sanity check on a number of variables, including bet sizing, turnover, resilience to costs, and behavior under a given scenario. A good backtest can be extremely helpful, but backtesting well is extremely hard. In 2014 a team of quants at Deutsche Bank, led by Yin Luo, published a study under the title “Seven Sins of Quantitative Investing” (Luo et al.",
+      "translation": "那么回测有什么用？它可以对多项因素做合理性检查，包括仓位规模、换手率、对成本的承受力，以及策略在给定情景下的行为。好的回测非常有帮助，但要把回测做好极其困难。2014 年，Yin Luo 领导的德意志银行量化团队发表了《量化投资七宗罪》（Luo 等人"
+    },
+    {
+      "key": "t_bf2848b2401f91d47e13",
+      "source": "). It is a very graphic and accessible piece that I would advise everyone in this business to read carefully. In it, this team mentions the usual suspects:",
+      "translation": "）。这篇文章图文直观、通俗易懂，我建议业内每个人都认真阅读。文中列出的常见问题包括："
+    },
+    {
+      "key": "t_3a7278d41bbbe72b6bb5",
+      "source": "Survivorship bias: Using as investment universe the current one, hence ignoring that some companies went bankrupt and securities were delisted along the way.",
+      "translation": "幸存者偏差：用当前仍存在的证券作为投资范围，忽略了期间有些公司已经破产、有些证券已经退市。"
+    },
+    {
+      "key": "t_4ecfdd53b6768096259f",
+      "source": "Look-ahead bias: Using information that was not public at the moment the simulated decision would have been made. Be certain about the timestamp for each data point. Take into account release dates, distribution delays, and backfill corrections.",
+      "translation": "前视偏差：使用模拟决策当时尚未公开的信息。务必确认每个数据点的时间戳，并考虑发布日期、传播延迟和回填修正。"
+    },
+    {
+      "key": "t_73f6a1b7800007881d56",
+      "source": "Storytelling: Making up a story ex-post to justify some random pattern.",
+      "translation": "事后编故事：随机出现一个模式后，再编出故事为它辩护。"
+    },
+    {
+      "key": "t_b3c5004b2389d793d4fd",
+      "source": "Data mining and data snooping: Training the model on the testing set.",
+      "translation": "数据挖掘与数据窥探：用测试集训练模型。"
+    },
+    {
+      "key": "t_ba87135de5a72a5f0367",
+      "source": "Transaction costs: Simulating transaction costs is hard because the only way to be certain about that cost would have been to interact with the trading book (i.e., to do the actual trade).",
+      "translation": "交易成本：交易成本很难模拟，因为只有真正与订单簿交互、实际执行交易，才能确定成本究竟是多少。"
+    },
+    {
+      "key": "t_3c878d8781ccb09d7d97",
+      "source": "Outliers: Basing a strategy on a few extreme outcomes that may never happen again as observed in the past.",
+      "translation": "异常值：策略依赖少数极端结果，而这些结果可能永远不会以历史中的方式再次出现。"
+    },
+    {
+      "key": "t_12251e7160f38ff30dac",
+      "source": "Shorting: Taking a short position on cash products requires finding a lender. The cost of lending and the amount available is generally unknown, and depends on relations, inventory, relative demand, etc.",
+      "translation": "做空：做空现金产品需要先找到出借方。借券成本和可借数量通常无法预先确定，还取决于业务关系、库存、相对需求等因素。"
+    },
+    {
+      "key": "t_2e8adaf83969eff30128",
+      "source": "These are just a few basic errors that most papers published in journals make routinely. Other common errors include computing performance using a non-standard method (Chapter 14); ignoring hidden risks; focusing only on returns while ignoring other metrics; confusing correlation with causation; selecting an unrepresentative time period; failing to expect the unexpected; ignoring the existence of stop-out limits or margin calls; ignoring funding costs; and forgetting practical aspects (Sarfati",
+      "translation": "这些只是一些基础错误，而许多期刊论文经常照犯不误。其他常见错误还包括：用非标准方法计算绩效（第 14 章）；忽略隐性风险；只看收益而忽略其他指标；把相关性误当因果关系；选择没有代表性的时间段；没有为意外情况做好准备；忽视止损退出限制或追加保证金要求；忽略融资成本；忘记现实操作问题（Sarfati"
+    },
+    {
+      "key": "t_34f73f63843931b0fde1",
+      "source": "). There are many more, but really, there is no point in listing them, because of the title of the next section.",
+      "translation": "）。类似错误还有很多，但其实没必要继续罗列，原因就在下一节的标题里。"
+    },
+    {
+      "key": "t_406b40ea2c5d309a8d06",
+      "source": "11.3 Even If Your Backtest Is Flawless, It Is Probably Wrong",
+      "translation": "11.3 即便回测无懈可击，也很可能是错的"
+    },
+    {
+      "key": "t_a1a565585989a751f2e5",
+      "source": "Congratulations! Your backtest is flawless in the sense that everyone can reproduce your results, and your assumptions are so conservative that not even your boss could object to them. You have paid for every trade more than double what anyone could possibly ask. You have executed hours after the information was known by half the globe, at a ridiculously low volume participation rate. Despite all these egregious",
+      "translation": "恭喜！你的回测无懈可击：任何人都能复现结果，假设保守到连老板都挑不出毛病。每笔交易支付的成本，比任何人可能开出的价格高出一倍还多；等信息已传遍半个地球数小时后才交易，成交量参与率还低得离谱。你已经采用了种种极端保守的设置。"
+    },
+    {
+      "key": "t_63076a20f7474c3118df",
+      "source": "costs, your backtest still makes a lot of money. Yet, this flawless backtest is probably wrong. Why? Because only an expert can produce a flawless backtest. Becoming an expert means that you have run tens of thousands of backtests over the years. In conclusion, this is not the first backtest you produce, so we need to account for the possibility that this is a false discovery, a statistical fluke that inevitably comes up after you run multiple tests on the same dataset. The maddening thing about backtesting is that, the better you become at it, the more likely false discoveries will pop up. Beginners fall for the seven sins of Luo et al.",
+      "translation": "即便成本如此高，回测仍然赚了很多钱。但这份无懈可击的回测很可能仍是错的。为什么？因为只有专家才能做出这样的回测，而成为专家意味着这些年已经跑过成千上万次回测。所以，这绝不是你的第一次回测，必须考虑它属于虚假发现的可能性：在同一数据集上反复检验后，统计巧合迟早会出现。回测最令人抓狂之处在于，你越擅长回测，越容易碰到虚假发现。初学者会犯 Luo 等人所说的七宗罪"
+    },
+    {
+      "key": "t_504235b1f2184f399693",
+      "source": "(there are more, but who’s counting?). Professionals may produce flawless backtests, and will still fall for multiple testing, selection bias, or backtest overfitting (Bailey and López de Prado",
+      "translation": "（实际上还不止七种，只是没人再数了）。专业人士即使做出无懈可击的回测，仍会落入多重检验、选择偏差或回测过拟合的陷阱（Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_07eb4405c3aed9b01e38",
+      "source": "11.4 Backtesting Is Not A Research Tool",
+      "translation": "11.4 回测不是研究工具"
+    },
+    {
+      "key": "t_a038a3afe9d970882d90",
+      "source": "Chapter 8 discussed substitution effects, joint effects, masking, MDI, MDA, SFI, parallelized features, stacked features, etc. Even if some features are very important, it does not mean that they can be monetized through an investment strategy. Conversely, there are plenty of strategies that will appear to be profitable even though they are based on irrelevant features. Feature importance is a true research tool, because it helps us understand the nature of the patterns uncovered by the ML algorithm, regardless of their monetization. Critically, feature importance is derived ex-ante, before the historical performance is simulated. In contrast, a backtest is not a research tool. It provides us with very little insight into the reason why a particular strategy would have made money. Just as a lottery winner may feel he has done something to deserve his luck, there is always some ex-post story (Luo's sin number three). Authors claim to have found hundreds of “alphas” and “factors,” and there is always some convoluted explanation for them. Instead, what they have found are the lottery tickets that won the last game. The winner has cashed out, and those numbers are useless for the next round. If you would not pay extra for those lottery tickets, why would you care about those hundreds of alphas? Those authors never tell us about all the tickets that were sold, that is, the millions of simulations it took to find these “lucky” alphas.",
+      "translation": "第 8 章讨论了替代效应、联合效应、遮蔽效应、MDI、MDA、SFI、并行特征和堆叠特征等概念。某些特征很重要，并不表示一定能用投资策略将其变现；反过来，许多基于无关特征的策略也会显得有利可图。特征重要性是真正的研究工具，因为它帮助我们理解 ML 算法发现的模式本质，而不取决于这些模式能否赚钱。关键是，特征重要性在模拟历史表现之前就已事先得到。回测则不是研究工具，几乎无法解释某个策略为何会赚钱。就像彩票赢家会觉得自己的好运理所应得，人们总能事后编出故事，也就是 Luo 所说的第三宗罪。作者们声称找到了数百个“alpha”和“因子”，每个都有一套复杂解释；其实他们只是找到了上一轮中奖的彩票。奖金已经兑付，那些号码对下一轮毫无用处。如果你不愿为上一期中奖彩票加价，又何必在意那数百个 alpha？这些作者从不告诉你一共卖出了多少张彩票，也就是为了找到这些“幸运”alpha，他们做过多少百万次模拟。"
+    },
+    {
+      "key": "t_3e949a56bfca4b1e9eec",
+      "source": "The purpose of a backtest is to discard bad models, not to improve them. Adjusting your model based on the backtest results is a waste of time ... and it is dangerous. Invest your time and effort in getting all the components right, as we have discussed elsewhere in the book: structured data, labeling, weighting, ensembles, cross-validation, feature importance, bet sizing, etc. By the time you are backtesting, it is too late. Never backtest until your model has been fully specified. If the backtest fails, start all over. If you do that, the chances of finding a false discovery will drop substantially, but still they will not be zero.",
+      "translation": "回测的作用是淘汰坏模型，而不是改进模型。根据回测结果调整模型，既浪费时间又很危险。应把时间和精力投入到模型各组成部分上，正如本书其他章节讨论的：结构化数据、标签、权重、集成方法、交叉验证、特征重要性、仓位规模等。到了回测阶段，再修改已经太迟。模型没有完全确定之前，绝不要开始回测。如果回测失败，就从头再来。这样做能大幅降低虚假发现概率，但仍无法把它降为零。"
+    },
+    {
+      "key": "t_3a3b75947f2ee6a5f0f6",
+      "source": "11.5 A Few General Recommendations",
+      "translation": "11.5 几条一般建议"
+    },
+    {
+      "key": "t_de171cc486c9ecaa5efc",
+      "source": "Backtest overfitting can be defined as selection bias on multiple backtests. Backtest overfitting takes place when a strategy is developed to perform well on a backtest, by",
+      "translation": "回测过拟合可以定义为多次回测造成的选择偏差。当策略被专门开发成只在历史回测中表现良好时，就发生了回测过拟合。"
+    },
+    {
+      "key": "t_26c97639e5acc5c7b0d5",
+      "source": "monetizing random historical patterns. Because those random patterns are unlikely to occur again in the future, the strategy so developed will fail. Every backtested strategy is overfit to some extent as a result of “selection bias”: The only backtests that most people share are those that portray supposedly winning investment strategies. How to address backtest overfitting is arguably the most fundamental question in quantitative finance. Why? Because if there was an easy answer to this question, investment firms would achieve high performance with certainty, as they would invest only in winning backtests. Journals would assess with confidence whether a strategy may be a false positive. Finance could become a true science in the Popperian and Lakatosian sense (López de Prado",
+      "translation": "这种做法实际上是在利用历史中的随机模式赚钱。随机模式未来很可能不会再次出现，因此这样开发出的策略终将失败。由于“选择偏差”，每个经过回测的策略都在某种程度上过拟合：大多数人只会分享那些看起来能够获胜的策略。如何应对回测过拟合，或许是量化金融最根本的问题。为什么？因为如果有简单答案，投资机构只需选择胜出的回测，就能确保高收益；期刊也能确信某个策略是否为假阳性；金融学甚至可以成为 Popper 和 Lakatos 意义上的真正科学（López de Prado"
+    },
+    {
+      "key": "t_79ce62f9f72a61ece95e",
+      "source": "). What makes backtest overfitting so hard to assess is that the probability of false positives changes with every new test conducted on the same dataset, and that information is either unknown by the researcher or not shared with investors or referees. While there is no easy way to prevent overfitting, a number of steps can help reduce its presence.",
+      "translation": "）。回测过拟合之所以难以评估，是因为在同一数据集上每增加一次检验，假阳性概率都会改变，而研究人员往往不知道这项信息，或没有向投资者和审稿人披露。虽然没有简单办法彻底防止过拟合，但以下措施可以降低其程度。"
+    },
+    {
+      "key": "t_163cf33460fe2408503e",
+      "source": "Develop models for entire asset classes or investment universes, rather than for specific securities (Chapter 8). Investors diversify, hence they do not make mistake X only on security Y. If you find mistake X only on security Y, no matter how apparently profitable, it is likely a false discovery.",
+      "translation": "针对整个资产类别或投资范围开发模型，而不是针对某只证券开发模型（第 8 章）。投资者会分散投资，不会只在证券 Y 上犯错误 X。如果错误 X 只出现在证券 Y 上，无论看起来多赚钱，都很可能是虚假发现。"
+    },
+    {
+      "key": "t_1c13716bc175c6e707f2",
+      "source": "Apply bagging (Chapter 6) as a means to both prevent overfitting and reduce the variance of the forecasting error. If bagging deteriorates the performance of a strategy, it was likely overfit to a small number of observations or outliers.",
+      "translation": "采用 bagging（第 6 章），既防止过拟合，也降低预测误差的方差。如果 bagging 反而让策略表现变差，该策略很可能对少数观测或异常值发生了过拟合。"
+    },
+    {
+      "key": "t_0e300e3486cf49f6bfb8",
+      "source": "Do not backtest until all your research is complete (Chapters 1–10).",
+      "translation": "所有研究完成前不要回测（第 1～10 章）。"
+    },
+    {
+      "key": "t_2c058704d26aab5a3411",
+      "source": "Record every backtest conducted on a dataset so that the probability of backtest overfitting may be estimated on the final selected result (see Bailey, Borwein, López de Prado, and Zhu",
+      "translation": "记录在同一数据集上做过的每一次回测，以便对最终选中结果估计回测过拟合概率（见 Bailey、Borwein、López de Prado 和 Zhu"
+    },
+    {
+      "key": "t_9c173b262f9f8ded2beb",
+      "source": "and Chapter 14), and the Sharpe ratio may be properly deflated by the number of trials carried out (Bailey and López de Prado",
+      "translation": "以及第 14 章），并根据实际试验次数正确折减夏普比率（Bailey 和 López de Prado"
+    },
+    {
+      "key": "t_54f24193fd090b13e942",
+      "source": "Simulate scenarios rather than history (Chapter 12). A standard backtest is a historical simulation, which can be easily overfit. History is just the random path that was realized, and it could have been entirely different. Your strategy should be profitable under a wide range of scenarios, not just the anecdotal historical path. It is harder to overfit the outcome of thousands of “what if” scenarios.",
+      "translation": "模拟情景，而不是模拟历史（第 12 章）。标准回测是历史模拟，很容易过拟合。历史只是随机实现的一条路径，完全可能以另一种方式发生。策略应当在广泛情景下都能盈利，而不是只适用于那一条偶然的历史路径。面对数千个“如果当时……”情景的结果，过拟合会困难得多。"
+    },
+    {
+      "key": "t_d44e4d6518f33ed73b34",
+      "source": "If the backtest fails to identify a profitable strategy, start from scratch. Resist the temptation of reusing those results. Follow the Second Law of Backtesting.",
+      "translation": "如果回测找不到盈利策略，就从头开始。抵制重复利用旧结果的诱惑，并遵守回测第二定律。"
+    },
+    {
+      "key": "t_1cfbdcad4c6ebcbb381b",
+      "source": "Snippet 11.1: Marcos' Second Law of Backtesting",
+      "translation": "代码清单 11.1：Marcos 回测第二定律"
+    },
+    {
+      "key": "t_ff9d066d0e979834cda1",
+      "source": "Backtesting while researching is like drinking and driving.",
+      "translation": "边研究边回测，就像酒后驾车。"
+    },
+    {
+      "key": "t_424b95e82309d3b8d8d0",
+      "source": "Do not research under the influence of a backtest.",
+      "translation": "不要在回测的影响下做研究。"
+    },
+    {
+      "key": "t_88488b03ce8971d4fa8f",
+      "source": "Marcos López de Prado,",
+      "translation": "Marcos López de Prado，"
+    },
+    {
+      "key": "t_8982323bdf5b37e8c855",
+      "source": "11.6 Strategy Selection",
+      "translation": "11.6 策略选择"
+    },
+    {
+      "key": "t_ea10007e2b98662bb0a6",
+      "source": "In Chapter 7 we discussed how the presence of serial conditionality in labels defeats standard k-fold cross-validation, because the random sampling will spatter redundant observations into both the training and testing sets. We must find a different true out-of-sample validation procedure: a procedure that evaluates our model on the observations least likely to be correlated or redundant to those used to train the model. See Arlot and Celisse",
+      "translation": "第 7 章讨论过，标签存在序列条件依赖时，标准 k 折交叉验证会失效，因为随机抽样会把冗余观测同时撒入训练集和测试集。我们需要另一种真正的样本外验证流程：使用最不可能与训练观测相关或冗余的观测来评估模型。综述参见 Arlot 和 Celisse"
+    },
+    {
+      "key": "t_e5e5f24c409e8efd07c9",
+      "source": "for a survey.",
+      "translation": "。"
+    },
+    {
+      "key": "t_79726ba08d987426d098",
+      "source": "Scikit-learn has implemented a walk-forward time-folds method. Under this approach, testing moves forward in the time direction with the goal of preventing leakage. This is consistent with the way historical backtests and trading are done. However, in the presence of long-range serial dependence, testing one observation away from the end of the training set may not suffice to avoid informational leakage. We will retake this point in Chapter 12, Section 12.2.",
+      "translation": "scikit-learn 实现了滚动前推时间折叠法。在这种方法中，测试集沿时间方向向前移动，以避免信息泄漏。这与历史回测和实盘交易的方式一致。但若存在长程序列依赖，测试集仅与训练集末尾相隔一个观测，可能仍不足以避免信息泄漏。第 12 章第 12.2 节会重新讨论这一点。"
+    },
+    {
+      "key": "t_226d8709825ff02c5da9",
+      "source": "One disadvantage of the walk-forward method is that it can be easily overfit. The reason is that without random sampling, there is a single path of testing that can be repeated over and over until a false positive appears. Like in standard CV, some randomization is needed to avoid this sort of performance targeting or backtest optimization, while avoiding the leakage of examples correlated to the training set into the testing set. Next, we will introduce a CV method for strategy selection, based on the estimation of the probability of backtest overfitting (PBO). We leave for Chapter 12 an explanation of CV methods for backtesting.",
+      "translation": "滚动前推法的一个缺点是很容易过拟合。由于没有随机抽样，测试只有一条固定路径，可以反复运行，直到出现假阳性。与标准 CV 一样，我们需要加入一定随机性，防止针对绩效反复调优，同时又要避免与训练集相关的样本泄漏到测试集。下面介绍一种用于策略选择的 CV 方法，它以估计回测过拟合概率（PBO）为基础。用于回测的 CV 方法留到第 12 章再讲。"
+    },
+    {
+      "key": "t_936b923ea3344e979c26",
+      "source": "Bailey et al.",
+      "translation": "Bailey 等人"
+    },
+    {
+      "key": "t_3438a97111c72d17d19e",
+      "source": "estimate the PBO through the combinatorially symmetric cross-validation (CSCV) method. Schematically, this procedure works as follows.",
+      "translation": "使用组合对称交叉验证（CSCV）估计 PBO。其流程大致如下。"
+    },
+    {
+      "key": "t_864917970f5be1262c27",
+      "source": "First, we form a matrix",
+      "translation": "第一步，构造矩阵"
+    },
+    {
+      "key": "t_7ccc0a669fd8a0b16b57",
+      "source": "by collecting the performance series from the",
+      "translation": "，其中收集了"
+    },
+    {
+      "key": "t_d298155a21135f4afb13",
+      "source": "trials. In particular, each column",
+      "translation": "次试验的绩效序列。具体而言，每一列"
+    },
+    {
+      "key": "t_b1a79cf6133c38dad446",
+      "source": "represents a vector of PnL over",
+      "translation": "表示某个特定模型配置在"
+    },
+    {
+      "key": "t_6cec3ce683aca29c996f",
+      "source": "observations associated with a particular model configuration tried by the researcher.",
+      "translation": "这些观测上的 PnL 向量；该模型配置是研究人员尝试过的方案之一。"
+    },
+    {
+      "key": "t_a09870ab73e802d76a44",
+      "source": "is therefore a real-valued matrix of order",
+      "translation": "因此是一个实值矩阵，维度为"
+    },
+    {
+      "key": "t_7ba315f39e7eb2586e63",
+      "source": ". The only conditions we impose are that (1)",
+      "translation": "。只需满足两个条件：（1）"
+    },
+    {
+      "key": "t_3cae85440a4b739510e9",
+      "source": "is a true matrix, with the same number of rows for each column, where observations are synchronous for every row across the",
+      "translation": "确实是一个矩阵，每列行数相同；在"
+    },
+    {
+      "key": "t_0200b921ae22354e58d6",
+      "source": "trials, and (2) the performance evaluation metric used to choose the optimal strategy can be estimated on subsamples of each column. For example, if that metric is the Sharpe ratio, we assume that the IID Normal distribution assumption can be held on various slices of the reported performance. If different model configurations trade with different frequencies, observations are aggregated to match a common index",
+      "translation": "次试验中，同一行的观测在时间上同步；（2）用于选择最优策略的绩效指标可以在每一列的子样本上估计。例如，如果指标是夏普比率，就假定所报告绩效的不同切片都可满足 IID 正态分布假设。若不同模型配置的交易频率不同，应把观测聚合到共同索引"
+    },
+    {
+      "key": "t_1b4beb332b574c1fcd44",
+      "source": "Second, we partition",
+      "translation": "第二步，按行划分"
+    },
+    {
+      "key": "t_41a53bc4dd2a30cc9ed1",
+      "source": "across rows, into an even number",
+      "translation": "，划分数为偶数，记作"
+    },
+    {
+      "key": "t_116ba9ed335619a8e468",
+      "source": "of disjoint submatrices of equal dimensions. Each of these submatrices",
+      "translation": "；这些子矩阵维度相同且互不重叠，单个子矩阵记为"
+    },
+    {
+      "key": "t_5dc7680cacec826b738a",
+      "source": ", with",
+      "translation": "，并有"
+    },
+    {
+      "key": "t_5cc54a8a06a50c96980f",
+      "source": ", is of order",
+      "translation": "，其维度为"
+    },
+    {
+      "key": "t_a8ad2b60ea7fab4222a4",
+      "source": "Third, we form all combinations",
+      "translation": "第三步，把全部组合记为"
+    },
+    {
+      "key": "t_28391d3bc64ec15cbb09",
+      "source": "of",
+      "translation": "；这些组合取自"
+    },
+    {
+      "key": "t_f3408107b386a1de4f19",
+      "source": ", taken in groups of size",
+      "translation": "，每个组合包含"
+    },
+    {
+      "key": "t_cefd37a6d7a24fadd98e",
+      "source": ". This gives a total number of combinations",
+      "translation": "个子矩阵。组合总数为："
+    },
+    {
+      "key": "t_dae1b106d70fd2b8d1b5",
+      "source": "For instance, if",
+      "translation": "例如，当"
+    },
+    {
+      "key": "t_fc1ad967add52c43ed8b",
+      "source": ", we will form 12,780 combinations. Each combination",
+      "translation": "时，会得到 12,780 个组合。每个组合"
+    },
+    {
+      "key": "t_28ccbc8418ac83382b72",
+      "source": "is composed of",
+      "translation": "由"
+    },
+    {
+      "key": "t_55012609b6e219ea0424",
+      "source": "submatrices",
+      "translation": "个子矩阵"
+    },
+    {
+      "key": "t_19a05b132f1e81e63c26",
+      "source": ". Fourth, for each combination",
+      "translation": "组成。第四步，对每个组合"
+    },
+    {
+      "key": "t_f710cfa6d241fed8f585",
+      "source": ", we:",
+      "translation": "执行以下操作："
+    },
+    {
+      "key": "t_7596ac931f5310afc4c2",
+      "source": "Form the training set",
+      "translation": "构造训练集"
+    },
+    {
+      "key": "t_e3daa32681fceae92551",
+      "source": ", by joining the",
+      "translation": "：拼接"
+    },
+    {
+      "key": "t_b64538b61cad5c2bd6b9",
+      "source": "that constitute",
+      "translation": "，它们共同构成"
+    },
+    {
+      "key": "t_cb7514459eb3e72db866",
+      "source": "is a matrix of order",
+      "translation": "的维度为"
+    },
+    {
+      "key": "t_af67a504500f4e0634c4",
+      "source": "Form the testing set",
+      "translation": "构造测试集"
+    },
+    {
+      "key": "t_f59bf576eb0064c49f23",
+      "source": ", as the complement of",
+      "translation": "：从全集中剔除训练集"
+    },
+    {
+      "key": "t_582967534d0f909d196b",
+      "source": "in",
+      "translation": "，这里的全集是"
+    },
+    {
+      "key": "t_0cbac8c0d95c679cc184",
+      "source": ". In other words,",
+      "translation": "。换言之，"
+    },
+    {
+      "key": "t_ef4120f0165ee02d9e9d",
+      "source": "is the",
+      "translation": "是一个"
+    },
+    {
+      "key": "t_185225ac398b13177b21",
+      "source": "matrix formed by all rows of",
+      "translation": "矩阵，由"
+    },
+    {
+      "key": "t_91da2e5902deefd01a08",
+      "source": "that are not part of",
+      "translation": "中所有未纳入训练集的行组成；训练集为"
+    },
+    {
+      "key": "t_b5fa4c9ec0f99d55f7db",
+      "source": "Form a vector",
+      "translation": "构造绩效统计量向量"
+    },
+    {
+      "key": "t_e2a1ae6ad8f4b2ae6809",
+      "source": "of performance statistics of order",
+      "translation": "，维度为"
+    },
+    {
+      "key": "t_2b99912a2c1793d54172",
+      "source": ", where the",
+      "translation": "。第"
+    },
+    {
+      "key": "t_f74080e26f0d97d0df6d",
+      "source": "-th item of",
+      "translation": "列的绩效记录在向量"
+    },
+    {
+      "key": "t_0a4ab144dbda0b0d1ce7",
+      "source": "reports the performance associated with the",
+      "translation": "的第"
+    },
+    {
+      "key": "t_16ab38e1a575b75aeebc",
+      "source": "-th column of",
+      "translation": "个元素中；该列来自"
+    },
+    {
+      "key": "t_82255f64ccb4611044e8",
+      "source": "(the training set).",
+      "translation": "（训练集）。"
+    },
+    {
+      "key": "t_ed9482b1a4b14e28e325",
+      "source": "Determine the element",
+      "translation": "找出元素"
+    },
+    {
+      "key": "t_4f2634aaa64272a68265",
+      "source": "such that",
+      "translation": "，使其满足"
+    },
+    {
+      "key": "t_010bd2bc5205e61afd97",
+      "source": "(the testing set).",
+      "translation": "（测试集）。"
+    },
+    {
+      "key": "t_bc273ba2839eb5736e7f",
+      "source": "Determine the relative rank of",
+      "translation": "确定"
+    },
+    {
+      "key": "t_f106376011688eda079c",
+      "source": "within",
+      "translation": "在"
+    },
+    {
+      "key": "t_5da5a344abefb02378c7",
+      "source": ". We denote this relative rank as",
+      "translation": "中的相对排名，记为"
+    },
+    {
+      "key": "t_4a6d4f0e2a2b327af09b",
+      "source": ", where",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_3b1c4c3c580670faee57",
+      "source": ". This is the relative rank of the out-of-sample (OOS) performance associated with the trial chosen in-sample (IS). If the strategy optimization procedure does not overfit, we should observe that",
+      "translation": "。这是样本内（IS）选中试验所对应的样本外（OOS）绩效相对排名。如果策略优化流程没有过拟合，应当看到"
+    },
+    {
+      "key": "t_e2354c4e6e688439b153",
+      "source": "systematically outperforms",
+      "translation": "在样本外持续优于"
+    },
+    {
+      "key": "t_b225bb328ad857fc816b",
+      "source": "OOS, just as",
+      "translation": "，就像"
+    },
+    {
+      "key": "t_69c5a33aeaf428655f8d",
+      "source": "outperformed",
+      "translation": "在样本内优于"
+    },
+    {
+      "key": "t_b9e4441a4356fc6fa7b6",
+      "source": "IS.",
+      "translation": "一样。"
+    },
+    {
+      "key": "t_127a27d779f9382260be",
+      "source": "Define the logit",
+      "translation": "定义 logit"
+    },
+    {
+      "key": "t_f07d73820e63a3ba6370",
+      "source": ". This presents the property that",
+      "translation": "。等式"
+    },
+    {
+      "key": "t_15eaa75240aed625be3e",
+      "source": "when",
+      "translation": "成立的条件是"
+    },
+    {
+      "key": "t_1ce569f51316509e2c9b",
+      "source": "coincides with the median of",
+      "translation": "恰好等于"
+    },
+    {
+      "key": "t_eeda3f94ad4e7696481e",
+      "source": ". High logit values imply consistency between IS and OOS performance, which indicates a low level of backtest overfitting.",
+      "translation": "的中位数。logit 越高，IS 与 OOS 表现越一致，说明回测过拟合程度越低。"
+    },
+    {
+      "key": "t_715580e555c6e759afd5",
+      "source": "Fifth, compute the distribution of ranks OOS by collecting all the",
+      "translation": "第五步，收集所有"
+    },
+    {
+      "key": "t_2034630d3c76c0d4261d",
+      "source": ", for",
+      "translation": "，其中"
+    },
+    {
+      "key": "t_129177f3d030db3225ff",
+      "source": ". The probability distribution function",
+      "translation": "。概率密度函数"
+    },
+    {
+      "key": "t_55004dfd79026157b5e4",
+      "source": "is then estimated as the relative frequency at which",
+      "translation": "可根据"
+    },
+    {
+      "key": "t_17b01a8523c88124ab68",
+      "source": "occurred across all",
+      "translation": "在所有组合中各取值的相对频率估计；组合集合为"
+    },
+    {
+      "key": "t_3cf9bbbdbae215cba9d2",
+      "source": "The PBO is the probability associated with IS-optimal strategies that underperform OOS. The x-axis of Figure 11.1 shows the Sharpe ratio IS from the best strategy selected. The y-axis shows the Sharpe ratio OOS for that same best strategy selected. There is a strong and persistent performance decay, caused by backtest overfitting. Applying the above algorithm, we can derive the PBO associated with this strategy selection process, as displayed in Figure 11.2. The observations in each subset preserve the original time sequence. The random sampling is done on the relatively uncorrelated subsets, rather than on the observations. See Bailey et al.",
+      "translation": "PBO 表示样本内最优策略在样本外表现不佳的概率。图 11.1 的横轴是所选最优策略的样本内夏普比率，纵轴是同一策略的样本外夏普比率。由于回测过拟合，绩效出现明显且持续的衰减。应用上述算法，就能得到该策略选择流程对应的 PBO，如图 11.2 所示。每个子集中的观测保留原始时间顺序；随机抽样针对相关性较低的子集，而不是针对单个观测。关于该方法准确性的实验分析，参见 Bailey 等人"
+    },
+    {
+      "key": "t_c3759f6a73d617ed82e2",
+      "source": "for an experimental analysis of the accuracy of this methodology.",
+      "translation": "。"
+    },
+    {
+      "key": "t_6bf9b9cfbfb940fec5ff",
+      "source": "Figure 11.1: Best Sharpe ratio in-sample (SR IS) vs Sharpe ratio out-of-sample (SR OOS)",
+      "translation": "图 11.1：最佳策略的样本内夏普比率（SR IS）与样本外夏普比率（SR OOS）"
+    },
+    {
+      "key": "t_2accde04e42d145fc979",
+      "source": "Figure 11.2: Probability of backtest overfitting derived from the distribution of logits",
+      "translation": "图 11.2：根据 logit 分布得到的回测过拟合概率"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_9f28dfaff8c0e4e60d97",
+      "source": "Bibliography",
+      "translation": "参考书目"
+    },
+    {
+      "key": "t_94a6072a8b065e709dc1",
+      "source": "Previous: Bet Sizing",
+      "translation": "上一章：仓位规模"
+    },
+    {
+      "key": "t_241495be33a8e3f563f2",
+      "source": "Next: Backtesting through Cross-Validation",
+      "translation": "下一章：通过交叉验证进行回测"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    }
+  ]
+}

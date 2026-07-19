@@ -23,25 +23,24 @@ TRANSLATIONS = ROOT / "translations" / "zh"
 CACHE_PATH = TRANSLATIONS / "cache.json"
 GLOSSARY_PATH = TRANSLATIONS / "glossary.json"
 ERROR_PATH = TRANSLATIONS / "last-error.json"
+CHAPTER_OVERRIDES = TRANSLATIONS / "chapters"
 ZH_CSS = ASSETS / "afml-book-zh.css"
 ZH_JS = ASSETS / "afml-book-zh.js"
-EXCLUDED_PAGES = {"book-index.html"}
+EXCLUDED_PAGES: set[str] = set()
 ZH_FIGURE_CAPTION_HTML = {
-    "5.5": "图 5.5：ADF 统计量关于 d 的函数，基于 E-mini S&amp;P 500 期货对数价格",
-    "7.1": "图 7.1：5 折 CV 方案中的训练/测试划分示意图",
-    "14.1": "图 14.1：回撤（DD）与水下时间 +（TuW）示例",
+    "14.1": "图 14.1：回撤（DD）与水下时间（TuW）示例",
     "14.2": "图 14.2：PSR 作为偏度和样本长度的函数",
     "14.3": '图 14.3：<span class="math inline">\\(SR^*\\)</span> 作为 <span class="math inline">\\(\\mathbb{V}[\\{\\widehat{SR}_n\\}]\\)</span> 和 <span class="math inline">\\(N\\)</span> 的函数',
-    "15.2": '图 15.2：隐含精确率关于 <span class="math inline">\\(n\\)</span> 和 <span class="math inline">\\(\\pi_-\\)</span> 的热力图，其中 <span class="math inline">\\(\\pi_+=0.1\\)</span> 且 <span class="math inline">\\(\\theta^*=1.5\\)</span>',
-    "15.3": '图 15.3：隐含频率作为 <span class="math inline">\\(p\\)</span> 和 <span class="math inline">\\(\\pi_-\\)</span> 的函数，其中 <span class="math inline">\\(\\pi_+=0.1\\)</span> 且 <span class="math inline">\\(\\theta^*=1.5\\)</span>',
-    "16.1": "图 16.1：Markowitz 诅咒的可视化",
+    "15.2": '图 15.2：隐含命中率关于 <span class="math inline">\\(n\\)</span> 和 <span class="math inline">\\(\\pi_-\\)</span> 的热力图，其中 <span class="math inline">\\(\\pi_+=0.1\\)</span> 且 <span class="math inline">\\(\\theta^*=1.5\\)</span>',
+    "15.3": '图 15.3：隐含下注频率关于 <span class="math inline">\\(p\\)</span> 和 <span class="math inline">\\(\\pi_-\\)</span> 的函数，其中 <span class="math inline">\\(\\pi_+=0.1\\)</span> 且 <span class="math inline">\\(\\theta^*=1.5\\)</span>',
+    "16.1": "图 16.1：马科维茨诅咒示意图",
     "16.5": "图 16.5：聚类形成的树状图",
-    "16.7": "图 16.7：（a）IVP 的仓位时间序列；（b）HRP；（c）CLA",
-    "17.3": '图 17.3：(a) <span class="math inline">\\((SADF_t-C_{t,q})/\\dot C_{t,q}\\)</span> 随时间变化；(b) <span class="math inline">\\((SADF_t-C_{t,q})/\\dot C_{t,q}\\)</span>（y 轴）随 <span class="math inline">\\(SADF_t\\)</span>（x 轴）变化',
+    "16.7": "图 16.7：（a）IVP、（b）HRP、（c）CLA 的权重时间序列",
+    "17.3": '图 17.3：（a）<span class="math inline">\\((SADF_t-C_{t,q})/\\dot C_{t,q}\\)</span> 随时间变化；（b）<span class="math inline">\\((SADF_t-C_{t,q})/\\dot C_{t,q}\\)</span>（纵轴）随 <span class="math inline">\\(SADF_t\\)</span>（横轴）变化',
     "20.1": "图 20.1：将 20 个原子任务线性划分为 6 个分子任务",
     "22.1": "图 22.1：Magellan 集群示意图（约 2010 年），HPC 计算集群示例",
     "22.2": "图 22.2：云平台运行科学计算应用的速度明显慢于 HPC 系统（约 2010 年）",
-    "22.6": "图 22.6：梯度树提升（GBT）似乎过于贴近近期用电数据，因此无法像新开发的方法 LTAP 那样预测基准用电量。（a）GTB 对照组；（b）LTAP 对照组；（c）GTB 被动组；（d）LTAP 被动组；（e）GTB 主动组；（f）LTAP 主动组",
+    "22.6": "图 22.6：梯度树提升（GTB）过度拟合近期用电数据，因此无法像新开发的 LTAP 方法那样预测基线用电量。（a）GTB 对照组；（b）LTAP 对照组；（c）GTB 被动组；（d）LTAP 被动组；（e）GTB 主动组；（f）LTAP 主动组",
     "22.10": "图 22.10：2012 年天然气期货合约交易价格的傅里叶频谱。非均匀 FFT 识别出显著的日频（频率 = 366）、半日频（频率 = 732）和分钟频（频率 = 527040 = 366×24×60）活动。",
 }
 
@@ -125,6 +124,8 @@ UI_MAP = {
 TITLE_MAP = {
     "Financial Machine Learning as a Distinct Subject": "金融机器学习作为独立学科",
     "Financial Data Structures": "金融数据结构",
+    "Overlapping Outcomes": "结果重叠",
+    "Number Of Concurrent Labels": "同期标签数量",
     "Dollar Bars": "成交额 bar",
     "Tick Runs Bars": "Tick 连续同向流 bar",
     "Volume/Dollar Imbalance Bars": "成交量／成交额不平衡 bar",
@@ -176,6 +177,50 @@ def write_json(path: Path, data: Any) -> None:
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     tmp.replace(path)
+
+
+def load_chapter_overrides(
+    path: Path = CHAPTER_OVERRIDES,
+    chapters: set[str] | None = None,
+) -> dict[str, dict[str, str]]:
+    """Load human-reviewed chapter translations on top of the legacy cache.
+
+    Each file keeps the English source beside its translation so reviewers can
+    compare a chapter without reverse-mapping opaque cache hashes.  The source
+    text is also checked against its stable key to catch stale or mistyped
+    entries before a page is generated.
+    """
+    overrides: dict[str, dict[str, str]] = {}
+    if not path.exists():
+        return overrides
+    for override_path in sorted(path.glob("*.json")):
+        data = load_json(override_path, {})
+        chapter = data.get("chapter") if isinstance(data, dict) else None
+        if not isinstance(chapter, str) or not chapter.strip():
+            raise ValueError(f"{override_path}: missing chapter")
+        chapter = Path(chapter.strip()).stem
+        if chapters is not None and chapter not in chapters:
+            continue
+        chapter_overrides = overrides.setdefault(chapter, {})
+        units = data.get("units", []) if isinstance(data, dict) else []
+        if not isinstance(units, list):
+            raise ValueError(f"{override_path}: units must be a list")
+        for index, unit in enumerate(units, start=1):
+            if not isinstance(unit, dict):
+                raise ValueError(f"{override_path}: unit {index} must be an object")
+            key = unit.get("key")
+            source = unit.get("source")
+            translation = unit.get("translation")
+            if not all(isinstance(value, str) and value.strip() for value in (key, source, translation)):
+                raise ValueError(f"{override_path}: unit {index} has an empty key, source, or translation")
+            expected_key = stable_key(source)
+            if key != expected_key:
+                raise ValueError(f"{override_path}: unit {index} key {key!r} does not match {expected_key!r}")
+            previous = chapter_overrides.get(key)
+            if previous is not None and previous != translation:
+                raise ValueError(f"{override_path}: conflicting translation for {key}")
+            chapter_overrides[key] = postprocess(translation)
+    return overrides
 
 
 def stable_key(text: str) -> str:
@@ -603,6 +648,40 @@ def apply_cache_to_soup(soup: BeautifulSoup, cache: dict[str, str]) -> None:
     for node in soup.find_all(string=True):
         if isinstance(node, NavigableString) and PLACEHOLDER_RE.search(str(node)):
             node.replace_with(NavigableString(PLACEHOLDER_RE.sub("", str(node))))
+    localize_zh_punctuation(soup)
+
+
+def localize_zh_punctuation(soup: BeautifulSoup) -> None:
+    """Localize punctuation nodes left outside translatable text fragments."""
+    punctuation = {
+        ".": "。",
+        ",": "，",
+        ":": "：",
+        ";": "；",
+        "?": "？",
+        "!": "！",
+        "(": "（",
+        ")": "）",
+    }
+    for node in list(soup.find_all(string=True)):
+        if not isinstance(node, NavigableString):
+            continue
+        parent = node.parent
+        if parent is None or parent.name in SKIP_ANCESTORS or node.find_parent(list(SKIP_ANCESTORS)):
+            continue
+        if node.find_parent(class_="sourceCode") or node.find_parent(class_="citation"):
+            continue
+        if node.find_parent(class_="references-list"):
+            continue
+        text = str(node)
+        stripped = text.strip()
+        if stripped and all(char in punctuation for char in stripped):
+            node.replace_with(NavigableString("".join(punctuation[char] for char in stripped)))
+            continue
+        localized = re.sub(r"^\s+(?=[\u4e00-\u9fff，。；：！？、）])", "", text)
+        localized = re.sub(r"(?<=[，。；：！？、）])\s+$", "", localized)
+        if localized != text:
+            node.replace_with(NavigableString(localized))
 
 
 def remove_excluded_page_links(html: str) -> str:
@@ -698,6 +777,64 @@ def simplify_front_matter(html: str) -> str:
     return str(soup)
 
 
+def sync_index_labels(html: str) -> str:
+    """Keep the Chinese contents page aligned with reviewed chapter headings."""
+    soup = BeautifulSoup(html, "html.parser")
+    target_cache: dict[str, BeautifulSoup] = {}
+
+    def target_soup(page: str) -> BeautifulSoup | None:
+        if page not in target_cache:
+            path = ZH / page
+            if not path.exists():
+                return None
+            target_cache[page] = BeautifulSoup(path.read_text(encoding="utf-8"), "html.parser")
+        return target_cache[page]
+
+    for link in soup.select("a.toc-entry[href]"):
+        href = str(link.get("href", ""))
+        page = href.split("#", 1)[0]
+        if not re.fullmatch(r"chapter-\d{2}\.html", page):
+            continue
+        target = target_soup(page)
+        heading = target.select_one("article h1") if target is not None else None
+        spans = link.find_all("span", recursive=False)
+        if heading is not None and spans:
+            spans[-1].string = heading.get_text(" ", strip=True)
+
+    for link in soup.select("li.toc-section > a[href]"):
+        href = str(link.get("href", ""))
+        if "#" not in href:
+            continue
+        page, fragment = href.split("#", 1)
+        target = target_soup(page)
+        heading = target.find(id=fragment) if target is not None else None
+        if heading is not None:
+            link.string = heading.get_text(" ", strip=True)
+
+    description_replacements = {
+        "赌注大小、回测风险、综合数据、统计、策略风险和分配。": "仓位规模、回测的危险、合成数据、回测统计、策略风险和资产配置。",
+        "结构断裂、熵和微观结构特征。": "结构突变、熵与市场微观结构特征。",
+        "并行化、强力搜索、量子计算和 HPC 应用程序。": "多进程、暴力搜索、量子计算和 HPC 应用。",
+    }
+    for description in soup.select(".toc-part-heading > span"):
+        text = description.get_text(" ", strip=True)
+        if text in description_replacements:
+            description.string = description_replacements[text]
+    return str(soup)
+
+
+def sync_front_matter_navigation(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+    target = ZH / "chapter-01.html"
+    if target.exists():
+        target_soup = BeautifulSoup(target.read_text(encoding="utf-8"), "html.parser")
+        heading = target_soup.select_one("article h1")
+        link = soup.select_one('.chapter-pager a[href="chapter-01.html"]')
+        if heading is not None and link is not None:
+            link.string = f"下一章：{heading.get_text(' ', strip=True)}"
+    return str(soup)
+
+
 def normalize_formula_join_artifacts(html: str) -> str:
     math_inline = r'(<span class="math inline">.*?</span>)'
     code_inline = r"(<code>.*?</code>)"
@@ -749,8 +886,6 @@ def normalize_translation_artifacts(html: str) -> str:
         "e.g。": "例如，",
         "e.g、": "例如，",
         "e.g.，": "例如，",
-        "代码片段": "代码清单",
-        "代码段": "代码清单",
         "几何平均数:": "几何平均数：",
         "Tick 连续同向流 bar（Tick 连续同向流 bar）": "Tick 连续同向流 bar",
         "成交量／成交额不平衡 bar（成交量／成交额不平衡 bar）": "成交量／成交额不平衡 bar",
@@ -773,7 +908,6 @@ def normalize_translation_artifacts(html: str) -> str:
     html = re.sub(r"(?<!代)片段\s*(\d+\.\d+)\s*[：:]", r"代码清单 \1：", html)
     html = re.sub(r"(?<!代)片段\s*(\d+\.\d+)", r"代码清单 \1", html)
     html = re.sub(r"代码清单\s*(\d+\.\d+)", r"代码清单 \1", html)
-    html = re.sub(r">(第\s*\d+\s*章)(?=[\u4e00-\u9fffA-Za-z])", r">\1 ", html)
     html = re.sub(r">(\d+(?:\.\d+){1,3})(?=[\u4e00-\u9fffA-Za-z])", r">\1 ", html)
     return html
 
@@ -796,6 +930,7 @@ def move_footnotes_to_endnotes(html: str, page_name: str) -> str:
 
     page_slug = page_name.removesuffix(".html")
     footnote_numbers: set[str] = set()
+    footnote_items: dict[str, Tag] = {}
     for footnote in footnotes:
         sup = footnote.find("sup")
         number = sup.get_text("", strip=True) if sup is not None else str(len(footnote_numbers) + 1)
@@ -805,10 +940,7 @@ def move_footnotes_to_endnotes(html: str, page_name: str) -> str:
             sup.extract()
         for child in list(footnote.contents):
             li.append(child.extract())
-        backref = soup.new_tag("a", href=f"#fnref-{page_slug}-{number}", **{"class": "footnote-backref", "aria-label": "返回正文"})
-        backref.string = "返回正文"
-        li.append(" ")
-        li.append(backref)
+        footnote_items[number] = li
         footnote_list.append(li)
         footnote.decompose()
 
@@ -827,6 +959,14 @@ def move_footnotes_to_endnotes(html: str, page_name: str) -> str:
         link = soup.new_tag("a", href=f"#fn-{page_slug}-{number}", **{"aria-label": f"脚注 {number}"})
         link.string = number
         sup.append(link)
+
+    for number, li in footnote_items.items():
+        if ref_counts.get(number, 0) == 0:
+            continue
+        backref = soup.new_tag("a", href=f"#fnref-{page_slug}-{number}", **{"class": "footnote-backref", "aria-label": "返回正文"})
+        backref.string = "返回正文"
+        li.append(" ")
+        li.append(backref)
 
     target = article.select_one(".references-heading") or article.select_one(".chapter-pager")
     if target is not None:
@@ -877,17 +1017,19 @@ def fix_chapter_02(html: str) -> str:
         "不到期的现金工具": "不到期的现金类产品",
         "直接交易单一工具": "直接交易单一标的",
         "假设我们已有一段 bar 历史数据，这些 bar 由第 2.3 节所述的任意方法生成，包含以下字段：": "假设我们已经获得了一段 bar 历史数据，这些 bar 可以由第 2.3 节介绍的任意方法生成。每个 bar 包含以下字段：",
-        r'<ul><li><span class="math inline">\(o_{i,t}\)</span> 是工具 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span>.</li><li><span class="math inline">\(p_{i,t}\)</span> 是工具 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span>.</li><li><span class="math inline">\(\varphi_{i,t}\)</span> 是工具 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span>的每点  价值，包含外汇汇率。</li><li><span class="math inline">\(v_{i,t}\)</span> 是工具 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span>.</li><li><span class="math inline">\(d_{i,t}\)</span> 是工具 i 在 bar t 时支付的持仓收益、股息或票息。该变量也可用于计提保证金成本或融资成本。</li></ul>': r'<ul><li><span class="math inline">\(o_{i,t}\)</span>：标的 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span> 的原始开盘价。</li><li><span class="math inline">\(p_{i,t}\)</span>：标的 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span> 的原始收盘价。</li><li><span class="math inline">\(\varphi_{i,t}\)</span>：标的 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span> 中一个点位对应的美元价值，其中包含外汇汇率换算。</li><li><span class="math inline">\(v_{i,t}\)</span>：标的 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span> 的成交量。</li><li><span class="math inline">\(d_{i,t}\)</span>：标的 <span class="math inline">\(i\)</span> 在 bar <span class="math inline">\(t\)</span> 支付的持仓收益、股息或票息。这个变量也可用于计入保证金成本或融资成本。</li></ul>',
+        r'<ul><li><span class="math inline">\(o_{i,t}\)</span> 是工具 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span>.</li><li><span class="math inline">\(p_{i,t}\)</span> 是工具 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span>.</li><li><span class="math inline">\(\varphi_{i,t}\)</span> 是工具 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span>的每点  价值，包含外汇汇率。</li><li><span class="math inline">\(v_{i,t}\)</span> 是工具 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span>.</li><li><span class="math inline">\(d_{i,t}\)</span> 是工具 i 在 bar t 时支付的持仓收益、股息或票息。该变量也可用于计提保证金成本或融资成本。</li></ul>': r'<ul><li><span class="math inline">\(o_{i,t}\)</span>：标的 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span> 的原始开盘价。</li><li><span class="math inline">\(p_{i,t}\)</span>：标的 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span> 的原始收盘价。</li><li><span class="math inline">\(\varphi_{i,t}\)</span>：标的 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span> 中一个点位对应的美元价值，其中包含外汇汇率换算。</li><li><span class="math inline">\(v_{i,t}\)</span>：标的 <span class="math inline">\(i=1,\ldots,I\)</span> 在 bar <span class="math inline">\(t=1,\ldots,T\)</span> 的成交量。</li><li><span class="math inline">\(d_{i,t}\)</span>：标的 i 在 bar t 支付的持仓收益、股息或票息。这个变量也可用于计入保证金成本或融资成本。</li></ul>',
         "其中所有工具 <span class=\"math inline\">\\(i=1,\\ldots,I\\)</span> 在 bar 时均可交易 <span class=\"math inline\">\\(t=1,\\ldots,T\\)</span>。换言之，即使某些工具在整个时间区间内并非始终可交易 <span class=\"math inline\">\\([t-1,t]\\)</span>，至少在 t − 1 和 t 时刻它们是可交易的（市场在这些时刻开放并能够执行订单）。": "其中所有标的 <span class=\"math inline\">\\(i=1,\\ldots,I\\)</span> 在 bar <span class=\"math inline\">\\(t=1,\\ldots,T\\)</span> 时均可交易。换言之，即使某些标的在整个时间区间 <span class=\"math inline\">\\([t-1,t]\\)</span> 内并非始终可交易，至少在 t − 1 和 t 时刻它们是可交易的（市场在这些时刻开放并能够执行订单）。",
-        "<p>的均值， <span class=\"math inline\">\\(K_0=1\\)</span> 在初始 AUM 中。变量 <span class=\"math inline\">\\(h_{i,t}\\)</span> 表示工具的持仓量（证券或合约数量） <span class=\"math inline\">\\(i\\)</span> 在时刻 <span class=\"math inline\">\\(t\\)</span>。变量 <span class=\"math inline\">\\(\\delta_{i,t}\\)</span> 是市场价值在 <span class=\"math inline\">\\(t-1\\)</span> 的均值， <span class=\"math inline\">\\(t\\)</span> 之间针对工具的变化量 <span class=\"math inline\">\\(i\\)</span>。": "<p>且初始 AUM 中 <span class=\"math inline\">\\(K_0=1\\)</span>。变量 <span class=\"math inline\">\\(h_{i,t}\\)</span> 表示标的 <span class=\"math inline\">\\(i\\)</span> 在时刻 <span class=\"math inline\">\\(t\\)</span> 的持仓量（证券或合约数量）。变量 <span class=\"math inline\">\\(\\delta_{i,t}\\)</span> 是标的 <span class=\"math inline\">\\(i\\)</span> 在 <span class=\"math inline\">\\(t-1\\)</span> 与 <span class=\"math inline\">\\(t\\)</span> 之间的市场价值变化。",
-        "变量 <span class=\"math inline\">\\(h_{i,t}\\)</span> 表示工具的持仓量（证券或合约数量）<span class=\"math inline\">\\(i\\)</span> 在时刻 <span class=\"math inline\">\\(t\\)</span> 的值。变量 <span class=\"math inline\">\\(\\delta_{i,t}\\)</span> 是市场价值在 <span class=\"math inline\">\\(t-1\\)</span> 与 <span class=\"math inline\">\\(t\\)</span> 之间、针对工具 <span class=\"math inline\">\\(i\\)</span> 的变化量。": "变量 <span class=\"math inline\">\\(h_{i,t}\\)</span> 表示标的 <span class=\"math inline\">\\(i\\)</span> 在时刻 <span class=\"math inline\">\\(t\\)</span> 的持仓量（证券或合约数量）。变量 <span class=\"math inline\">\\(\\delta_{i,t}\\)</span> 是标的 <span class=\"math inline\">\\(i\\)</span> 在 <span class=\"math inline\">\\(t-1\\)</span> 与 <span class=\"math inline\">\\(t\\)</span> 之间的市场价值变化。",
+        "<p>的均值， <span class=\"math inline\">\\(K_0=1\\)</span> 在初始 AUM 中。变量 <span class=\"math inline\">\\(h_{i,t}\\)</span> 表示工具的持仓量（证券或合约数量） <span class=\"math inline\">\\(i\\)</span> 在时刻 <span class=\"math inline\">\\(t\\)</span>。变量 <span class=\"math inline\">\\(\\delta_{i,t}\\)</span> 是市场价值在 <span class=\"math inline\">\\(t-1\\)</span> 的均值， <span class=\"math inline\">\\(t\\)</span> 之间针对工具的变化量 <span class=\"math inline\">\\(i\\)</span>。": "<p>且初始 AUM 中 <span class=\"math inline\">\\(K_0=1\\)</span>。变量 <span class=\"math inline\">\\(h_{i,t}\\)</span> 表示标的 <span class=\"math inline\">\\(i\\)</span> 在时刻 <span class=\"math inline\">\\(t\\)</span> 的持仓量（证券或合约数量）。变量 <span class=\"math inline\">\\(\\delta_{i,t}\\)</span> 表示从 <span class=\"math inline\">\\(t-1\\)</span> 到 <span class=\"math inline\">\\(t\\)</span> 期间标的 <span class=\"math inline\">\\(i\\)</span> 的市场价值变化。",
+        "变量 <span class=\"math inline\">\\(h_{i,t}\\)</span> 表示工具的持仓量（证券或合约数量）<span class=\"math inline\">\\(i\\)</span> 在时刻 <span class=\"math inline\">\\(t\\)</span> 的值。变量 <span class=\"math inline\">\\(\\delta_{i,t}\\)</span> 是市场价值在 <span class=\"math inline\">\\(t-1\\)</span> 与 <span class=\"math inline\">\\(t\\)</span> 之间、针对工具 <span class=\"math inline\">\\(i\\)</span> 的变化量。": "变量 <span class=\"math inline\">\\(h_{i,t}\\)</span> 表示标的 <span class=\"math inline\">\\(i\\)</span> 在时刻 <span class=\"math inline\">\\(t\\)</span> 的持仓量（证券或合约数量）。变量 <span class=\"math inline\">\\(\\delta_{i,t}\\)</span> 表示从 <span class=\"math inline\">\\(t-1\\)</span> 到 <span class=\"math inline\">\\(t\\)</span> 期间标的 <span class=\"math inline\">\\(i\\)</span> 的市场价值变化。",
         "<p>的目的 <span class=\"math inline\">\\(\\omega_{i,t}(\\sum_{i=1}^{I}|\\omega_{i,t}|)^{-1}\\)</span> 在 <span class=\"math inline\">\\(h_{i,t}\\)</span> 中是对配置进行去杠杆化。": "<p><span class=\"math inline\">\\(\\omega_{i,t}(\\sum_{i=1}^{I}|\\omega_{i,t}|)^{-1}\\)</span> 在 <span class=\"math inline\">\\(h_{i,t}\\)</span> 中的作用是降低配置杠杆。",
-        "对于期货系列，展期时我们可能不知道 <span class=\"math inline\">\\(p_{i,t}\\)</span> 新合约的 <span class=\"math inline\">\\(t\\)</span>，因此我们使用 <span class=\"math inline\">\\(o_{i,t+1}\\)</span> 作为时间上最接近的替代。": "对于期货系列，展期时我们可能不知道新合约在 <span class=\"math inline\">\\(t\\)</span> 时的 <span class=\"math inline\">\\(p_{i,t}\\)</span>，因此使用 <span class=\"math inline\">\\(o_{i,t+1}\\)</span> 作为时间上最接近的替代。",
+        "对于期货系列，展期时我们可能不知道 <span class=\"math inline\">\\(p_{i,t}\\)</span> 新合约的 <span class=\"math inline\">\\(t\\)</span>，因此我们使用 <span class=\"math inline\">\\(o_{i,t+1}\\)</span> 作为时间上最接近的替代。": "对于期货系列，展期时我们可能不知道 <span class=\"math inline\">\\(p_{i,t}\\)</span>，也就是新合约在 <span class=\"math inline\">\\(t\\)</span> 时的价格，因此使用 <span class=\"math inline\">\\(o_{i,t+1}\\)</span> 作为时间上最接近的替代。",
         "令 <span class=\"math inline\">\\(\\tau_i\\)</span> 为交易工具 $1 所产生的交易成本 <span class=\"math inline\">\\(i\\)</span>，例如， <span class=\"math inline\">\\(\\tau_i=1E-4\\)</span> （一个基点）。": "令 <span class=\"math inline\">\\(\\tau_i\\)</span> 为交易标的 <span class=\"math inline\">\\(i\\)</span> 的 1 美元名义金额所对应的交易成本，例如 <span class=\"math inline\">\\(\\tau_i=1E-4\\)</span>（一个基点）。",
         "令 <span class=\"math inline\">\\(\\tau_i\\)</span> 为交易工具 $1 所产生的交易成本 <span class=\"math inline\">\\(i\\)</span>，e.g。， <span class=\"math inline\">\\(\\tau_i=1E-4\\)</span> （一个基点）。": "令 <span class=\"math inline\">\\(\\tau_i\\)</span> 为交易标的 <span class=\"math inline\">\\(i\\)</span> 的 1 美元名义金额所对应的交易成本，例如 <span class=\"math inline\">\\(\\tau_i=1E-4\\)</span>（一个基点）。",
         "令 <span class=\"math inline\">\\(\\tau_i\\)</span> 为交易工具 $1 所产生的交易成本 <span class=\"math inline\">\\(i\\)</span>，例如，， <span class=\"math inline\">\\(\\tau_i=1E-4\\)</span> （一个基点）。": "令 <span class=\"math inline\">\\(\\tau_i\\)</span> 为交易标的 <span class=\"math inline\">\\(i\\)</span> 的 1 美元名义金额所对应的交易成本，例如 <span class=\"math inline\">\\(\\tau_i=1E-4\\)</span>（一个基点）。",
         "策略在每个观测数据条/bar 上还需要了解三个额外变量 <span class=\"math inline\">\\(t\\)</span>:": "策略在每个观测 bar <span class=\"math inline\">\\(t\\)</span> 上还需要了解三个额外变量：",
         "令 <span class=\"math inline\">\\(v_{i,t}\\)</span> 为工具 <span class=\"math inline\">\\(i\\)</span> 在数据条/bar <span class=\"math inline\">\\(t\\)</span>内的成交量。": "令 <span class=\"math inline\">\\(v_{i,t}\\)</span> 为标的 <span class=\"math inline\">\\(i\\)</span> 在 bar <span class=\"math inline\">\\(t\\)</span> 内的成交量。",
+        "<p>和 <span class=\"math inline\">\\(K_0=1\\)</span>，并以此作为初始资产管理规模（AUM）的起点。": "<p>其中 <span class=\"math inline\">\\(K_0=1\\)</span>，并以此作为初始资产管理规模（AUM）的起点。",
+        '<p>其中，连续同向成交的预期规模由 max{<span class="math inline">\\(P[b_t=1]\\)</span><span class="math inline">\\(\\mathbb{E}_0[v_t|b_t=1]\\)</span>, (1 − <span class="math inline">\\(P[b_t=1]\\)</span>）<span class="math inline">\\(\\mathbb{E}_0[v_t|b_t=-1]\\)</span>} 给出。当 <span class="math inline">\\(\\theta_T\\)</span>表示的连续同向成交规模超过预期时，较小的 T 就能满足条件。</p>': '<p>上式 max 项给出的预期规模，是 <span class="math inline">\\(P[b_t=1]\\)</span><span class="math inline">\\(\\mathbb{E}_0[v_t|b_t=1]\\)</span> 与（1 − <span class="math inline">\\(P[b_t=1]\\)</span>）<span class="math inline">\\(\\mathbb{E}_0[v_t|b_t=-1]\\)</span> 两者中的较大值。当 <span class="math inline">\\(\\theta_T\\)</span> 表示的连续同向成交规模超过预期时，较小的 T 就能满足条件。</p>',
     }
     for src, dst in replacements.items():
         html = html.replace(src, dst)
@@ -898,6 +1040,27 @@ def fix_chapter_03(html: str) -> str:
     return html.replace(
         "假设 <span class=\"math inline\">\\(I=1E6\\)</span> 的均值， <span class=\"math inline\">\\(h=1E3\\)</span>，",
         "假设 <span class=\"math inline\">\\(I=1E6\\)</span> 且 <span class=\"math inline\">\\(h=1E3\\)</span>，",
+    )
+
+
+def fix_chapter_05(html: str) -> str:
+    return html.replace(
+        '，且 <span class="math inline">\\(\\omega_k=0\\)</span> （后者对应上述条件不成立的情形）。',
+        '；若上述条件不成立，则 <span class="math inline">\\(\\omega_k=0\\)</span>。',
+    )
+
+
+def fix_chapter_08(html: str) -> str:
+    return html.replace(
+        '<span class="math inline">\\(\\mu_n\\)</span>是 <span class="math inline">\\(\\{X_{t,n}\\}_{t=1,\\ldots,T}\\)</span> 和 <span class="math inline">\\(\\sigma_n\\)</span>是',
+        '<span class="math inline">\\(\\mu_n\\)</span>是 <span class="math inline">\\(\\{X_{t,n}\\}_{t=1,\\ldots,T}\\)</span> 的均值，变量 <span class="math inline">\\(\\sigma_n\\)</span>是',
+    )
+
+
+def fix_chapter_12(html: str) -> str:
+    return html.replace(
+        '<span class="math inline">\\(\\varphi[N,k]\\)</span>，</p><div class="math display">',
+        '<span class="math inline">\\(\\varphi[N,k]\\)</span>：</p><div class="math display">',
     )
 
 
@@ -953,6 +1116,7 @@ def fix_chapter_21(html: str) -> str:
 
 def fix_chapter_13(html: str) -> str:
     replacements = {
+        "随后按各个机会的先后顺序构造向量：<span class=\"math inline\">\\(X\\)</span>，<span class=\"math inline\">\\(Y\\)</span>；而 <span class=\"math inline\">\\(Z\\)</span>则按同样顺序构造：": "随后按各个机会的先后顺序构造向量 <span class=\"math inline\">\\(X\\)</span>、<span class=\"math inline\">\\(Y\\)</span> 和 <span class=\"math inline\">\\(Z\\)</span>：",
         "其中 <span class=\"math inline\">\\(\\mathbb{E}[\\cdot]\\)</span> 的均值， <span class=\"math inline\">\\(\\sigma[\\cdot]\\)</span> 分别为……的期望值与标准差 <span class=\"math inline\">\\(\\pi_{i,T_i}\\)</span>，以交易规则为条件 <span class=\"math inline\">\\(R\\)</span>，在 <span class=\"math inline\">\\(i=1,\\ldots,I\\)</span>。公式（13.1）最大化……的夏普比率 <span class=\"math inline\">\\(S\\)</span> 在备选交易规则空间上 <span class=\"math inline\">\\(R\\)</span>。": "其中 <span class=\"math inline\">\\(\\mathbb{E}[\\cdot]\\)</span> 和 <span class=\"math inline\">\\(\\sigma[\\cdot]\\)</span> 分别为 <span class=\"math inline\">\\(\\pi_{i,T_i}\\)</span> 的期望值与标准差，条件为交易规则 <span class=\"math inline\">\\(R\\)</span>，并在 <span class=\"math inline\">\\(i=1,\\ldots,I\\)</span> 上计算。公式（13.1）最大化 <span class=\"math inline\">\\(S\\)</span> 的夏普比率，搜索空间为备选交易规则 <span class=\"math inline\">\\(R\\)</span>。",
         "其中 <span class=\"math inline\">\\(j=I+1,\\ldots,J\\)</span> 的均值， <span class=\"math inline\">\\(\\operatorname{Me}_{\\Omega}[\\cdot]\\)</span> 是中位数。": "其中 <span class=\"math inline\">\\(j=I+1,\\ldots,J\\)</span>，且 <span class=\"math inline\">\\(\\operatorname{Me}_{\\Omega}[\\cdot]\\)</span> 是中位数。",
         "取 <span class=\"math inline\">\\(\\underline{\\pi}=\\{-\\frac{1}{2}\\sigma,-\\sigma,\\ldots,-10\\sigma\\}\\)</span> 的均值， <span class=\"math inline\">\\(\\bar{\\pi}=\\{\\frac{1}{2}\\sigma,\\sigma,\\ldots,10\\sigma\\}\\)</span> 的笛卡尔积可得 20×20 个节点": "取 <span class=\"math inline\">\\(\\underline{\\pi}=\\{-\\frac{1}{2}\\sigma,-\\sigma,\\ldots,-10\\sigma\\}\\)</span> 和 <span class=\"math inline\">\\(\\bar{\\pi}=\\{\\frac{1}{2}\\sigma,\\sigma,\\ldots,10\\sigma\\}\\)</span> 的笛卡尔积可得 20×20 个节点",
@@ -961,6 +1125,50 @@ def fix_chapter_13(html: str) -> str:
     for src, dst in replacements.items():
         html = html.replace(src, dst)
     return html
+
+
+def fix_chapter_16(html: str) -> str:
+    # The source encodes note 1 as a literal digit and separates note 2's
+    # lead-in from its links. Normalize both before collecting endnotes.
+    html = html.replace(
+        "本章介绍分层风险平价（Hierarchical Risk Parity，HRP）方法。HRP 组合",
+        "本章介绍分层风险平价（Hierarchical Risk Parity，HRP）方法。<sup>1</sup>HRP 组合",
+        1,
+    )
+    html = html.replace(
+        '<p>2 更多距离度量参见：</p>\n<p class="footnote"><sup>2</sup> ',
+        '<p class="footnote"><sup>2</sup> 更多距离度量参见：',
+        1,
+    )
+    return html
+
+
+def fix_chapter_20(html: str) -> str:
+    html = html.replace(
+        '<span class="math inline">\\(r_1\\)</span>其中 <span class="math inline">\\(r_{m-1}=r_0=0\\)</span>',
+        '<span class="math inline">\\(r_1\\)</span>，其中 <span class="math inline">\\(r_{m-1}=r_0=0\\)</span>',
+        1,
+    )
+    html = html.replace(
+        '<code>joblib</code>，<sup>2</sup>后者',
+        '<code>joblib</code><sup>2</sup>，后者',
+        1,
+    )
+    return html
+
+
+def fix_chapter_22_image_alts(html: str) -> str:
+    soup = BeautifulSoup(html, "html.parser")
+    labels = {
+        "media/chapter-22-figure-22-6-ab.png": "图 22.6（a）（b）：GTB 与 LTAP 对照组的基线用电量预测",
+        "media/chapter-22-figure-22-6-cd.png": "图 22.6（c）（d）：GTB 与 LTAP 被动组的基线用电量预测",
+        "media/chapter-22-figure-22-6-ef.png": "图 22.6（e）（f）：GTB 与 LTAP 主动组的基线用电量预测",
+    }
+    for img in soup.select("figure.chapter-22-figure-6 img[src]"):
+        src = str(img.get("src", ""))
+        if src in labels:
+            img["alt"] = labels[src]
+    return str(soup)
 
 
 def set_inner_html(tag: Tag, html: str) -> None:
@@ -993,19 +1201,29 @@ def finalize_html(html: str, page_name: str) -> str:
     html = remove_excluded_page_links(html)
     html = normalize_front_matter_labels(html)
     if page_name == "front-matter.html":
-        html = simplify_front_matter(html)
+        html = sync_front_matter_navigation(html)
+    if page_name == "index.html":
+        html = sync_index_labels(html)
     if page_name == "chapter-01.html":
         html = fix_chapter_01(html)
     if page_name == "chapter-02.html":
         html = fix_chapter_02(html)
     if page_name == "chapter-03.html":
         html = fix_chapter_03(html)
+    if page_name == "chapter-05.html":
+        html = fix_chapter_05(html)
+    if page_name == "chapter-08.html":
+        html = fix_chapter_08(html)
     if page_name == "chapter-10.html":
         html = fix_chapter_10(html)
     if page_name == "chapter-11.html":
         html = fix_chapter_11(html)
+    if page_name == "chapter-12.html":
+        html = fix_chapter_12(html)
     if page_name == "chapter-13.html":
         html = fix_chapter_13(html)
+    if page_name == "chapter-16.html":
+        html = fix_chapter_16(html)
     if page_name == "chapter-18.html":
         replacements = {
             "从而使 <span class=\"math inline\">\\(|r_t|\\)</span> 并减少对大字母表的需求。": "从而使 <span class=\"math inline\">\\(|r_t|\\)</span> 的分布更加规则，并减少对大字母表的需求。",
@@ -1029,10 +1247,22 @@ def finalize_html(html: str, page_name: str) -> str:
     if page_name == "chapter-21.html":
         html = fix_chapter_21(html)
     html = normalize_formula_join_artifacts(html)
+    if page_name == "chapter-08.html":
+        html = fix_chapter_08(html)
+    if page_name == "chapter-12.html":
+        html = fix_chapter_12(html)
     if page_name == "chapter-21.html":
         html = fix_chapter_21(html)
     html = normalize_translation_artifacts(html)
+    if page_name == "chapter-13.html":
+        html = fix_chapter_13(html)
+    if page_name == "chapter-16.html":
+        html = fix_chapter_16(html)
+    if page_name == "chapter-20.html":
+        html = fix_chapter_20(html)
     html = normalize_zh_figure_captions(html)
+    if page_name == "chapter-22.html":
+        html = fix_chapter_22_image_alts(html)
     html = move_footnotes_to_endnotes(html, page_name)
     return html
 
@@ -1167,13 +1397,16 @@ def translate_pages(args: argparse.Namespace) -> None:
         pages = [page for page in pages if page.name in wanted or page.stem in wanted]
     if args.limit_pages:
         pages = pages[: args.limit_pages]
+    chapter_overrides = load_chapter_overrides(chapters={page.stem for page in pages})
 
     all_units: dict[str, Unit] = {}
     soups: dict[Path, BeautifulSoup] = {}
     for page in pages:
         soup = BeautifulSoup(page.read_text(encoding="utf-8"), "html.parser")
         soups[page] = soup
-        for unit in collect_units(soup, cache):
+        page_cache = cache.copy()
+        page_cache.update(chapter_overrides.get(page.stem, {}))
+        for unit in collect_units(soup, page_cache):
             all_units.setdefault(unit.key, unit)
 
     pending = list(all_units.values())
@@ -1205,7 +1438,9 @@ def translate_pages(args: argparse.Namespace) -> None:
 
     write_zh_assets()
     for page, soup in soups.items():
-        apply_cache_to_soup(soup, cache)
+        page_cache = cache.copy()
+        page_cache.update(chapter_overrides.get(page.stem, {}))
+        apply_cache_to_soup(soup, page_cache)
         (ZH / page.name).write_text(finalize_html(str(soup), page.name), encoding="utf-8")
 
     (ROOT / "index.html").write_text(

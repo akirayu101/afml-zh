@@ -1,0 +1,211 @@
+{
+  "chapter": "chapter-01",
+  "scope": "1.4-1.6",
+  "units": [
+    {
+      "key": "t_63d3b439b78c6f6bb430",
+      "source": "1.4 Target Audience",
+      "translation": "1.4 目标读者"
+    },
+    {
+      "key": "t_eb015dce5703273ca228",
+      "source": "This book presents advanced ML methods specifically designed to address the challenges posed by financial datasets. By “advanced” I do not mean extremely difficult to grasp, or explaining the latest reincarnation of deep, recurrent, or convolutional neural networks. Instead, the book answers questions that senior researchers, who have experience applying ML algorithms to financial problems, will recognize as critical. If you are new to ML, and you do not have experience working with complex algorithms, this book may not be for you (yet). Unless you have confronted in practice the problems discussed in these chapters, you may have difficulty understanding the utility of solving them. Before reading this book, you may want to study several excellent introductory ML books published in recent years. I have listed a few of them in the references section. The core audience of this book is investment professionals with a strong ML background. My goals are that you monetize what you learn in this book, help us modernize finance, and deliver actual value for investors. This book also targets data scientists who have successfully implemented ML algorithms in a variety of fields outside finance. If you have worked at Google and have applied deep neural networks to face recognition, but things do not seem to",
+      "translation": "本书介绍专门用于应对金融数据难题的高级 ML 方法。这里的“高级”，不是说内容晦涩难懂，也不是要介绍深度神经网络、循环神经网络或卷积神经网络的最新变体。相反，本书要回答的是那些已有金融 ML 实践经验的资深研究者会认为至关重要的问题。如果你刚接触 ML，也没有使用复杂算法的经验，那么这本书也许暂时还不适合你。只有在实践中遇到过本书讨论的问题，你才容易理解解决它们有什么价值。阅读本书前，不妨先学习近几年出版的几本优秀 ML 入门书；参考文献中列出了一些。本书的主要读者，是拥有扎实 ML 背景的投资专业人士。我希望你能把从书中学到的知识转化为收益，与我们一起推动金融业现代化，并为投资者创造真正的价值。本书也面向那些已在金融以外多个领域成功落地 ML 算法的数据科学家。如果你曾在 Google 工作，用深度神经网络做人脸识别，但把算法用于金融数据时，效果似乎并不"
+    },
+    {
+      "key": "t_cfd3ea0784c6ccbbb4b3",
+      "source": "work so well when you run your algorithms on financial data, this book will help you. Sometimes you may not understand the financial rationale behind some structures (e.g., meta-labeling, the triple-barrier method, fracdiff), but bear with me: Once you have managed an investment portfolio long enough, the rules of the game will become clearer to you, along with the meaning of these chapters.",
+      "translation": "理想，这本书会对你有所帮助。有时，你可能暂时理解不了某些设计背后的金融逻辑（如元标签化（meta-labeling）、三重障碍法和 fracdiff），但请耐心读下去：等你管理投资组合的时间足够长，游戏规则会逐渐清晰，这些章节的用意也会随之明白。"
+    },
+    {
+      "key": "t_2b058cdfe5ccb4937d09",
+      "source": "1.5 Requisites",
+      "translation": "1.5 阅读要求"
+    },
+    {
+      "key": "t_e5d4a7f1f618a0810217",
+      "source": "Investment management is one of the most multi-disciplinary areas of research, and this book reflects that fact. Understanding the various sections requires a practical knowledge of ML, market microstructure, portfolio management, mathematical finance, statistics, econometrics, linear algebra, convex optimization, discrete math, signal processing, information theory, object-oriented programming, parallel processing, and supercomputing. Python has become the de facto standard language for ML, and I have to assume that you are an experienced developer. You must be familiar with scikit-learn (sklearn), pandas, numpy, scipy, multiprocessing, matplotlib and a few other libraries.",
+      "translation": "投资管理是最具跨学科特点的研究领域之一，本书也如实体现了这一点。要读懂各节内容，你需要具备 ML、市场微观结构、投资组合管理、数理金融、统计学、计量经济学、线性代数、凸优化、离散数学、信号处理、信息论、面向对象编程、并行处理和超级计算等方面的实践知识。Python 已成为 ML 事实上的标准语言，因此本书默认你是一名有经验的开发者。你需要熟悉 scikit-learn（sklearn）、pandas、numpy、scipy、multiprocessing、matplotlib 以及其他几个库。"
+    },
+    {
+      "key": "t_b752bdc0554ee8e45599",
+      "source": "Code snippets invoke functions from these libraries using their conventional prefix, pd for pandas, np for numpy, mpl for matplotlib, etc. There are numerous books on each of these libraries, and you cannot know enough about the specifics of each one. Throughout the book we will discuss some issues with their implementation, including unresolved bugs to keep in mind.",
+      "translation": "示例代码在调用这些库的函数时，会使用约定俗成的前缀，例如 pandas 用 pd、numpy 用 np、matplotlib 用 mpl，等等。关于每个库都有很多专著，而且其中的细节怎么学都不嫌多。本书还会讨论这些库在实现上的一些问题，包括目前仍未解决、需要留意的缺陷。"
+    },
+    {
+      "key": "t_5d0dc4cf6113a10b331b",
+      "source": "1.6 FAQs",
+      "translation": "1.6 常见问题"
+    },
+    {
+      "key": "t_02d2a6d40103c677f730",
+      "source": "How can ML algorithms be useful in finance?",
+      "translation": "ML 算法能在金融领域发挥什么作用？"
+    },
+    {
+      "key": "t_03b2d92488ce253b5c7a",
+      "source": "Many financial operations require making decisions based on pre-defined rules, like option pricing, algorithmic execution, or risk monitoring. This is where the bulk of automation has taken place so far, transforming the financial markets into ultra-fast, hyper-connected networks for exchanging information. In performing these tasks, machines were asked to follow the rules as fast as possible. High-frequency trading is a prime example. See Easley, López de Prado, and O'Hara ",
+      "translation": "许多金融业务都要按预先设定的规则作出决策，例如期权定价、算法执行和风险监控。迄今为止，自动化主要发生在这类业务中，它把金融市场变成了交换信息的超高速、高度互联网络。在完成这些任务时，机器要做的只是尽可能快地执行规则。高频交易就是典型例子。关于这一主题，可参见 Easley、López de Prado 和 O'Hara "
+    },
+    {
+      "key": "t_d6814ef6e8ca0ba805ed",
+      "source": " for a detailed treatment of the subject.",
+      "translation": " 的详细论述。"
+    },
+    {
+      "key": "t_ae94c65b503688818251",
+      "source": "The algorithmization of finance is unstoppable. Between June 12, 1968, and December 31, 1968, the NYSE was closed every Wednesday, so that back office could catch up with paperwork. Can you imagine that? We live in a different world today, and in 10 years things will be even better. Because the next wave of automation does not involve following rules, but making judgment calls. As emotional beings, subject to fears, hopes, and agendas, humans are not particularly good at making fact-based decisions, particularly when those decisions involve conflicts of interest. In those situations, investors are better served when a machine makes the calls, based on facts learned from hard data. This not only applies to investment strategy development, but to virtually every area of financial advice: granting a loan, rating a bond, classifying a company, recruiting talent, predicting earnings, forecasting inflation, etc. Furthermore, machines will comply with the law, always, when programmed to do so. If a dubious decision is made, investors can go back to the logs and understand exactly what happened. It is much easier to improve an algorithmic investment process than one relying entirely on humans.",
+      "translation": "金融业的算法化不可阻挡。从 1968 年 6 月 12 日到 12 月 31 日，纽约证券交易所每周三都休市，好让后台部门处理积压的纸面文件。难以想象吧？今天已完全不同，十年后情况还会更好，因为下一轮自动化不再只是照章办事，而是代替人作出判断。人受情绪支配，会有恐惧、希望和各自的利益诉求，本来就不擅长只依据事实决策，遇到利益冲突时尤其如此。在这类情况下，让机器依据从客观、可靠的数据中学到的事实作判断，对投资者更有利。这不仅适用于投资策略开发，也适用于几乎所有金融咨询领域：发放贷款、评定债券、给公司分类、招聘人才、预测盈利、预测通胀，等等。此外，只要程序这样设定，机器就会始终依法行事。如果作出了可疑的决策，投资者可以回查日志，准确了解当时发生了什么。改进一套算法化投资流程，要比改进一套完全依赖人的流程容易得多。"
+    },
+    {
+      "key": "t_f01f4e3f9f42c406632a",
+      "source": "How can ML algorithms beat humans at investing?",
+      "translation": "ML 算法为何能在投资中战胜人类？"
+    },
+    {
+      "key": "t_1ecae157f68417568c65",
+      "source": "Do you remember when people were certain that computers would never beat humans at chess? Or Jeopardy!? Poker? Go? Millions of years of evolution (a genetic algorithm) have fine-tuned our ape brains to survive in a hostile 3-dimensional world where the laws of nature are static. Now, when it comes to identifying subtle patterns in a high-dimensional world, where the rules of the game change every day, all that fine-tuning turns out to be detrimental. An ML algorithm can spot patterns in a 100-dimensional world as easily as in our familiar 3-dimensional one. And while we all laugh when we see an algorithm make a silly mistake, keep in mind, algorithms have been around only a fraction of our millions of years. Every day they get better at this, we do not. Humans are slow learners, which puts us at a disadvantage in a fast-changing world like finance.",
+      "translation": "还记得人们曾经深信，计算机绝不可能在国际象棋上击败人类吗？《危险边缘》（Jeopardy!）呢？扑克呢？围棋呢？数百万年的进化——一种遗传算法——把我们的猿类大脑调校得很适合在三维、自然规律固定的险恶世界里生存。可一旦要在规则天天变化的高维世界中识别细微模式，这种长期调校反而成了负担。ML 算法在 100 维世界里识别模式，并不比在我们熟悉的三维世界里更难。我们看到算法犯低级错误时常会发笑，但别忘了：算法存在的时间，与人类数百万年的进化史相比只是短短一瞬。它们每天都在进步，我们却没有。人类学习得慢，在金融这样瞬息万变的世界里自然处于劣势。"
+    },
+    {
+      "key": "t_08c652dc21d8eace4113",
+      "source": "Does that mean that there is no space left for human investors?",
+      "translation": "这是否意味着人类投资者已经没有立足之地了？"
+    },
+    {
+      "key": "t_19e79c15f591d3f06f2b",
+      "source": "Not at all. No human is better at chess than a computer. And no computer is better at chess than a human supported by a computer. Discretionary PMs are at a disadvantage when betting against an ML algorithm, but it is possible that the best results are achieved by combining discretionary PMs with ML algorithms. This is what has come to be known as the “quantamental” way. Throughout the book you will find techniques that can be used by quantamental teams, that is, methods that allow you to combine human guesses (inspired by fundamental variables) with mathematical forecasts. In particular, Chapter 3 introduces a new technique called meta-labeling, which allows you to add an ML layer on top of a discretionary one.",
+      "translation": "完全不是。单凭人，人类下棋胜不过计算机；但单凭计算机，也胜不过由计算机辅助的人。主观型投资组合经理（PM）与 ML 算法对赌时处于劣势，但最好的结果也可能来自两者结合。这就是后来所谓的“量化基本面”（quantamental）方式。全书会介绍许多适合量化基本面团队使用的技术，也就是把人的判断（由基本面变量启发）与数学预测结合起来的方法。特别是第 3 章会介绍一种称为元标签化（meta-labeling）的新技术，让你能在主观决策层之上再叠加一层 ML。"
+    },
+    {
+      "key": "t_9e1a71841ea3930676b9",
+      "source": "How does financial ML differ from econometrics?",
+      "translation": "金融 ML 与计量经济学有何不同？"
+    },
+    {
+      "key": "t_a7c93ae946642123f6ee",
+      "source": "Econometrics is the application of classical statistical methods to economic and financial series. The essential tool of econometrics is multivariate linear regression, an 18th-century technology that was already mastered by Gauss before 1794 (Stigler ",
+      "translation": "计量经济学是把经典统计方法应用于经济和金融序列。它的核心工具是多元线性回归——一项 18 世纪的技术，高斯在 1794 年之前就已经掌握（Stigler "
+    },
+    {
+      "key": "t_ca9ab32e9fc52c994ddc",
+      "source": "). Standard econometric models do not learn. It is hard to believe that something as complex as 21st-century finance could be grasped by something as simple as inverting a covariance matrix.",
+      "translation": "）。标准计量经济学模型并不会学习。很难相信，只靠协方差矩阵求逆这样简单的办法，就能把握 21 世纪金融体系的复杂性。"
+    },
+    {
+      "key": "t_01c956c3db8556757a04",
+      "source": "Every empirical science must build theories based on observation. If the statistical toolbox used to model these observations is linear regression, the researcher will fail to recognize the complexity of the data, and the theories will be awfully simplistic, useless. I have no doubt in my mind, econometrics is a primary reason economics and finance have not experienced meaningful progress over the past 70 years (Calkin and López de Prado [2014a, 2014b]).",
+      "translation": "任何实证科学都必须以观察为基础建立理论。如果研究者用来为这些观察结果建模的统计工具只有线性回归，就无法识别数据的复杂性，最终得到的理论会简单得离谱，毫无用处。我确信，过去 70 年经济学和金融学没有取得实质性进展，计量经济学是主要原因之一（Calkin and López de Prado [2014a, 2014b]）。"
+    },
+    {
+      "key": "t_3ba6d5febc88019450cc",
+      "source": "For centuries, medieval astronomers made observations and developed theories about celestial mechanics. These theories never considered non-circular orbits, because they were deemed unholy and beneath God's plan. The prediction errors were so gross, that ever more complex theories had to be devised to account for them. It was not until Kepler had the temerity to consider non-circular (elliptical) orbits that all of the sudden a much simpler general model was able to predict the position of the planets with astonishing accuracy. What if astronomers had never considered non-circular orbits? Well . . . what if economists finally started to consider non-linear functions? Where is our Kepler? Finance does not have a Principia because no Kepler means no Newton.",
+      "translation": "几个世纪里，中世纪天文学家不断观察天象，并建立天体力学理论。这些理论从不考虑非圆形轨道，因为那被视为不神圣、不符合上帝的安排。预测误差大得惊人，人们只好设计越来越复杂的理论来解释它们。直到开普勒大胆考虑非圆形（椭圆形）轨道，一个简洁得多的通用模型才突然能够以惊人的精度预测行星位置。如果天文学家始终不考虑非圆形轨道，会怎样？那么……如果经济学家终于开始考虑非线性函数，又会怎样？我们的开普勒在哪里？金融学至今没有自己的《自然哲学的数学原理》（Principia），因为没有开普勒，就不会有牛顿。"
+    },
+    {
+      "key": "t_9262c9c37dae8d65ba81",
+      "source": "Financial ML methods do not replace theory. They guide it. An ML algorithm learns patterns in a high-dimensional space without being specifically directed. Once we understand what features are predictive of a phenomenon, we can build a theoretical explanation, which can be tested on an independent dataset. Students of economics and finance would do well enrolling in ML courses, rather than econometrics. Econometrics may be good enough to succeed in financial academia (for now), but succeeding in business requires ML.",
+      "translation": "金融 ML 方法不是取代理论，而是为理论指路。ML 算法无须预先指定方向，就能在高维空间中学习模式。一旦弄清哪些特征能预测某种现象，我们就可以提出理论解释，再用独立数据集检验。经济学和金融学专业的学生，与其修计量经济学课，不如去学 ML。计量经济学或许足以让你在金融学术界立足（至少目前如此），但要在业界取得成功，就必须掌握 ML。"
+    },
+    {
+      "key": "t_1316ee9d423a6c5b15ef",
+      "source": "What do you say to people who dismiss ML algorithms as black boxes?",
+      "translation": "对于把 ML 算法斥为黑箱的人，你怎么看？"
+    },
+    {
+      "key": "t_32d24197220e635ec117",
+      "source": "If you are reading this book, chances are ML algorithms are white boxes to you. They are transparent, well-defined, crystal-clear, pattern-recognition functions. Most people do not have your knowledge, and to them ML is like a magician's box: “Where did that rabbit come from? How are you tricking us, witch?” People mistrust what they do not understand. Their prejudices are rooted in ignorance, for which the Socratic remedy is simple: education. Besides, some of us enjoy using our brains, even though neuroscientists still have not figured out exactly how they work (a black box in itself).",
+      "translation": "既然你在读这本书，ML 算法对你来说很可能是白箱：它们是透明、定义明确、清清楚楚的模式识别函数。大多数人没有你掌握的知识；在他们眼里，ML 就像魔术师的箱子：“那只兔子从哪儿来的？你这个巫师究竟怎么骗我们的？”人们会怀疑自己不理解的东西。这些偏见源于无知，而苏格拉底给出的解药很简单：教育。况且，我们有些人很喜欢使用自己的大脑，尽管神经科学家至今仍未完全弄清它究竟如何工作——大脑本身也是一个黑箱。"
+    },
+    {
+      "key": "t_97a110d7be75103ace31",
+      "source": "From time to time you will encounter Luddites, who are beyond redemption. Ned Ludd was a weaver from Leicester, England, who in 1779 smashed two knitting frames in an outrage. With the advent of the industrial revolution, mobs infuriated by mechanization sabotaged and destroyed all machinery they could find. Textile workers ruined so much industrial equipment that Parliament had to pass laws making “machine breaking” a capital crime. Between 1811 and 1816, large parts of England were in open rebellion, to the point that there were more British troops fighting Luddites than there were fighting Napoleon on the Iberian Peninsula. The Luddite rebellion ended with brutal suppression through military force. Let us hope that the black box movement does not come to that.",
+      "translation": "你偶尔会遇到无可救药的卢德分子。内德·卢德（Ned Ludd）是英格兰莱斯特的一名织工，1779 年，他一怒之下砸坏了两台针织机。工业革命兴起后，对机械化怒不可遏的暴民四处破坏，见到机器就砸。纺织工毁掉的工业设备太多，议会不得不立法，把“破坏机器”定为死罪。1811 至 1816 年间，英格兰许多地区公开反叛；英国用于对付卢德分子的兵力，甚至超过了在伊比利亚半岛与拿破仑作战的兵力。卢德运动最终遭到军队残酷镇压。希望反对“黑箱”的运动不要走到那一步。"
+    },
+    {
+      "key": "t_a507d81ff78f9f60ba11",
+      "source": "Why don’t you discuss specific ML algorithms?",
+      "translation": "为什么书中不讨论具体的 ML 算法？"
+    },
+    {
+      "key": "t_4c760df2c03bd6d1e7ab",
+      "source": "The book is agnostic with regards to the particular ML algorithm you choose. Whether you use convolutional neural networks, AdaBoost, RFs, SVMs, and so on, there are many shared generic problems you will face: data structuring, labeling, weighting, stationary transformations, cross-validation, feature selection, feature importance, overfitting, backtesting, etc. In the context of financial modeling, answering these questions is non-trivial, and framework-specific approaches need to be developed. That is the focus of this book.",
+      "translation": "本书不偏向任何一种特定的 ML 算法。无论用卷积神经网络、AdaBoost、RF、SVM 还是其他算法，你都会遇到许多共通问题：数据结构化、标签化、加权、平稳化转换、交叉验证、特征选择、特征重要性、过拟合和回测等。在金融建模中，这些问题都不容易回答，必须专门为金融建模框架开发相应方法。这正是本书的重点。"
+    },
+    {
+      "key": "t_2bea9a8ebcff289b662c",
+      "source": "What other books do you recommend on this subject?",
+      "translation": "关于这个主题，你还推荐哪些书？"
+    },
+    {
+      "key": "t_bbb7709db7c87adf5d0e",
+      "source": "To my knowledge, this is the first book to provide a complete and systematic treatment of ML methods specific for finance: starting with a chapter dedicated to financial data structures, another chapter for labeling of financial series, another for sample weighting, time series differentiation, . . . all the way to a full part devoted to the proper backtesting of investment strategies. To be sure, there are a handful of prior publications (mostly journal articles) that have applied standard ML to financial series, but that is not what this book offers. My goal has been to address the unique nuisances that make financial ML modeling particularly challenging. Like any new subject, it is fast evolving, and the book will be updated as major advances take place. Please contact me at mldp@quantresearch.org if there is any particular topic you would like to see treated in future editions. I will gladly add those chapters, while acknowledging the names of those readers who suggested them.",
+      "translation": "据我所知，本书是第一本完整、系统讲解金融专用 ML 方法的书：从金融数据结构，到金融序列标签化、样本加权、时间序列差分……最后用整整一编介绍如何正确回测投资策略。诚然，以前也有少数出版物（大多是期刊论文）把标准 ML 应用于金融序列，但本书提供的并不是这种内容。我的目标，是处理金融 ML 建模中特有、又使问题格外棘手的难点。和任何新学科一样，这个领域发展很快；今后出现重大进展时，本书也会更新。如果你希望后续版本讨论某个特定主题，请联系我：mldp@quantresearch.org。我很乐意加入相应章节，并注明提出建议的读者姓名。"
+    },
+    {
+      "key": "t_4d7d39c319d4b7939757",
+      "source": "I do not understand some of the sections and chapters. What should I do?",
+      "translation": "有些小节和章节我看不懂，该怎么办？"
+    },
+    {
+      "key": "t_6d9c55c8a2692d9cfcc9",
+      "source": "My advice is that you start by reading the references listed at the end of the chapter. When I wrote the book, I had to assume the reader was familiar with the existing literature, or this book would lose its focus. If after reading those references the sections still do not make sense, the likely reason is that they are related to a problem well understood by investment professionals (even if there is no mention of it in the literature).",
+      "translation": "我的建议是，先阅读每章末尾列出的参考文献。写作时，我不得不假定读者已经熟悉现有文献，否则本书会失去重点。如果读完这些文献后相关内容还是难以理解，很可能是因为它们讨论的是投资专业人士早已熟悉的问题，只是文献中未必提到。"
+    },
+    {
+      "key": "t_ccdcc38c23cb0abb315a",
+      "source": "For example, Chapter 2 will discuss effective methods to adjust futures prices for the roll, a problem known to most practitioners, even though it is rarely addressed in textbooks. I would encourage you to attend one of my regular seminars, and ask me your question at the end of my talk.",
+      "translation": "例如，第 2 章会介绍如何有效调整期货价格以处理展期。大多数从业者都知道这个问题，教科书却很少讨论。我也建议你参加我定期举办的研讨会，在演讲结束后直接向我提问。"
+    },
+    {
+      "key": "t_f6d84c94407adb1f6e02",
+      "source": "Why is the book so fixated on backtest overfitting?",
+      "translation": "本书为什么如此关注回测过拟合？"
+    },
+    {
+      "key": "t_b6893b18dc2a6f37f46f",
+      "source": "There are two reasons. First, backtest overfitting is arguably the most important open problem in all of mathematical finance. It is our equivalent to “P versus NP” in computer science. If there was a precise method to prevent backtest overfitting, we would be able to take backtests to the bank. A backtest would be almost as good as cash, rather than a sales pitch. Hedge funds would allocate funds to portfolio managers with confidence. Investors would risk less, and would be willing to pay higher fees. Regulators would grant licenses to hedge fund managers on the basis of reliable evidence of skill and knowledge, leaving no space for charlatans. In my opinion, an investments book that does not address this issue is not worth your time. Why would you read a book that deals with CAPM, APT, asset allocation techniques, risk management, etc. when the empirical results that support those arguments were selected without determining their false discovery probabilities?",
+      "translation": "有两个原因。第一，回测过拟合可以说是整个数理金融领域最重要的未决问题，相当于计算机科学中的“P vs NP”。如果有一种精确方法能防止回测过拟合，我们就可以拿着回测结果去银行兑现。回测不再是销售话术，而会几乎等同于现金。对冲基金可以放心地给投资组合经理分配资金；投资者承担的风险会更小，也愿意支付更高的费用；监管机构则能根据可靠的能力与知识证据向对冲基金经理发放执照，不给骗子可乘之机。在我看来，不讨论这个问题的投资书不值得你花时间。一本书大谈 CAPM、APT、资产配置和风险管理等内容，可支撑这些论点的实证结果在筛选时却没有估计虚假发现概率，为什么还要读它？"
+    },
+    {
+      "key": "t_dc058ef9d3336c0659e7",
+      "source": "The second reason is that ML is a great weapon in your research arsenal, and a dangerous one to be sure. If backtest overfitting is an issue in econometric analysis, the flexibility of ML makes it a constant threat to your work. This is particularly the case in finance, because our datasets are shorter, with lower signal-to-noise ratio, and we do not have laboratories where we can conduct experiments while controlling for all environmental variables (López de Prado ",
+      "translation": "第二，ML 是研究工具箱里的一件利器，但也确实很危险。回测过拟合在计量经济学分析中已经是个问题，而 ML 的灵活性更让它始终威胁你的研究。金融领域尤其如此，因为我们的数据集更短、信噪比更低，又没有实验室可以在控制所有环境变量的条件下做实验（López de Prado "
+    },
+    {
+      "key": "t_98a66b7e60ee0ac6aeeb",
+      "source": "). An ML book that does not tackle these concerns can be more detrimental than beneficial to your career.",
+      "translation": "）。一本不处理这些隐患的 ML 书，可能会给你的职业生涯带来更多伤害，而不是帮助。"
+    },
+    {
+      "key": "t_f5086d7e96c1ec6651f5",
+      "source": "What is the mathematical nomenclature of the book?",
+      "translation": "本书采用什么数学符号体系？"
+    },
+    {
+      "key": "t_d0931c733358c477db50",
+      "source": "When I started to write this book, I thought about assigning one symbol to each mathematical variable or function through all the chapters. That would work well if this book dealt with a single subject, like stochastic optimal control. However this book deals with a wide range of mathematical subjects, each with its own conventions. Readers would find it harder to consult references unless I also followed literature standards, which means that sometimes we must re-use symbols. To prevent any confusion, every chapter explains the nomenclature as it is being used. Most of the math is accompanied by a code snippet, so in case of doubt, please always follow the code.",
+      "translation": "刚开始写这本书时，我曾想为每个数学变量或函数分配一个全书唯一的符号。如果本书只讲随机最优控制这样的单一主题，这样做很合适。但本书涉及许多数学领域，每个领域都有自己的惯例。如果我不遵循各自的文献规范，读者查阅参考资料反而更困难；这就意味着有些符号必须重复使用。为避免混淆，每章都会随用随解释其中的符号。大部分数学内容都附有示例代码，因此拿不准时，请一律以代码为准。"
+    },
+    {
+      "key": "t_bc448b2df73330df9f62",
+      "source": "Who wrote Chapter 22?",
+      "translation": "第 22 章是谁写的？"
+    },
+    {
+      "key": "t_edae7ac8fade80a7e681",
+      "source": "A popular perception is that ML is a new fascinating technology invented or perfected at IBM, Google, Facebook, Amazon, Netflix, Tesla, etc. It is true that technology firms have become heavy users of ML, especially in recent years. Those firms sponsored some of the most publicized recent ML achievements (like Jeopardy! or Go), which may have reinforced that perception.",
+      "translation": "一种常见看法是，ML 是 IBM、Google、Facebook、Amazon、Netflix、Tesla 等公司发明或完善的一项新奇而迷人的技术。诚然，科技公司已经成为 ML 的重度用户，近几年尤其如此。这些公司赞助了近期一些最受瞩目的 ML 成果（如 Jeopardy! 和围棋程序），可能进一步加深了这种印象。"
+    },
+    {
+      "key": "t_c3f20bfe340e81497a4f",
+      "source": "However, the reader may be surprised to learn that, in fact, U.S. National Laboratories are among the research centers with the longest track record and experience in using ML. These centers utilized ML before it was cool, and they applied it successfully for many decades to produce astounding scientific discoveries. If predicting what movies Netflix should recommend you to watch next is a worthy endeavor, so it is to understand the rate of expansion of the universe, or forecasting what coastlines will be most impacted by global warming, or preventing a cataclysmic failure of our national power grid. These are just some of the amazing questions that institutions like Berkeley Lab work on every day, quietly but tirelessly, with the help of ML.",
+      "translation": "不过，读者可能会惊讶地发现，事实上，美国国家实验室是应用 ML 历史最久、经验最丰富的研究机构之一。早在 ML 还没成为热门话题时，这些机构就已经开始使用它，并在几十年里凭借 ML 取得了令人惊叹的科学发现。如果预测 Netflix 接下来该向你推荐哪部电影是一件值得做的事，那么理解宇宙膨胀速度、预测全球变暖对哪些海岸线影响最大，或防止全国电网发生灾难性故障，同样值得。这些正是 Berkeley Lab 等机构每天借助 ML 默默而不懈研究的一部分重大问题。"
+    },
+    {
+      "key": "t_557c0cd64776f38c2f10",
+      "source": "In Chapter 22, Drs. Horst Simon and Kesheng Wu offer the perspective of a deputy director and a project leader at a major U.S. National Laboratory specializing in large-scale scientific research involving big data, high-performance computing, and ML. Unlike traditional university settings, National Laboratories achieve scientific breakthroughs by putting together interdisciplinary teams that follow well-devised procedures, with strong division of labor and responsibilities. That kind of research model by production chain was born at Berkeley Lab almost 90 years ago and inspired the meta-strategy paradigm explained in Sections 1.2.2 and 1.3.1.",
+      "translation": "在第 22 章中，Horst Simon 博士和 Kesheng Wu 博士分别从一家美国大型国家实验室副主任和项目负责人的角度出发，讲述涉及大数据、高性能计算和 ML 的大规模科学研究。与传统大学的研究环境不同，国家实验室通过组建跨学科团队、执行精心设计的流程，并明确划分工作和责任来实现科学突破。这种按研发流水线组织研究的模式，近 90 年前诞生于 Berkeley Lab，并启发了第 1.2.2 节和第 1.3.1 节介绍的元策略范式。"
+    }
+  ]
+}

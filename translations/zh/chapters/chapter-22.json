@@ -1,0 +1,681 @@
+{
+  "chapter": "chapter-22",
+  "scope": "complete",
+  "units": [
+    {
+      "key": "t_30661e8396ba9b3b630f",
+      "source": "High-Performance Computational Intelligence and Forecasting Technologies | Advances in Financial Machine Learning",
+      "translation": "高性能计算智能与预测技术｜金融机器学习进阶"
+    },
+    {
+      "key": "t_0dcfa33996b951e8bfe5",
+      "source": "Advances in Financial Machine Learning",
+      "translation": "金融机器学习进阶"
+    },
+    {
+      "key": "t_23d8e96707146dc696b8",
+      "source": "Part 5: High-Performance Computing Recipes",
+      "translation": "第五部分：高性能计算方法"
+    },
+    {
+      "key": "t_437aea62a5bd6ad4762e",
+      "source": "Contents",
+      "translation": "目录"
+    },
+    {
+      "key": "t_a57b08a480b822a0a572",
+      "source": "Previous",
+      "translation": "上一章"
+    },
+    {
+      "key": "t_1ff57a29d7c9d11bdf61",
+      "source": "Next",
+      "translation": "下一章"
+    },
+    {
+      "key": "t_7590089bff22358a0039",
+      "source": "High-Performance Computational Intelligence and Forecasting Technologies",
+      "translation": "高性能计算智能与预测技术"
+    },
+    {
+      "key": "t_15c74dab3502c1460b6c",
+      "source": "Kesheng Wu and Horst D. Simon",
+      "translation": "Kesheng Wu、Horst D. Simon"
+    },
+    {
+      "key": "t_b0ac3b9be0fc22058019",
+      "source": "22.1 Motivation",
+      "translation": "22.1 动机"
+    },
+    {
+      "key": "t_a35209a5244347c0a423",
+      "source": "This chapter provides an introduction to the Computational Intelligence and Forecasting Technologies (CIFT) project at Lawrence Berkeley National Laboratory (LBNL). The main objective of CIFT is to promote the use of high-performance computing (HPC) tools and techniques for analysis of streaming data. After noticing the data volume being given as the explanation for the five-month delay for SEC and CFTC to issue their report on the 2010 Flash Crash, LBNL started the CIFT project to apply HPC technologies to manage and analyze financial data. Making timely decisions with streaming data is a requirement for many business applications, such as avoiding impending failure in the electric power grid or a liquidity crisis in financial markets. In all these cases, the HPC tools are well suited in handling the complex data dependencies and providing a timely solution. Over the years, CIFT has worked on a number of different forms of streaming data, including those from vehicle traffic, electric power grid, electricity usage, and so on. The following sections explain the key features of HPC systems, introduce a few special tools used on these systems, and provide examples of streaming data analyses using these HPC tools.",
+      "translation": "本章介绍劳伦斯伯克利国家实验室（LBNL）的计算智能与预测技术（CIFT）项目。CIFT 的主要目标，是推动使用高性能计算（HPC）工具和技术分析流式数据。美国证券交易委员会（SEC）和商品期货交易委员会（CFTC）解释 2010 年闪电崩盘调查报告为何拖延五个月时，把原因归结为数据量过大；LBNL 由此启动 CIFT 项目，尝试用 HPC 技术管理和分析金融数据。许多商业场景都要求根据流式数据及时决策，例如避免电网即将发生的故障，或防止金融市场出现流动性危机。HPC 工具很适合处理这类复杂的数据依赖，并及时给出结果。多年来，CIFT 研究过多种流数据，包括道路交通、电网和用电数据等。下面将说明 HPC 系统的主要特点，介绍这些系统上的一些专用工具，并展示如何用它们分析流式数据。"
+    },
+    {
+      "key": "t_3ee1f1b4b5e8b42fba2a",
+      "source": "22.2 Regulatory Response to the Flash Crash of 2010",
+      "translation": "22.2 监管机构对 2010 年闪电崩盘的回应"
+    },
+    {
+      "key": "t_8045a935b768c9da16c1",
+      "source": "On May 6, 2010, at about 2:45 p.m. (U.S. Eastern Daylight Time), the U.S. stock market experienced a nearly 10% drop in the Dow Jones Industrial Average, only to recover most of the loss a few minutes later. It took about five months for regulatory",
+      "translation": "2010 年 5 月 6 日美国东部夏令时间下午约 2:45，道琼斯工业平均指数一度下跌近 10%，但几分钟后便收复大部分失地。监管"
+    },
+    {
+      "key": "t_8b40055685b3a58a2239",
+      "source": "agencies to come up with an investigation report. In front of a congressional panel investigating the crash, the data volume (~20 terabytes) was given as the primary reason for the long delay. Since HPC systems, such as those at National Energy Research Scientific Computing (NERSC) center,",
+      "translation": "机构花了约五个月才完成调查报告。在国会调查听证会上，监管方把约 20 TB 的数据量列为延迟的首要原因。而美国国家能源研究科学计算中心（NERSC）等 HPC 系统"
+    },
+    {
+      "key": "t_962cd75d64c7cd84bd04",
+      "source": "routinely work with hundreds of terabytes in minutes, we should have no problem processing the data from financial markets. This led to the establishment of the CIFT project with the mission to apply the HPC techniques and tools for financial data analysis. A key aspect of financial big data is that it consists of mostly time series. Over the years, the CIFT team, along with numerous collaborators, has developed techniques to analyze many different forms of data streams and time series. This chapter provides a brief introduction to the HPC system including both hardware (Section 22.4) and software (Section 22.5), and recounts a few successful use cases (Section 22.6). We conclude with a summary of our vision and work so far and also provide contact information for interested readers.",
+      "translation": "日常就能在数分钟内处理数百 TB 数据，因此处理金融市场数据本不应成为难题。这促成了 CIFT 项目成立，其使命是把 HPC 技术和工具用于金融数据分析。金融大数据的一个关键特点，是其中绝大部分为时间序列。多年来，CIFT 团队与众多合作者开发了分析多类数据流和时间序列的技术。本章简要介绍 HPC 系统的硬件（第 22.4 节）和软件（第 22.5 节），并回顾若干成功案例（第 22.6 节）。最后总结团队迄今的愿景与工作，并提供联系方式。"
+    },
+    {
+      "key": "t_01a2eb468de5fde7a195",
+      "source": "NERSC is a National User Facility funded by U.S. Department of Energy, located at LBNL. More information about NERSC can be found at",
+      "translation": "NERSC 是美国能源部资助、设在 LBNL 的国家用户设施。更多信息参见"
+    },
+    {
+      "key": "t_4cb3bec76214ac2cb41a",
+      "source": "22.3 Background",
+      "translation": "22.3 背景"
+    },
+    {
+      "key": "t_34331694e3844937e8e8",
+      "source": "Advances in computing technology have made it considerably easier to look for complex patterns. This pattern-finding capability is behind a number of recent scientific breakthroughs, such as the discovery of the Higgs particle (Aad et al.",
+      "translation": "计算技术的进步大幅降低了寻找复杂模式的难度。这种模式识别能力促成了多项近期科学突破，例如发现希格斯粒子（Aad 等人"
+    },
+    {
+      "key": "t_3ef8e934cafdc0898e7d",
+      "source": ") and gravitational waves (Abbot et al.",
+      "translation": "）和引力波（Abbot 等人"
+    },
+    {
+      "key": "t_73d2e17b608433b168b2",
+      "source": "). This same capability is also at the core of many internet companies, for example, to match users with advertisers (Zeff and Aronson",
+      "translation": "）。同样的能力也是许多互联网公司的核心，例如把用户与广告主匹配（Zeff 和 Aronson"
+    },
+    {
+      "key": "t_49d57ff6cbcf55cadec6",
+      "source": ", Yen et al.",
+      "translation": "、Yen 等人"
+    },
+    {
+      "key": "t_f7d192b92ac3c6981b02",
+      "source": "). However, the hardware and software used in science and in commerce are quite different. The HPC tools have some critical advantages that should be useful in a variety of business applications. Tools for scientists are typically built around high-performance computing (HPC) platforms, while the tools for commercial applications are built around cloud computing platforms. For the purpose of sifting through large volumes of data to find useful patterns, the two approaches have been shown to work well. However, the marquee application for HPC systems is large-scale simulation, such as weather models used for forecasting regional storms in the next few days (Asanovic et al.",
+      "translation": "）。不过，科学界和商业界使用的软硬件差别很大。HPC 工具具有若干关键优势，可用于多种商业场景。科学计算工具通常围绕 HPC 平台构建，商业应用工具则围绕云计算平台构建。面对从海量数据中寻找有用模式这一任务，两种方案都表现良好。但 HPC 的代表性应用是大规模模拟，例如预测未来几天区域风暴的天气模型（Asanovic 等人"
+    },
+    {
+      "key": "t_7f734261aae71b081292",
+      "source": "). In contrast, the commercial cloud was initially motivated by the need to process a large number of independent data objects concurrently (data parallel tasks). For our work, we are primarily interested in analyses of streaming data. In particular, high-speed complex data streams, such as those from sensor networks monitoring our nation’s electric power grid and highway systems. This streaming workload is not ideal for either HPC systems or cloud systems as we discuss below, but we believe that the HPC ecosystem has more to offer to address the streaming data analysis than the cloud ecosystem does. Cloud systems were originally designed for parallel data tasks, where a large number of independent data objects can be processed concurrently. The system is thus",
+      "translation": "）。商业云最初则是为了同时处理大量彼此独立的数据对象，也就是数据并行任务。本项目主要关注流式数据分析，尤其是国家电网和公路系统传感器网络产生的高速、复杂数据流。如下文所述，这类负载对传统 HPC 和云系统都不算理想，但我们认为，HPC 生态能提供比云生态更多的流数据分析工具。云系统原本面向并行数据任务，可以同时处理大量独立对象，因此"
+    },
+    {
+      "key": "t_004ad7a0f195bbdff2c5",
+      "source": "designed for high throughput, not for producing real-time responses. However, many business applications require real-time or near-real-time responses. For example, an instability event in an electric power grid could develop and grow into a disaster in minutes; finding the tell-tale signature quickly enough would avert the disaster. Similarly, signs of emerging illiquidity events have been identified in the financial research literature; quickly finding these signs during the active market trading hours could offer options to prevent shocks to the market and avoid flash crashes. The ability to prioritize quick turnaround time is essential in these cases. A data stream is by definition available progressively; therefore, there may not be a large number of data objects to be processed in parallel. Typically, only a fixed amount of the most recent data records are available for analysis. In this case, an effective way to harness the computing power of many central processing units (CPUs) cores is to divide the analytical work on a single data object (or a single time-step) to many CPU cores. The HPC ecosystem has more advanced tools for this kind of work than the cloud ecosystem does. These are the main points that motivated our work. For a more thorough comparison of HPC systems and cloud systems, we refer interested readers to Asanovic et al.",
+      "translation": "追求的是高吞吐量，而不是实时响应。但许多商业应用要求实时或近实时响应。例如，电网中的不稳定事件可能在几分钟内发展成灾难；若能及时识别预警特征，就能避免事故。类似地，金融研究已经识别出流动性枯竭前的若干迹象；在交易时段迅速发现这些信号，可能有助于防止市场冲击和闪电崩盘。这些场景必须优先保证快速返回。数据流本来就是逐步到达的，未必同时存在大量可并行处理的对象；通常只能分析最近一段固定数量的记录。此时，要发挥多个 CPU 核心的算力，一个有效办法是把单个数据对象或单个时间步的分析工作拆给多个核心。HPC 生态在这方面的工具比云生态成熟。这正是项目工作的主要出发点。关于 HPC 与云系统的更全面比较，参见 Asanovic 等人"
+    },
+    {
+      "key": "t_8e2389e312a1bb2e7402",
+      "source": ". In particular, Fox et al.",
+      "translation": "。尤其可参见 Fox 等人"
+    },
+    {
+      "key": "t_940281eb4d9101500685",
+      "source": "have created an extensive taxonomy for describing the similarities and differences for any application scenario. In short, we believe the HPC community has a lot to offer to advance the state-of-the-art for streaming analytics. The CIFT project was established with a mission to transfer LBNL’s HPC expertise to streaming business applications. We are pursuing this mission via collaboration, demonstration, and tool development. To evaluate the potential uses of HPC technology, we have spent time working with various applications. This process not only exposes our HPC experts to a variety of fields, but also makes it possible for us to gather financial support to establish a demonstration facility. With the generous gifts from a number of early supporters of this effort, we established a substantial computing cluster dedicated to this work. This dedicated computer (named dirac1) allows users to utilize an HPC system and evaluate their applications for themselves. We are also engaged in a tool development effort to make HPC systems more usable for streaming data analysis. In the following sections, we will describe the hardware and software of the dedicated CIFT machine, as well as some of the demonstration and tool development efforts. Highlights include improving the data handling speed by 21-fold, and increasing the speed of computing an early warning indicator by 720-fold.",
+      "translation": "建立的详尽分类体系，它可以描述任意应用场景中两类系统的异同。简而言之，我们认为 HPC 社区能够显著推进流式分析技术。CIFT 项目的使命，是把 LBNL 的 HPC 专长转移到流式商业应用中，具体通过合作、示范和工具开发来推进。为评估 HPC 技术的潜在用途，我们投入时间研究多种应用。这既让 HPC 专家接触不同领域，也帮助项目筹集资金建设示范设施。在早期支持者的慷慨捐助下，我们建成了一套专用于该工作的较大计算集群 dirac1，使用户可以亲自使用 HPC 系统评估应用。团队还在开发工具，让 HPC 系统更易用于流式数据分析。下文将介绍 CIFT 专用机器的软硬件，以及示范和工具开发工作；突出成果包括把数据处理速度提高 21 倍，把某个早期预警指标的计算速度提高 720 倍。"
+    },
+    {
+      "key": "t_b653add933cc7795cddb",
+      "source": "22.4 HPC Hardware",
+      "translation": "22.4 HPC 硬件"
+    },
+    {
+      "key": "t_2a1d64dd47a603ea0ce8",
+      "source": "Legend has it that the first generation of big data systems was built with the spare computer components gleaned from a university campus. This is likely an urban legend, but it underscores an important point about the difference between HPC systems and cloud systems. Theoretically, an HPC system is built with custom high-cost components, while cloud systems are built with standard low-cost commodity components. In practice, since the worldwide investment in HPC systems is much smaller than that of personal computers, there is no way for manufacturers to produce custom components just for the HPC market. The truth is that HPC systems are largely assembled from commodity components just like cloud systems. However, due to their different target applications, there are some differences in their choices of the components. Let us describe the computing elements, storage system, and networking system in turn. Figure 22.1 is a high-level schematic diagram representing the key components of the Magellan cluster around year 2010 (Jackson et al.",
+      "translation": "传说第一代大数据系统是用大学校园里收集的闲置计算机零件拼装起来的。这也许只是都市传说，却点出了 HPC 与云系统之间一个重要区别。理论上，HPC 使用昂贵的定制部件，云系统使用廉价的标准商品部件。现实中，全球 HPC 投资远小于个人计算机市场，厂商不可能专门为 HPC 大规模生产定制零件；HPC 和云系统其实大多都由商品硬件组装。只是由于目标应用不同，部件选择和组织方式仍有差异。下面依次介绍计算、存储和网络部件。图 22.1 是约 2010 年 Magellan 集群关键组件的高层示意图（Jackson 等人"
+    },
+    {
+      "key": "t_a9f49db2c9d5f1716232",
+      "source": "; Yelick et al.",
+      "translation": "；Yelick 等人"
+    },
+    {
+      "key": "t_87616d4b8b48a181aad5",
+      "source": "). The computer elements include both CPUs and graphics processing units (GPUs). These CPUs and GPUs are commercial products in almost all the cases. For example, the nodes on dirac1 use a 24-core 2.2GHz Intel processor, which is common to cloud computing systems. Currently, dirac1 does not contain GPUs. The networking system consists of two parts: the InfiniBand network connecting the components within the cluster, and the switched network connection to the outside world. In this particular example, the outside connections are labeled “ESNet” and “ANI.” The InfiniBand network switches are also common in cloud computing systems. The storage system in Figure 22.1 includes both rotating disks and flash storage. This combination is also common. What is different is that an HPC system typically has its storage system concentrated outside of the computer nodes, while a typical cloud computing system has its storage system distributed among the compute nodes. These two approaches have their own advantages and disadvantages. For example, the concentrated storage is typically exported as a global file system to all computer nodes, which makes it easier to deal with data stored in files. However, this requires a highly capable network connecting the CPUs and the disks.",
+      "translation": "）。计算部件包括 CPU 和图形处理器（GPU），几乎都是商用产品。例如，dirac1 节点采用 24 核、2.2 GHz 的 Intel 处理器，云系统中也很常见；目前 dirac1 不含 GPU。网络分两部分：集群内部组件通过 InfiniBand 连接，对外则使用交换网络；图中外部连接标为 ESNet 和 ANI。InfiniBand 交换机在云系统中也很常见。图 22.1 的存储系统同时包含旋转磁盘和闪存，这种组合同样普遍。真正不同的是，HPC 通常把存储集中放在计算节点之外，云系统则往往把存储分散到计算节点上。两种方案各有利弊。集中存储通常以全局文件系统形式向所有计算节点开放，处理文件数据更方便，但要求 CPU 与磁盘之间有高性能网络。"
+    },
+    {
+      "key": "t_68bbdd5c7674b1c57c8f",
+      "source": "Figure 22.1: Schematic of the Magellan cluster (circa 2010), an example of HPC computer cluster",
+      "translation": "图 22.1：约 2010 年 Magellan 集群示意图——HPC 计算集群的一个例子"
+    },
+    {
+      "key": "t_be613a3cba4561a1d131",
+      "source": "In contrast, the distributed approach could use lower-capacity network because there is some storage that is close to each CPU. Typically, a distributed file system, such as the Google file system (Ghemawat, Gobioff, and Leung",
+      "translation": "分布式方案因为每个 CPU 附近都有一部分存储，可以使用容量较低的网络。云系统通常在上层部署 Google 文件系统等分布式文件系统（Ghemawat、Gobioff 和 Leung"
+    },
+    {
+      "key": "t_fd53f574287d482cdf4f",
+      "source": "), is layered on top of a cloud computing system to make the storage accessible to all CPUs. In short, the current generation of HPC systems and cloud systems use pretty much the same commercial hardware components. Their differences are primarily in the arrangement of the storage systems and networking systems. Clearly, the difference in the storage system designs could affect the application performance. However, the virtualization layer of the cloud systems is likely the bigger cause of application performance difference. In the next section, we will discuss another factor that could have an even larger impact, namely software tools and libraries.",
+      "translation": "），让所有 CPU 都能访问存储。总的来说，当代 HPC 与云系统使用的商用硬件部件大致相同，差异主要在存储和网络的组织方式。存储设计显然会影响应用性能，但云系统的虚拟化层可能是更大的性能差异来源。下一节还会讨论一个影响更大的因素：软件工具和程序库。"
+    },
+    {
+      "key": "t_30c7319d4c541a37df39",
+      "source": "Virtualization is generally used in the cloud computing environment to make the same hardware available to multiple users and to insulate one software environment from another. This is one of the more prominent features distinguishing the cloud computing environment from the HPC environment. In most cases, all three basic components of a computer system—CPU, storage, and networking—are all virtualized. This virtualization has many benefits. For example, an existing application can run on a CPU chip without recompiling; many users can share the same hardware; hardware faults could be corrected through the virtualization software; and applications on a failed compute node could be more easily migrated to another node. However, this virtualization layer also imposes some runtime overhead and could reduce application performance. For time-sensitive applications, this reduction in performance could become a critical issue.",
+      "translation": "云环境通常使用虚拟化，让多个用户共享同一硬件，并隔离彼此的软件环境。这是云计算与 HPC 环境最显著的差异之一。CPU、存储和网络这三个基本组件通常都会虚拟化。其好处很多：现有应用无须重新编译便可运行；多个用户可以共享硬件；硬件故障可由虚拟化软件处理；故障节点上的应用也更容易迁移。但虚拟化层会增加运行开销、降低性能，对时间敏感的应用，这种损失可能成为关键问题。"
+    },
+    {
+      "key": "t_636fac09e413705176f9",
+      "source": "Tests show that the performance differences could be quite large. Next, we briefly describe a performance study reported by Jackson et al.",
+      "translation": "测试表明，性能差异可能相当大。下面简述 Jackson 等人"
+    },
+    {
+      "key": "t_1803b6c78c3a7ac93e46",
+      "source": ". Figure 22.2 shows the performance slowdown using different computer systems. The names below the horizontal axis are different software packages commonly used at NERSC. The left bar corresponds to the Commercial Cloud, the middle bar to Magellan, and the right bar, when present, to the EC2-Beta-Opt system. The non-optimized commercial cloud instances run these software packages 2 to 10 times slower than on a NERSC supercomputer. Even on the more expensive high-performance instances, there are noticeable slowdowns.",
+      "translation": "报告的一项性能研究。图 22.2 展示不同计算系统造成的性能下降。横轴下方是 NERSC 常用的软件包；左侧柱代表商业云，中间柱代表 Magellan，如有右侧柱则代表 EC2-Beta-Opt。未优化的商业云实例运行这些软件时，比 NERSC 超级计算机慢 2 到 10 倍；即使更昂贵的高性能实例，也仍有明显减速。"
+    },
+    {
+      "key": "t_5bbfd44b271dd72d8728",
+      "source": "Figure 22.2: The cloud ran scientific applications considerably slower than on HPC systems (circa 2010)",
+      "translation": "图 22.2：约 2010 年，云平台运行科学应用明显慢于 HPC 系统"
+    },
+    {
+      "key": "t_a2df97c47b7a719b104c",
+      "source": "Figure 22.3 shows a study of the main factor causing the slowdown with the software package PARATEC. In Figure 22.2, we see that PARATEC took 53 times longer to complete on the commercial cloud than on an HPC system. We observe from Figure 22.3 that, as the number of cores (horizontal axis) increases, the differences among the measured performances (measured in TFLOP/s) become larger. In particular, the line labeled “10G-TCPoEth Vm” barely increases as the number of cores grows. This is the case where the network instance is using virtualized networking (TCP over Ethernet). It clearly shows that the networking virtualization overhead is significant, to the point of rendering the cloud useless.",
+      "translation": "图 22.3 分析 PARATEC 软件减速的主要原因。图 22.2 显示，PARATEC 在商业云上的耗时是 HPC 系统的 53 倍。图 22.3 中，随着核心数（横轴）增加，不同系统实测性能（TFLOP/s）的差距不断扩大。尤其是标为“10G-TCPoEth Vm”的曲线几乎不随核心数上升；该实例使用虚拟化网络，即以太网上的 TCP。结果清楚表明，网络虚拟化开销极其显著，甚至足以让云平台失去实用性。"
+    },
+    {
+      "key": "t_744797a739f57098ebbd",
+      "source": "Figure 22.3: As the number of cores increases (horizontal axis), the virtualization overhead becomes much more significant (circa 2010)",
+      "translation": "图 22.3：约 2010 年，核心数增加时（横轴），虚拟化开销变得更加显著"
+    },
+    {
+      "key": "t_58d12d94f31f3710daba",
+      "source": "The issue of virtualization overhead is widely recognized (Chen et al.",
+      "translation": "虚拟化开销问题早已得到广泛关注（Chen 等人"
+    },
+    {
+      "key": "t_07f78ef4924a640725b0",
+      "source": "). There has been considerable research aimed at addressing both the I/O virtualization overhead (Gordon et al.",
+      "translation": "）。大量研究分别尝试降低 I/O 虚拟化开销（Gordon 等人"
+    },
+    {
+      "key": "t_ce3cab33813ded8e3eac",
+      "source": ") as well as the networking virtualization overhead (Dong et al.",
+      "translation": "）和网络虚拟化开销（Dong 等人"
+    },
+    {
+      "key": "t_a7e542a2a7dc69c88ebb",
+      "source": "). As these state-of-the-art techniques are gradually being moved into commercial products, we anticipate the overhead will decrease in the future, but some overhead will inevitably remain. To wrap up this section, we briefly touch on the economics of HPC versus cloud. Typically, HPC systems are run by nonprofit research organizations and universities, while cloud systems are provided by commercial companies. Profit, customer retention, and many other factors affect the cost of a cloud system (Armbrust et al.",
+      "translation": "）。随着前沿技术逐步进入商用产品，未来开销应会下降，但不可能完全消失。最后简要比较 HPC 与云的经济性。HPC 通常由非营利研究机构和大学运营，云系统则由商业公司提供；利润、客户留存等因素都会影响云成本（Armbrust 等人"
+    },
+    {
+      "key": "t_cf979b30fc2a8ae4d905",
+      "source": "). In 2011, the Magellan project report stated that “Cost analysis shows that DOE centers are cost competitive, typically 3–7 × less expensive, when compared to commercial cloud providers” (Yelick et al.",
+      "translation": "）。Magellan 项目 2011 年的报告指出，与商业云相比，美国能源部计算中心的成本具有竞争力，通常便宜 3 到 7 倍（Yelick 等人"
+    },
+    {
+      "key": "t_12b45a47a4b54b276868",
+      "source": "). A group of high-energy physicists thought their use case was well-suited for cloud computing and conducted a detailed comparison study (Holzman et al.",
+      "translation": "）。一组高能物理学家认为其工作适合云计算，并做了详细对比（Holzman 等人"
+    },
+    {
+      "key": "t_f270fe8465f0775d408d",
+      "source": "). Their cost comparisons still show the commercial cloud offerings as approximately 50% more expensive than dedicated HPC systems for comparable computing tasks; however, the authors worked with severe limitations on data ingress and egress to avoid potentially hefty charges on data movement. For complex workloads, such as the streaming data analyses discussed in this book, we anticipate that this HPC cost advantage will remain in the future. A 2016 National Academy of Sciences study came to the same conclusion that even a long-term lease from Amazon is likely 2 to 3 times more expensive than HPC systems to handle the expected science workload from NSF (Box 6.2 from National Academies of Sciences",
+      "translation": "）。结果仍显示，对于相同计算任务，商业云大约比专用 HPC 贵 50%；而且研究者还严格限制数据流入流出，以避免高额传输费。对于本书所讨论的流数据分析等复杂负载，我们预计 HPC 的成本优势还会持续。美国国家科学院 2016 年的一项研究也得出同样结论：即便与 Amazon 签长期租约，处理 NSF 预计的科学负载仍可能比 HPC 贵 2 到 3 倍，见 National Academies of Sciences 的框 6.2。"
+    },
+    {
+      "key": "t_11fb690a62dd05a10d7d",
+      "source": "22.5 HPC Software",
+      "translation": "22.5 HPC 软件"
+    },
+    {
+      "key": "t_781d8b2dc2a14c918f75",
+      "source": "Ironically, the real power of a supercomputer is in its specialized software. There are a wide variety of software packages available for both HPC systems and cloud systems. In most cases, the same software package is available on both platforms. Therefore, we chose to focus on software packages that are unique to HPC systems and have the potential to improve computational intelligence and forecasting technologies. One noticeable feature of the HPC software ecosystem is that much of the application software performs its own interprocessor communication through Message Passing Interface (MPI). In fact, the cornerstone of most scientific computing books is MPI (Kumar et al.",
+      "translation": "有些反直觉的是，超级计算机真正的力量来自专用软件。HPC 和云系统都有大量软件包，多数软件也同时支持两类平台。因此，本节聚焦 HPC 独有、且可能提升计算智能和预测技术的软件。HPC 软件生态的一个突出特点，是许多应用通过消息传递接口（MPI）自行完成处理器间通信。事实上，多数科学计算教材都以 MPI 为核心（Kumar 等人"
+    },
+    {
+      "key": "t_553b925ab33ce49824ee",
+      "source": ", Gropp, Lusk, and Skjellum",
+      "translation": "、Gropp、Lusk 和 Skjellum"
+    },
+    {
+      "key": "t_d7d44455cdd9691bd852",
+      "source": "). Accordingly, our discussion of HPC software tools will start with MPI. As this book relies on data processing algorithms, we will concentrate on data management tools (Shoshami and Rotem",
+      "translation": "）。本书关注数据处理算法，因此讨论 HPC 软件工具时，除 MPI 外还会重点介绍数据管理工具（Shoshami 和 Rotem"
+    },
+    {
+      "key": "t_844da01d8c54789ce4b8",
+      "source": "22.5.1 Message Passing Interface",
+      "translation": "22.5.1 消息传递接口"
+    },
+    {
+      "key": "t_45a25acee70ff8595be0",
+      "source": "Message Passing Interface is a communication protocol for parallel computing (Gropp, Lusk, and Skjellum",
+      "translation": "消息传递接口（MPI）是并行计算的通信协议（Gropp、Lusk 和 Skjellum"
+    },
+    {
+      "key": "t_82538c5475d2400f88d6",
+      "source": ", Snir et al.",
+      "translation": "、Snir 等人"
+    },
+    {
+      "key": "t_5cc4058edc447b1ea2f4",
+      "source": "). It defines a number of point-to-point data exchange operations as well as some collective communication operations. The MPI standard was established based on several early attempts to build portable communication libraries. The early implementation from Argonne National Lab, named MPICH, was high performance, scalable, and portable. This helped MPI to gain wide acceptance among scientific users. The success of MPI is partly due to its separation of Language Independent Specifications (LIS) from its language bindings. This allows the same core function to be provided to many different programming languages, which also contributes to its acceptance. The first MPI standard specified ANSI C and Fortran-77 bindings together with the LIS. The draft specification was presented to the user community at the 1994 Supercomputing Conference. Another key factor contributing to MPI’s success is the open-source license used by MPICH. This license allows the vendors to take the source code to produce their own custom versions, which allows the HPC system vendors to quickly produce their own MPI libraries. To this day, all HPC systems support the familiar MPI on their computers. This wide adoption also ensures that MPI will continue to be the favorite communication protocol among the users of HPC systems.",
+      "translation": "）。它定义了多种点对点数据交换操作和集合通信操作。MPI 标准是在早期多个可移植通信库尝试的基础上建立的。阿贡国家实验室的早期实现 MPICH 性能高、扩展性强且可移植，帮助 MPI 在科学用户中广泛普及。MPI 的成功部分来自把语言无关规范（LIS）与语言绑定分离，使同一核心功能能提供给多种编程语言。第一版标准在 LIS 之外规定了 ANSI C 和 Fortran-77 绑定，草案于 1994 年超级计算大会提交给用户社区。另一个关键因素是 MPICH 使用开源许可证，允许厂商基于源码制作定制版本，使 HPC 厂商能快速提供自己的 MPI 库。直到今天，所有 HPC 系统都支持人们熟悉的 MPI；广泛采用也保证它仍会是 HPC 用户偏爱的通信协议。"
+    },
+    {
+      "key": "t_ea919f84895343fce9a1",
+      "source": "22.5.2 Hierarchical Data Format 5",
+      "translation": "22.5.2 分层数据格式 5"
+    },
+    {
+      "key": "t_7b5f8ecbc19302218d05",
+      "source": "In describing the HPC hardware components, we noted that the storage systems in an HPC platform are typically different from those in a cloud platform. Correspondingly, the software libraries used by most users for accessing the storage systems are different as well. This difference can be traced to the difference in the conceptual models of data. Typically, HPC applications treat data as multi-dimensional arrays and, therefore, the most popular I/O libraries on HPC systems are designed to work with multi-dimensional arrays. Here, we describe the most widely used array format library, HDF5 (Folk et al.",
+      "translation": "HPC 平台的存储系统通常不同于云平台，相应地，用户访问存储时常用的软件库也不同。根源在于两者对数据的概念模型不同：HPC 应用通常把数据视为多维数组，所以最常用的 I/O 库也围绕多维数组设计。本节介绍最广泛使用的数组格式库 HDF5（Folk 等人"
+    },
+    {
+      "key": "t_a042c18055ab452b2276",
+      "source": "). HDF5 is the fifth iteration of the Hierarchical Data Format, produced by the HDF Group.",
+      "translation": "）。HDF5 是 HDF Group 开发的分层数据格式第五代版本。"
+    },
+    {
+      "key": "t_079bf81d715f96f8a802",
+      "source": "The basic unit of data in HDF5 is an array plus its associated information such as attributes, dimensions, and data type. Together, they are known as a data set. Data sets can be grouped into large units called groups, and groups can be organized into high-level groups. This flexible hierarchical organization allows users to express complex relationships among the data sets. Beyond the basic library for organizing user data into files, the HDF Group also provides a suite of tools and specialization of HDF5 for different applications. For example, HDF5 includes a performance profiling tool. NASA has a specialization of HDF5, named HDF5-EOS, for data from their Earth-Observing System (EOS); and the next-generation DNA sequence community has produced a specialization named BioHDF for their bioinformatics data. HDF5 provides an efficient way for accessing the storage systems on HPC platform. In tests, we have demonstrated that using HDF5 to store stock markets data significantly speeds up the analysis operations. This is largely due to its efficient compression/decompression algorithms that minimize network traffic and I/O operations, which brings us to our next point.",
+      "translation": "HDF5 的基本数据单元是数组及其属性、维度、数据类型等相关信息，合称数据集。数据集可以组成更大的“组”，组还可继续组织成高层组。这种灵活的层次结构能表达数据集之间的复杂关系。HDF Group 除了提供把用户数据组织进文件的基础库，还提供配套工具和面向不同应用的 HDF5 专用版本。例如，HDF5 包含性能剖析工具；NASA 为地球观测系统（EOS）数据开发了 HDF5-EOS；新一代 DNA 测序社区则为生物信息数据开发了 BioHDF。HDF5 能高效访问 HPC 存储。测试表明，用 HDF5 保存股票市场数据可显著加快分析，主要因为它高效的压缩和解压算法减少了网络传输与 I/O 操作。"
+    },
+    {
+      "key": "t_7b70cb807e4739c279b4",
+      "source": "The HDF Group web site is",
+      "translation": "HDF Group 网站："
+    },
+    {
+      "key": "t_a3f21c3bc83f950c7dc6",
+      "source": "22.5.3 In Situ Processing",
+      "translation": "22.5.3 原位处理"
+    },
+    {
+      "key": "t_00f9e6ee9c72031d95aa",
+      "source": "Over the last few decades, CPU performance has roughly doubled every 18 months (Moore’s law), while disk performance has been increasing less than 5% a year. This difference has caused it to take longer and longer to write out the content of the CPU memory. To address this issue, a number of research efforts have focused on in situ analysis capability (Ayachit et al.",
+      "translation": "过去几十年，CPU 性能大约每 18 个月翻一倍，即摩尔定律；磁盘性能每年增幅却不足 5%。这使把 CPU 内存内容写入磁盘所需时间越来越长。为解决该问题，许多研究转向原位分析能力（Ayachit 等人"
+    },
+    {
+      "key": "t_d0e59451ed068d80da75",
+      "source": "). Among the current generation of processing systems, the Adaptable I/O System (ADIOS) is the most widely used (Liu et al.",
+      "translation": "）。在当前处理系统中，自适应 I/O 系统 ADIOS 使用最广泛（Liu 等人"
+    },
+    {
+      "key": "t_ead1b62a96df5c1d4275",
+      "source": "). It employs a number of data transport engines that allow users to tap into the I/O stream and perform analytical operations. This is useful because irrelevant data can be discarded in-flight, hence avoiding its slow and voluminous storage. This same in situ mechanism also allows it to complete write operations very quickly. In fact, it initially gained attention because of its write speed. Since then, the ADIOS developers have worked with a number of very large teams to improve their I/O pipelines and their analysis capability.",
+      "translation": "）。它提供多种数据传输引擎，让用户可以接入 I/O 数据流并直接执行分析。无关数据可在传输途中丢弃，避免缓慢且占空间的落盘；同一原位机制也能极快完成写入。ADIOS 最初正是因写入速度受到关注，之后开发者又与多个大型团队合作，改进其 I/O 流水线和分析能力。"
+    },
+    {
+      "key": "t_d26480ade8145a00fa2d",
+      "source": "Because ADIOS supports streaming data accesses, it is also highly relevant to CIFT work. In a number of demonstrations, ADIOS with ICEE transport engine was able to complete distributed streaming data analysis in real-time (Choi et al.",
+      "translation": "ADIOS 支持流式数据访问，因此与 CIFT 高度相关。多次演示表明，使用 ICEE 传输引擎的 ADIOS 可以实时完成分布式流数据分析（Choi 等人"
+    },
+    {
+      "key": "t_e3741c167b8ddec4c795",
+      "source": "). We will describe one of the use cases involving blobs in fusion plasma in the next section. To summarize, in situ data processing capability is another very useful tool from the HPC ecosystem.",
+      "translation": "）。下一节会介绍其中一个案例：聚变等离子体中的团块。总之，原位数据处理是 HPC 生态提供的又一项非常实用的工具。"
+    },
+    {
+      "key": "t_91fce5dffa9706e0271c",
+      "source": "22.5.4 Convergence",
+      "translation": "22.5.4 融合"
+    },
+    {
+      "key": "t_693bbff61780f6084fa6",
+      "source": "We mentioned earlier that the HPC hardware market is a tiny part of the overall computer hardware market. The HPC software market is even smaller compared to the overall software market. So far, the HPC software ecosystem is largely maintained by a number of small vendors along with some open-source contributors. Therefore, HPC system users are under tremendous pressure to migrate to the better supported cloud software systems. This is a significant driver for convergence between software for HPC and software for cloud (Fox et al.",
+      "translation": "前面提到，HPC 硬件只占整个计算机硬件市场很小一部分；HPC 软件市场占总体软件市场的比例更小。目前，HPC 软件生态主要由少数小型厂商和开源贡献者维护。因此，HPC 用户承受着迁移到支持更完善的云软件系统的巨大压力，这成为 HPC 与云软件融合的重要动力（Fox 等人"
+    },
+    {
+      "key": "t_c02391c36b13cde20d0c",
+      "source": "). Even though convergence appears to be inevitable, we advocate for a convergence option that keeps the advantage of the software tools mentioned above. One of the motivations of the CIFT project is to seek a way to transfer the above tools to the computing environments of the future.",
+      "translation": "）。融合看起来不可避免，但我们主张采用能够保留上述 HPC 工具优势的融合方式。CIFT 的动机之一，就是寻找把这些工具迁移到未来计算环境的途径。"
+    },
+    {
+      "key": "t_f68e5431787a75ac5dfd",
+      "source": "22.6 Use Cases",
+      "translation": "22.6 应用案例"
+    },
+    {
+      "key": "t_cedabb4c415b507e70e9",
+      "source": "Data processing is such an important part of modern scientific research that some researchers are calling it the fourth paradigm of science (Hey, Tansley, and Tolle",
+      "translation": "数据处理对现代科学研究极其重要，以至于有研究者称它为科学的第四范式（Hey、Tansley 和 Tolle"
+    },
+    {
+      "key": "t_875ce6b4e7d3bf65bdd3",
+      "source": "). In economics, the same data-driven research activities have led to the wildly popular behavioral economics (Camerer and Loewenstein",
+      "translation": "）。在经济学中，同样的数据驱动研究催生了广受欢迎的行为经济学（Camerer 和 Loewenstein"
+    },
+    {
+      "key": "t_b3ca54bb8627daea433c",
+      "source": "). Much of the recent advances in data-driven research are based on machine learning applications (Qiu et al.",
+      "translation": "）。近年的许多数据驱动研究进展建立在机器学习应用之上（Qiu 等人"
+    },
+    {
+      "key": "t_c47c623dcf4a93fa0f62",
+      "source": ", Rudin and Wagstaff",
+      "translation": "、Rudin 和 Wagstaff"
+    },
+    {
+      "key": "t_d80012b08f6e98239c08",
+      "source": "). Their successes in a wide variety of fields, such as planetary science and bioinformatics, have generated considerable interest among researchers from diverse domains. In the rest of this section, we describe a few examples applying advanced data analysis techniques to various fields, where many of these use cases originated in the CIFT project.",
+      "translation": "）。这些技术在行星科学、生物信息学等众多领域取得成功，引起了各领域研究者的浓厚兴趣。本节余下部分介绍若干把先进数据分析技术用于不同领域的例子，其中很多案例源于 CIFT 项目。"
+    },
+    {
+      "key": "t_93e59c88ac781df5941c",
+      "source": "22.6.1 Supernova Hunting",
+      "translation": "22.6.1 寻找超新星"
+    },
+    {
+      "key": "t_80aaa7b6bfebb7d0a20f",
+      "source": "In astronomy, the determination of many important facts such as the expansion speed of the universe, is performed by measuring the light from exploding type Ia supernovae (Bloom et al.",
+      "translation": "天文学通过测量 Ia 型超新星爆炸产生的光，确定宇宙膨胀速度等重要事实（Bloom 等人"
+    },
+    {
+      "key": "t_d7858cca584864aa2315",
+      "source": "). The process of searching the night sky for exploding supernovae is called synoptic imaging survey. The Palomar Transient Factory (PTF) is an example of such a synoptic survey (Nicholas et al.",
+      "translation": "）。在夜空中搜索爆发超新星的过程称为巡天成像。帕洛玛瞬变工厂（PTF）就是这类巡天项目（Nicholas 等人"
+    },
+    {
+      "key": "t_fa06f5b511e5cb421e4b",
+      "source": "). The PTF telescopes scan the night sky and produce a set of images every 45 minutes. The new image is compared against the previous observations of the same patch of sky to determine",
+      "translation": "）。PTF 望远镜每 45 分钟扫描一次夜空并生成一组图像，再把新图像与同一天区的历史观测比较，以确定"
+    },
+    {
+      "key": "t_6068b9dafe64fb2dbecd",
+      "source": "Figure 22.4: Supernova SN 2011fe was discovered 11 hours after first evidence of explosion, as a result of the extensive automation in classification of astronomical observations",
+      "translation": "图 22.4：通过高度自动化的天文观测分类，超新星 SN 2011fe 在出现首次爆发迹象 11 小时后即被发现"
+    },
+    {
+      "key": "t_d1adf1095389a92c9ab8",
+      "source": "what has changed and to classify the changes. Such identification and classification tasks used to be performed by astronomers manually. However, the current number of incoming images from the PTF telescopes is too large for manual inspection. An automated workflow for these image processing tasks has been developed and deployed at a number of different computer centers. Figure 22.4 shows the supernova that was identified earliest in its explosion process. On August 23, 2011, a patch of the sky showed no sign of this star, but a faint light showed up on August 24. This quick turnover allowed astronomers around the world to perform detailed follow-up observations, which are important for determining the parameters related to the expansion of the universe. The quick identification of this supernova is an important demonstration of the machine learning capability of the automated workflow. This workflow processes the incoming images to extract the objects that have changed since last observed. It then classifies the changed object to determine a preliminary type based on the previous training. Since follow-up resources for extracting novel science from fast-changing transients are precious, the classification not only needs to indicate the assumed type but also the likelihood and confidence of the classification. Using classification algorithms trained on PTF data, the mislabeling of transients and variable stars has a 3.8% overall error rate. Additional work is expected to achieve higher accuracy rates in upcoming surveys, such as for the Large Synoptic Survey Telescope.",
+      "translation": "发生了什么变化并对其分类。过去，这类识别和分类由天文学家手工完成；如今 PTF 望远镜产生的图像太多，已经无法人工检查。研究团队开发了自动图像处理流程，并部署在多个计算中心。图 22.4 展示了爆发早期即被识别的一颗超新星：2011 年 8 月 23 日，该天区还看不到这颗星；8 月 24 日便出现微弱亮光。快速识别使全球天文学家得以及时开展后续观测，这对确定宇宙膨胀相关参数十分重要。该发现展示了自动流程的机器学习能力：先从新图像中提取相对上次观测发生变化的天体，再根据既有训练结果对变化对象作初步分类。由于用于研究快速瞬变事件的后续资源非常宝贵，分类不仅要给出推测类型，还要给出概率和置信度。使用 PTF 数据训练的分类算法，对瞬变天体和变星的总体误标率为 3.8%。未来的大型综合巡天望远镜等项目有望通过进一步工作提高准确率。"
+    },
+    {
+      "key": "t_2452b8b82a5f4d31c8d2",
+      "source": "22.6.2 Blobs in Fusion Plasma",
+      "translation": "22.6.2 聚变等离子体中的团块"
+    },
+    {
+      "key": "t_dc748b9e8c2b034eaaaa",
+      "source": "Large-scale scientific exploration in domains such as physics and climatology are huge international collaborations involving thousands of scientists each. As these",
+      "translation": "物理学、气候学等领域的大规模科学探索，往往是数千名科学家参与的国际合作。随着这些"
+    },
+    {
+      "key": "t_91859abbb4d07bdaa870",
+      "source": "collaborations produce more and more data at progressively faster rates, the existing workflow management systems are hard-pressed to keep pace. A necessary solution is to process, analyze, summarize, and reduce the data before it reaches the relatively slow disk storage system, a process known as in-transit processing (or in-flight analysis). Working with the ADIOS developers, we have implemented the ICEE transport engine to dramatically increase the data-handling capability of collaborative workflow systems (Choi et al.",
+      "translation": "合作以越来越快的速度产生越来越多数据，现有工作流管理系统逐渐跟不上。必要的解决方案是在数据到达相对缓慢的磁盘存储前就进行处理、分析、汇总和缩减，这叫传输中处理或在途分析。团队与 ADIOS 开发者合作，实现 ICEE 传输引擎，大幅提升协作工作流系统的数据处理能力（Choi 等人"
+    },
+    {
+      "key": "t_a33764ef4d4b2cc78509",
+      "source": "). This new feature significantly improved the data flow management for distributed workflows. Tests showed that the ICEE engine allowed a number of large international collaborations to make near real-time collaborative decisions. Here, we briefly describe the fusion collaboration involving KSTAR. KSTAR is a nuclear fusion reactor with fully superconducting magnets. It is located in South Korea, but there are a number of associated research teams around the world. During a run of a fusion experiment, some researchers control the physics device at KSTAR, but others may want to participate by performing collaborative analysis of the preceding runs of the experiment to provide advice on how to configure the device for the next run. During the analysis of the experimental measurement data, scientists might run simulations or examine previous simulations to study parametric choices. Typically, there may be a lapse of 10 to 30 minutes between two successive runs, and all collaborative analyses need to complete during this time window in order to affect the next run. We have demonstrated the functionality of the ICEE workflow system with two different types of data: one from the Electron Cyclotron Emission Imaging (ECEI) data measured at KSTAR, and the other involving synthetic diagnostic data from the XGC modelling. The distributed workflow engine needs to collect data from these two sources, extract a feature known as blobs, track the movement of these blobs, predict the movement of the blobs in the experimental measurements, and then provide advices on actions to be performed. Figure 22.5 shows how the ECEI data is processed. The workflow for the XGC simulation data is similar to what is shown in Figure 22.5, except that the XGC data is located at NERSC.",
+      "translation": "）。这项新功能显著改善了分布式工作流的数据流管理。测试表明，ICEE 让多个大型国际合作项目能够近实时协同决策。这里简述围绕 KSTAR 的聚变研究合作。KSTAR 是位于韩国、采用全超导磁体的核聚变反应堆，但相关研究团队分布在世界各地。一次聚变实验运行时，一部分研究人员控制 KSTAR 装置，其他团队则分析前几次运行，为下一次装置配置提出建议。分析实验测量数据时，科学家还可能运行模拟或查看已有模拟，研究参数选择。两次运行之间通常只有 10 到 30 分钟，所有协作分析必须在这段时间内完成，才能影响下一次运行。团队用两类数据演示 ICEE 工作流：一类是 KSTAR 测得的电子回旋辐射成像（ECEI）数据，另一类是 XGC 模型产生的合成诊断数据。分布式工作流引擎要从两处收集数据，提取称为团块的特征，跟踪其运动，预测实验测量中团块的运动，再给出操作建议。图 22.5 展示 ECEI 数据处理流程；XGC 模拟数据流程类似，只是数据存放在 NERSC。"
+    },
+    {
+      "key": "t_794d342bf847ea397a94",
+      "source": "Figure 22.5: A distributed workflow for studying fusion plasma dynamics",
+      "translation": "图 22.5：研究聚变等离子体动力学的分布式工作流"
+    },
+    {
+      "key": "t_3b0f45f2a15f6b543aef",
+      "source": "To be able to complete the above analytical tasks in real-time, effective data management with ICEE transport engine of ADIOS is only part of the story. The second part is to detect blobs efficiently (Wu et al.",
+      "translation": "要实时完成上述分析，高效使用 ADIOS 的 ICEE 传输引擎管理数据只是第一部分；第二部分是高效检测团块（Wu 等人"
+    },
+    {
+      "key": "t_97bec109a3b52ffeecd7",
+      "source": "). In this work, we need to reduce the amount of data transported across wide-area networks by selecting only the necessary chunks. We then identify all cells within the blobs and group these cells into connected regions in space, where each connected region forms a blob. The new algorithm we developed partitions the work into different CPU cores by taking full advantage of the MPI for communication between the nodes and the shared memory among the CPU cores on the same node. Additionally, we also updated the connected component label algorithm to correctly identify blobs at the edge, which were frequently missed by the earlier detection algorithms. Overall, our algorithm was able to identify blobs in a few milliseconds for each time step by taking full advantage of the parallelism available in the HPC system.",
+      "translation": "）。团队只选择必要数据块，以减少广域网传输量；随后识别团块内全部网格单元，并把相邻单元组成空间连通区域，每个区域形成一个团块。新算法充分利用 MPI 在节点间通信，并利用同一节点各 CPU 核心间的共享内存，把工作分配到不同核心。团队还更新了连通分量标记算法，正确识别旧算法经常漏掉的边缘团块。借助 HPC 系统的并行能力，算法对每个时间步只需几毫秒便能完成团块识别。"
+    },
+    {
+      "key": "t_3f121f86a67bdef5e9bb",
+      "source": "22.6.3 Intraday Peak Electricity Usage",
+      "translation": "22.6.3 日内用电峰值"
+    },
+    {
+      "key": "t_b1a07cf80a2c6e459f79",
+      "source": "Utility companies are deploying advanced metering infrastructure (AMI) to capture electricity consumption in unprecedented spatial and temporal detail. This vast and fast-growing stream of data provides an important testing ground for the predictive capability based on big data analytical platforms (Kim et al.",
+      "translation": "公用事业公司正在部署高级计量基础设施（AMI），以前所未有的时空精度记录用电量。这股庞大且快速增长的数据流，为检验大数据分析平台的预测能力提供了重要试验场（Kim 等人"
+    },
+    {
+      "key": "t_4d9bd907a9d189900765",
+      "source": "). These cutting-edge data science techniques, together with behavioral theories, enable behavior analytics to gain novel insights into patterns of electricity consumption and their underlying drivers (Todd et al.",
+      "translation": "）。前沿数据科学方法结合行为理论，使行为分析能够揭示用电模式及其背后驱动因素（Todd 等人"
+    },
+    {
+      "key": "t_792a3a6953db9a74add0",
+      "source": "). As electricity cannot be easily stored, its generation must match consumption. When the demand exceeds the generation capacity, a blackout will occur, typically during the time when consumers need electricity the most. Because increasing generation capacity is expensive and requires years of time, regulators and utility companies have devised a number of pricing schemes intended to discourage unnecessary consumption during peak demand periods. To measure the effectiveness of a pricing policy on peak demand, one can analyze the electricity usage data generated by AMI. Our work focuses on extracting baseline models of household electricity usage for a behavior analytics study. The baseline models would ideally capture the pattern of household electricity usage including all features except the new pricing schemes. There are numerous challenges in establishing such a model. For example, there are many features that could affect the usage of electricity but for which no information is recorded, such as the temperature set point of an air-conditioner or the purchase of a new appliance. Other features, such as outdoor temperature, are known, but their impact is difficult to capture in simple functions. Our work developed a number of new baseline models that could satisfy the above requirements. At present, the gold standard baseline is a well-designed randomized control group. We showed that our new data-driven baselines could accurately predict the average electricity usage of the control group. For this evaluation, we use a well-designed study from a region of the United States where the electricity usage is the highest in the afternoon and evening during the months of May through August.",
+      "translation": "）。电力难以大量储存，因此发电必须与用电同步；需求超过发电能力时会停电，而且往往发生在用户最需要电的时候。扩大发电能力既昂贵又耗时多年，因此监管机构和电力公司设计了多种定价方案，抑制高峰期不必要的用电。要衡量价格政策对峰值需求的影响，可以分析 AMI 产生的用电数据。本项目着重建立家庭用电基线模型，服务于行为分析。理想基线应捕捉除新定价方案外的全部用电特征，但建模困难很多：例如空调温度设定、新购家电等因素会影响用电，却没有记录；室外温度虽已知，其影响也难用简单函数表达。团队开发了多种新基线模型。目前的金标准是设计严谨的随机对照组；结果表明，新的数据驱动基线能准确预测对照组平均用电量。评估使用的是美国某地区的一项严谨研究，该地区 5 至 8 月的用电峰值出现在下午和晚间。"
+    },
+    {
+      "key": "t_43d2711ef6de99f51d5c",
+      "source": "Though this work concentrates on demonstrating that the new baseline models are effective for groups, we believe that these new models are also useful for studying individual households in the future. We explored a number of standard black-box approaches. Among machine learning methods, we found gradient tree boosting (GTB) to be more effective than others. However, the most accurate GTB models require lagged variables as features (for example, the electricity usage a day before and a week before). In our work, we need to use the data from year T-1 to establish the baseline usage for year T and year T + 1. The lagged variable for a day before and a week before would be incorporating recent information not in year T-1. We attempted to modify the prediction procedure to use the recent predictions in place of the actual measured values a day before and a week before; however, our tests show that the prediction errors accumulate over time, leading to unrealistic predictions a month or so into the summer season. This type of accumulation of prediction errors is common to continuous prediction procedures for time series.",
+      "translation": "虽然当前工作主要证明新基线模型对群体有效，团队认为未来也可用于研究单个家庭。我们测试了多种标准黑箱方法，发现机器学习方法中梯度树提升（GTB）表现最好。但最准确的 GTB 需要滞后变量作为特征，例如前一天和前一周的用电量。本研究必须用 T−1 年的数据建立 T 年和 T+1 年基线；加入前一天和前一周的滞后量，就会引入 T−1 年中不存在的近期信息。团队尝试用近期预测值代替前一天和前一周的实测值，但测试发现误差会随时间累积，进入夏季约一个月后便产生不现实的预测。这类误差累积在时间序列的连续预测流程中很常见。"
+    },
+    {
+      "key": "t_fa0012114d2fcffca320",
+      "source": "To address the above issue, we devised a number of white-box approaches, the most effective of which, known as LTAP, is reported here. LTAP is based on the fact that the aggregate variable electricity usage per day is accurately described by a piecewise linear function of average daily temperature. This fact allows us to make predictions about the total daily electricity usage. By further assuming that the usage profile of each household remains the same during the study, we are able to assign the hourly usage values from the daily aggregate usage. This approach is shown to be self-consistent; that is, the prediction procedure exactly reproduces the electricity usage in year T-1, and the predictions for the control group in both year T and T + 1 are very close to the actual measured values. Both treatment groups have reduced electricity usages during the peak-demand hours, and the active group reduced the usage more than the passive group. This observation is in line with other studies.",
+      "translation": "为解决上述问题，团队设计了多种白箱方法，其中最有效的是 LTAP。LTAP 基于一个事实：每日总用电量可由日均温度的分段线性函数准确描述，因此能预测每日总用电量。再假设研究期间每户家庭的日内用电曲线不变，就可以把每日总量分配到各小时。结果表明，该方法具有自洽性：预测流程能精确重现 T−1 年用电量，对照组在 T 年和 T+1 年的预测也非常接近实测值。两个处理组都减少了高峰时段用电，主动组降幅大于被动组，与其他研究一致。"
+    },
+    {
+      "key": "t_e3a21423ba75bab3248c",
+      "source": "Though the new data-driven baseline model LTAP predicts the average usages of the control group accurately, there are some differences in predicted impact of the new time-of-use pricing intended to reduce the usage during the peak-demand hours (see Figure 22.6). For example, with the control group as the baseline, the active group reduces its usage by 0.277 kWh (out of about 2 kWh) averaged over the peak-demand hours in the first year with the new price and 0.198 kWh in the second year. Using LTAP as the baseline, the average reductions are only 0.164 kWh for both years. Part of the difference may be due to the self-selection bias in treatment groups, especially the active group, where the households have to explicitly opt-in to participate in the trial. It is likely that the households that elected to join the active group are well-suited to take advantage of the proposed new pricing structure. We believe that the LTAP baseline is a way to address the self-selection bias and plan to conduct additional studies to further verify this.",
+      "translation": "新的数据驱动基线 LTAP 虽能准确预测对照组平均用电量，但对旨在降低高峰需求的新分时定价，其影响估计与对照组基线存在差异，见图 22.6。以对照组为基线，主动组在新价格实施第一年的高峰时段平均减少 0.277 kWh（原用电约 2 kWh），第二年减少 0.198 kWh；以 LTAP 为基线，两年平均降幅都只有 0.164 kWh。部分差异可能来自处理组的自选择偏差，尤其是主动组要求家庭主动报名；愿意加入的家庭可能本就更适合利用新价格结构。团队认为 LTAP 基线有助于处理自选择偏差，并计划进一步验证。"
+    },
+    {
+      "key": "t_a9a4b18a3ffda1463183",
+      "source": "Figure 22.6: Gradient tree boosting (GBT) appears to follow recent usage too closely and therefore not able to predict the baseline usage as well as the newly develop method named LTAP. (a) GTB on Control group. (b) LTAP on Control group. (c) GTB on Passive group. (d) LTAP on Passive group. (e) GTB on Active group. (f) LTAP on Active group",
+      "translation": "图 22.6：梯度树提升（GTB）过度拟合近期用电数据，因此对基线用电量的预测不如新开发的 LTAP 方法。（a）GTB 对照组；（b）LTAP 对照组；（c）GTB 被动组；（d）LTAP 被动组；（e）GTB 主动组；（f）LTAP 主动组"
+    },
+    {
+      "key": "t_7d0892b5a98df4f18551",
+      "source": "22.6.4 The Flash Crash of 2010",
+      "translation": "22.6.4 2010 年闪电崩盘"
+    },
+    {
+      "key": "t_ec63d3b9fb7c09346d5b",
+      "source": "The extended time it took for the SEC and CFTC to investigate the Flash Crash of 2010 was the original motivation for CIFT's work. Federal investigators needed to sift through tens of terabytes of data to look for the root cause of the crash. Since CFTC publicly blamed the volume of data to be the source of the long delay, we started our work by looking for HPC tools that could easily handle tens of terabytes. Since HDF5 is the most commonly used I/O library, we started our work by applying HDF5 to organize a large set of stock trading data (Bethel et al.",
+      "translation": "SEC 和 CFTC 调查 2010 年闪电崩盘耗时过长，是 CIFT 项目的最初动机。联邦调查人员需要筛查数十 TB 数据，寻找崩盘根因。CFTC 公开把延误归咎于数据量，因此团队首先寻找能够轻松处理数十 TB 数据的 HPC 工具。HDF5 是最常用的 I/O 库，于是项目先用它组织大规模股票交易数据（Bethel 等人"
+    },
+    {
+      "key": "t_1a33258d66912fd620de",
+      "source": "Let us quickly review what happened during the 2010 Flash Crash. On May 6, at about 2:45 p.m. (U.S. Eastern Daylight Time), the Dow Jones Industrial Average dropped almost 10%, and many stocks traded at one cent per share, the minimum price for any possible trade. Figure 22.7 shows an example of another extreme case, where shares of Apple (symbol AAPL) traded at $100,000 per share, the maximum possible price allowed by the exchange. Clearly, these were unusual events, which undermined investors’ faith and confidence in our financial markets.",
+      "translation": "简要回顾当时情况：2010 年 5 月 6 日美国东部夏令时间下午约 2:45，道琼斯工业平均指数下跌近 10%，许多股票以每股 1 美分成交，这是任何交易允许的最低价。图 22.7 展示另一个极端案例：苹果股票 AAPL 曾以每股 100,000 美元成交，达到交易所允许的最高价。这些异常事件显然动摇了投资者对金融市场的信任。"
+    },
+    {
+      "key": "t_c66cd9d1f8c26f137c2b",
+      "source": "Figure 22.7: Apple Stock price on May 6, 2010, along with HHI and VPIN values computed every 5 minutes during the market hours",
+      "translation": "图 22.7：2010 年 5 月 6 日苹果股价，以及交易时段内每 5 分钟计算的 HHI 和 VPIN"
+    },
+    {
+      "key": "t_3e3902aeefe610911ad6",
+      "source": "Investors demanded to know what caused these events. To make our work relevant to the financial industry, we sought to experiment with the HDF5 software, and apply it to the concrete task of computing early-warning indicators. Based on recommendations from a group of institutional investors, regulators, and academics, we implemented two sets of indicators that have been shown to have “early warning” properties preceding the Flash Crash. They are the Volume Synchronized Probability of Informed Trading (VPIN) (Easley, Lopez de Prado, and O’Hara",
+      "translation": "投资者要求解释这些事件的成因。为让工作贴近金融业，团队用 HDF5 做实验，并将它用于计算早期预警指标。根据机构投资者、监管人员和学者的建议，团队实现了两组被证明在闪电崩盘前具有预警性质的指标：成交量同步知情交易概率（VPIN）（Easley、Lopez de Prado 和 O’Hara"
+    },
+    {
+      "key": "t_f8758eefb6a440e9ca1f",
+      "source": ") and a variant of the Herfindahl-Hirschman Index (HHI) (Hirschman",
+      "translation": "）以及衡量市场碎片化的 Herfindahl-Hirschman 指数（HHI）变体（Hirschman"
+    },
+    {
+      "key": "t_7b17b8fa947371b77ff7",
+      "source": ") of market fragmentation. We implemented these two algorithms in the C++ language, while using MPI for inter-processor communication, to take full advantage of the HPC systems. The reasoning behind this choice is that if any of these early-warning indicators is shown to be successful, the high-performance implementation would allow us to extract the warning signals as early as possible so there might be time to take corrective actions.",
+      "translation": "）。两个算法均用 C++ 实现，并使用 MPI 进行处理器间通信，以充分利用 HPC。如果其中任何预警指标被证实有效，高性能实现就能尽早提取信号，为采取纠正措施争取时间。"
+    },
+    {
+      "key": "t_5920f51ba34acc36c0df",
+      "source": "Our effort was one of the first steps to demonstrate that it is possible to compute the early-warning signals fast enough. For our work, we implemented two versions of the programs: one uses data organized in HDF5 files, and another reads the data from the commonly used ASCII text files. Figure 22.8 shows the time required to process the trading records of all S&P 500 stocks over a 10-year timespan. Since the size of the 10-year trading data is still relatively small, we replicated the data 10 times as well. On a single CPU core (labeled “Serial” in Figure 22.8), it took about 3.5 hours with ASCII data, but only 603.98 seconds with HDF5 files. When 512 CPU cores are used, this time reduces to 2.58 seconds using HDF5 files, resulting in a speedup of 234 times. On the larger replicated dataset, the advantage of HPC code for computing these indices is even more pronounced. With 10 times as much data, it took only about 2.3 times longer for the computer to complete the tasks, a below-linear latency increase.",
+      "translation": "项目较早证明了预警信号可以足够快地计算出来。团队实现两个程序版本：一个读取 HDF5 文件，另一个读取常见 ASCII 文本。图 22.8 展示处理标普 500 全部股票十年交易记录所需时间。由于十年数据仍较小，团队又把数据复制了十倍。单个 CPU 核心上，ASCII 数据耗时约 3.5 小时，HDF5 只需 603.98 秒；使用 512 个核心时，HDF5 耗时降至 2.58 秒，加速 234 倍。对放大后的数据集，HPC 代码优势更明显：数据量增至十倍，耗时只增加约 2.3 倍，延迟增幅低于线性。"
+    },
+    {
+      "key": "t_cb8e5f2fb240f0e4eb8a",
+      "source": "Figure 22.8: Time to process 10-year worth of SP500 quotes data stored in HDF5 files, which takes 21 times longer when the same data is in ASCII files (603.98 seconds versus approximately 3.5 hours)",
+      "translation": "图 22.8：处理 HDF5 中十年标普 500 报价数据的耗时；同样数据使用 ASCII 文件会慢 21 倍（603.98 秒对约 3.5 小时）"
+    },
+    {
+      "key": "t_6d35ae6e46d98d2999f5",
+      "source": "Using more CPU makes HPC even more scalable. Figure 22.8 also shows that with a large data set, we can further take advantage of the indexing techniques available in HDF5 to reduce the data access time, which in turn reduces the overall computation time. When 512 CPU cores are used, the total runtime is reduced from 16.95 seconds to 4.59 seconds, a speedup of 3.7 due to this HPC technique of indexing.",
+      "translation": "增加 CPU 数量还能进一步发挥 HPC 的扩展性。图 22.8 也显示，大数据集可以利用 HDF5 索引减少访问时间，从而降低总耗时。使用 512 个核心时，总运行时间从 16.95 秒降至 4.59 秒；HPC 索引技术带来 3.7 倍加速。"
+    },
+    {
+      "key": "t_2c99b4eb1a62b248e4c6",
+      "source": "22.6.5 Volume-synchronized Probability of Informed Trading Calibration",
+      "translation": "22.6.5 成交量同步知情交易概率的校准"
+    },
+    {
+      "key": "t_96fc9af219fac74f2891",
+      "source": "Understanding the volatility of the financial market requires the processing of a vast amount of data. We apply techniques from data-intensive scientific applications for this task, and demonstrate their effectiveness by computing an early warning indicator called Volume Synchronized Probability of Informed Trading (VPIN) on a massive set of futures contracts. The test data contains 67 months of trades for the hundred most frequently traded futures contracts. On average, processing one contract over 67 months takes around 1.5 seconds. Before we had this HPC implementation, it took about 18 minutes to complete the same task. Our HPC implementation achieves a speedup of 720 times. Note that the above speedup was obtained solely based on the algorithmic improvement, without the benefit of parallelization. The HPC code can run on parallel machines using MPI, and thus is able to further reduce the computation time. The software techniques employed in our work include the faster I/O access through HDF5 described above, as well as a more streamlined data structure for storing the bars and buckets used for the computation of VPIN. More detailed information is available in Wu et al.",
+      "translation": "理解金融市场波动需要处理海量数据。团队把数据密集型科学应用中的技术用于该任务，并在大规模期货合约上计算 VPIN 早期预警指标来展示效果。测试数据包含交易最活跃的 100 份期货合约、共 67 个月的成交。平均处理一份合约的 67 个月数据约需 1.5 秒；此前同一任务约需 18 分钟，HPC 实现加速 720 倍。这个加速仅来自算法改进，尚未计入并行化收益。HPC 代码还可通过 MPI 在并行机器上运行，进一步缩短时间。所用技术包括前述 HDF5 高速 I/O，以及更精简的数据结构，用来存储 VPIN 计算所需的成交量条（bar）和成交量桶（bucket）。详情参见 Wu 等人"
+    },
+    {
+      "key": "t_ca60f3d12901b96d9ebb",
+      "source": "Figure 22.9: The average false positive rates (",
+      "translation": "图 22.9：不同类别期货合约的平均误报率（"
+    },
+    {
+      "key": "t_1d0ca95d635d47762410",
+      "source": ") of different classes of futures contracts ordered according to their average.",
+      "translation": "），按其平均值排序。"
+    },
+    {
+      "key": "t_e14b65fcb1a930386f5c",
+      "source": "With a faster program to compute VPIN, we were also able to explore the parametric choices more closely. For example, we were able to identify the parameter values that reduce VPIN's false positive rate over one hundred contracts from 20% to only 7%, see Figure 22.9. The parameter choices to achieve this performance are: (1) pricing the volume bar with the median prices of the trades (not the closing price typically used in analyses), (2) 200 buckets per day, (3) 30 bars per bucket, (4) support window for computing VPIN = 1 day, event duration = 0.1 day, (5) bulk volume classification with Student t-distribution with",
+      "translation": "更快的 VPIN 程序也让团队能细致研究参数选择。例如，团队找到一组参数，把 100 份合约的 VPIN 误报率从 20% 降到 7%，见图 22.9。参数为：（1）用各笔交易价格的中位数而非通常的收盘价为成交量条（bar）定价；（2）每天 200 个成交量桶（bucket）；（3）每个成交量桶包含 30 个成交量条；（4）VPIN 支持窗口 1 天，事件持续时间 0.1 天；（5）使用 Student t 分布进行批量成交量分类，其中"
+    },
+    {
+      "key": "t_34cc2135ad6d231d6496",
+      "source": ", and (6) threshold for CDF of VPIN = 0.99. Again, these parameters provide a low false positive rate on the totality of futures contracts, and are not the result of individual fitting. On different classes of futures contracts, it is possible to choose different parameters to achieve even lower false positive rates. In some cases, the false positive rates can fall significantly below 1%. Based on Figure 22.9, interest rate and index futures contracts typically have lower false positive rates. The futures contracts on commodities, such as energy and metal, generally have higher false positive rates. Additionally, a faster program for computing VPIN allows us to validate that the events identified by VPIN are “intrinsic,” in the sense that varying parameters such as the threshold on VPIN CDF only slightly change the number of events detected. Had the events been random, changing this threshold from 0.9 to 0.99 would have reduced the number of events by a factor of 10. In short, a faster VPIN program also allows us to confirm the real-time effectiveness of VPIN.",
+      "translation": "；（6）VPIN 的 CDF 阈值为 0.99。这些参数在全部期货合约上整体取得低误报率，并非逐合约拟合。对不同类别合约，还可选择不同参数进一步降低误报；某些情况下可显著低于 1%。图 22.9 显示，利率和指数期货误报率通常较低，能源、金属等商品期货较高。更快的程序还验证了 VPIN 识别出的事件具有内在真实性，并非随机噪声：改变 VPIN CDF 阈值等参数，只会小幅改变事件数量。若事件随机，把阈值从 0.9 提到 0.99 应使事件数减少十倍。总之，高速 VPIN 程序也帮助确认其在实时环境中的有效性。"
+    },
+    {
+      "key": "t_6588e9086f7836685e39",
+      "source": "22.6.6 Revealing High Frequency Events with Non-uniform Fast Fourier Transform",
+      "translation": "22.6.6 用非均匀快速傅里叶变换揭示高频事件"
+    },
+    {
+      "key": "t_f49c91290f27364d2aa2",
+      "source": "High Frequency Trading is pervasive across all electronic financial markets. As algorithms replace tasks previously performed by humans, cascading effects similar to the 2010 Flash Crash may become more likely. In our work (Song et al.",
+      "translation": "高频交易遍布所有电子金融市场。随着算法取代过去由人完成的任务，类似 2010 年闪电崩盘的级联效应可能更常见。在本项目中（Song 等人"
+    },
+    {
+      "key": "t_753214af7746158f8546",
+      "source": "), we brought together a number of high-performance signal-processing tools to improve our understanding of these trading activities. As an illustration, we summarize the Fourier analysis of the trading prices of natural gas futures. Normally, Fourier analysis is applied on uniformly spaced data. Since market activity comes in bursts, we may want to sample financial time series according to an index of trading activity. For example, VPIN samples financial series as a function of volume traded. However, a Fourier analysis of financial series in chronological time may still be instructive. To this purpose, we use a non-uniform Fast Fourier Transform (FFT) procedure.",
+      "translation": "），团队整合多种高性能信号处理工具，以加深对交易活动的理解。这里概述天然气期货交易价格的傅里叶分析。通常，傅里叶分析用于等间隔数据；但市场活动成簇出现，因此也许应按交易活跃度指标对金融时间序列采样。例如 VPIN 按成交量采样。不过，对自然时间下的金融序列做傅里叶分析仍可能提供信息，因此团队采用非均匀快速傅里叶变换（FFT）。"
+    },
+    {
+      "key": "t_8848fefad772da0f4679",
+      "source": "From the Fourier analysis of the natural gas futures market, we see strong evidence of High Frequency Trading in the market. The Fourier components corresponding to high frequencies are (1) becoming more prominent in recent years and (2) much stronger than could be expected from the structure of the market. Additionally, a significant amount of trading activity occurs in the first second of every minute, which is a tell-tale sign of trading triggered by algorithms that target a Time-Weighted Average Price (TWAP). Fourier analysis on trading data shows that activities at the once-per-minute frequency are considerably higher than at neighboring frequencies (see Figure 22.10). Note that the vertical axis is in logarithmic scale. The strength of activities at once-per-minute frequency is more than ten times stronger than the neighboring frequencies. Additionally, the activity is very precisely defined at once-per-minute, which indicates that these trades are triggered by intentionally constructed automated events. We take this to be strong evidence that TWAP algorithms have a significant presence in this market.",
+      "translation": "天然气期货市场的傅里叶分析给出了高频交易广泛存在的有力证据。与高频对应的傅里叶分量近年来越来越突出，而且强度远超市场结构本身所能解释的水平。此外，每分钟第一秒会出现大量交易活动，这是以时间加权平均价（TWAP）为目标的算法触发交易的典型信号。交易数据的傅里叶分析显示，每分钟一次的频率活动显著高于邻近频率，见图 22.10；纵轴为对数刻度。该频率强度超过邻近频率十倍，而且峰值精确落在每分钟一次，说明交易由人为设计的自动事件触发。团队据此认为，TWAP 算法在该市场中占据显著位置。"
+    },
+    {
+      "key": "t_696dc2c027a2881d62e8",
+      "source": "We expected the frequency analysis to show strong daily cycles. In Figure 22.10, we expect amplitude for frequency 365 to be large. However, we see the highest amplitude was for the frequency of 366. This can be explained because 2012 was a leap year. This is a validation that the non-uniform FFT is capturing the expected signals. The second- and third-highest amplitudes have the frequencies of 732 and 52, which are twice-a-day and once-a-week. These are also unsurprising. We additionally applied the non-uniform FFT on the trading volumes and found further evidence of algorithmic trading. Moreover, the signals pointed to a stronger presence of algorithmic trading in recent years. Clearly, the non-uniform FFT algorithm is useful for analyzing highly irregular time series.",
+      "translation": "团队原本预计频率分析会显示强烈的日周期，即图 22.10 中频率 365 的振幅很大；实际最高振幅出现在 366，因为 2012 年是闰年。这验证了非均匀 FFT 能捕捉预期信号。第二和第三高振幅分别在频率 732 和 52，对应每日两次与每周一次，也符合预期。团队还把非均匀 FFT 用于成交量，发现更多算法交易证据，并且信号显示近年算法交易更活跃。显然，非均匀 FFT 很适合分析高度不规则的时间序列。"
+    },
+    {
+      "key": "t_f606867f8a6efaf4943f",
+      "source": "Figure 22.10: Fourier spectrum of trading prices of natural gas futures contracts in 2012. Non-uniform FFT identifies strong presence of activities happening once per day (frequency = 366), twice per day (frequency = 732), and once per minute (frequency = 527040 = 366*24*60).",
+      "translation": "图 22.10：2012 年天然气期货交易价格的傅里叶谱。非均匀 FFT 识别出每日一次（频率 366）、每日两次（频率 732）和每分钟一次（频率 527040 = 366×24×60）的强烈活动"
+    },
+    {
+      "key": "t_ef65c4e2e69300cbfe20",
+      "source": "22.7 Summary and Call for Participation",
+      "translation": "22.7 总结与合作倡议"
+    },
+    {
+      "key": "t_17882921735712a75b04",
+      "source": "Currently, there are two primary ways to construct large-scale computing platforms: the HPC approach and the cloud approach. Most of the scientific computing efforts use the HPC approach, while most of the business computing needs are satisfied through the cloud approach. The conventional wisdom is that the HPC approach occupies a small niche of little consequence. This is not true. HPC systems are essential to the progress of scientific research. They played important roles in exciting new scientific discoveries including the Higgs particle and gravitational waves. They have spurred the development of new subjects of study, such as behavioral economics, and new ways of conducting commerce through the Internet. The usefulness of extremely large HPC systems has led to the 2015 National Strategic Computing Initiative.",
+      "translation": "目前构建大规模计算平台主要有两种方式：HPC 和云。科学计算大多采用 HPC，商业计算需求大多由云满足。传统看法认为 HPC 只是一个无足轻重的小众领域，这是错误的。HPC 系统对科学进步不可或缺，在希格斯粒子和引力波等重大科学发现中发挥了关键作用；它还推动行为经济学等新研究领域，以及通过互联网开展商业的新方式。超大规模 HPC 系统的价值促成了美国 2015 年国家战略计算计划。"
+    },
+    {
+      "key": "t_28e85b3f559d44dda126",
+      "source": "There are efforts to make HPC tools even more useful by accelerating their adoption in business applications. The HPC4Manufacturing",
+      "translation": "各方正努力推动 HPC 工具在商业应用中的采用。HPC4Manufacturing"
+    },
+    {
+      "key": "t_a04352e8db229e6da919",
+      "source": "effort is pioneering this knowledge transfer to the U.S. manufacturing industry, and has attracted considerable attention. Now is the time to make a more concerted push for HPC to meet other critical business needs. In recent years, we have developed CIFT as a broad class of business applications that could benefit from the HPC tools and techniques. In decisions such as how to respond to a voltage fluctuation in a power transformer and an early warning signal of impending market volatility event, HPC software tools could help determine the signals early enough for decision makers, provide sufficient confidence about the prediction, and anticipate the consequence before the catastrophic event arrives. These applications have complex computational requirements and often have a stringent demand on response time as well. HPC tools are better suited to meet these requirements than cloud-based tools. In our work, we have demonstrated that the HPC I/O library HDF5 can be used to accelerate the data access speed by 21-fold, and HPC techniques can accelerate the computation of the Flash Crash early-warning indicator VPIN by 720-fold. We have developed additional algorithms that enable us to predict the daily peak electricity usage years into the future.",
+      "translation": "项目率先把相关知识转移到美国制造业，引起广泛关注。现在应更有组织地推动 HPC 满足其他关键商业需求。近年团队把 CIFT 发展成一大类可受益于 HPC 的商业应用。无论是应对电力变压器电压波动，还是处理即将发生的市场波动预警，HPC 软件都能帮助决策者及早识别信号、提高预测可信度，并在灾难发生前预判后果。这些应用计算要求复杂，响应时间也严格，HPC 工具比云工具更合适。项目已经证明：HPC I/O 库 HDF5 能把数据访问加快 21 倍，HPC 技术能把闪电崩盘预警指标 VPIN 的计算加快 720 倍；团队还开发了可提前数年预测每日峰值用电量的算法。"
+    },
+    {
+      "key": "t_a980f98874d60f03644a",
+      "source": "The National Strategic Computing Initiative plan is available online at",
+      "translation": "国家战略计算计划可在线查阅："
+    },
+    {
+      "key": "t_33ea885c77de32a1be98",
+      "source": ". The Wikipedia page on this topic (",
+      "translation": "。相关 Wikipedia 页面（"
+    },
+    {
+      "key": "t_b68fec2eaa5fa52c0a57",
+      "source": ") also has some useful links to additional information.",
+      "translation": "）也提供了一些有用链接。"
+    },
+    {
+      "key": "t_7d924cab407e1ab4ec80",
+      "source": "Information about HPC4Manufacturing is available online at",
+      "translation": "HPC4Manufacturing 的信息可在线查阅："
+    },
+    {
+      "key": "t_e4f828b30658810d30dc",
+      "source": "We anticipate that applying HPC tools and techniques to other applications could achieve similarly significant results. In addition to the performance advantages mentioned above, a number of published studies (Yelick et al.",
+      "translation": "我们预计，把 HPC 工具和技术用于其他应用也会取得类似成果。除性能优势外，多项研究（Yelick 等人"
+    },
+    {
+      "key": "t_2715ce0cff99d0f2a634",
+      "source": ", Holzman et al.",
+      "translation": "、Holzman 等人"
+    },
+    {
+      "key": "t_32136aabd5a767dea220",
+      "source": ") show HPC systems to have a significant price advantage as well. Depending on the workload’s requirement on CPU, storage, and networking, using a cloud system might cost 50% more than using an HPC system, and, in some cases, as much as seven times more. For the complex analytical tasks described in this book, with their constant need to ingest data for analysis, we anticipate the cost advantage will continue to be large. CIFT is expanding the effort to transfer HPC technology to private companies, so that they can also benefit from the price and performance advantages enjoyed by large-scale research facilities. Our earlier collaborators have provided the funds to start a dedicated HPC system for our work. This resource should make it considerably easier for interested parties to try out their applications on an HPC system. We are open to different forms of collaborations. For further information regarding CIFT, please visit CIFT’s web page at",
+      "translation": "）还表明 HPC 有显著价格优势。具体取决于 CPU、存储和网络需求，云系统可能比 HPC 贵 50%，有时甚至贵七倍。对于本书讨论的复杂分析任务，由于需要持续摄取数据，我们预计 HPC 的成本优势会长期存在。CIFT 正扩大向私营企业转移 HPC 技术的工作，让企业也能获得大型研究设施享有的成本和性能优势。早期合作者已经出资建设专用 HPC 系统，使有兴趣的机构更容易亲自测试应用。项目欢迎多种合作方式。CIFT 详情参见官方网站："
+    },
+    {
+      "key": "t_357a5c6d80e8e3be8c05",
+      "source": "22.8 Acknowledgments",
+      "translation": "22.8 致谢"
+    },
+    {
+      "key": "t_54796439680175e206b7",
+      "source": "The CIFT project is the brainchild of Dr. David Leinweber. Dr. Horst Simon brought it to LBNL in 2010. Drs. E. W. Bethel and D. Bailey led the project for four years. The CIFT project has received generous gifts from a number of donors. This work is supported in part by the Office of Advanced Scientific Computing Research, Office of Science, of the U.S. Department of Energy under Contract No. DE-AC02-05CH11231. This research also uses resources of the National Energy Research Scientific Computing Center supported under the same contract.",
+      "translation": "CIFT 项目由 David Leinweber 博士构思，Horst Simon 博士于 2010 年把它带到 LBNL。E. W. Bethel 和 D. Bailey 博士领导项目四年。CIFT 获得多位捐助者慷慨支持。本工作部分由美国能源部科学办公室先进科学计算研究办公室资助，合同号 DE-AC02-05CH11231；研究还使用了同一合同支持的美国国家能源研究科学计算中心资源。"
+    },
+    {
+      "key": "t_69824d3b0e70ca6aaa0d",
+      "source": "References",
+      "translation": "参考文献"
+    },
+    {
+      "key": "t_fa52889ebc81bd9048b9",
+      "source": "Previous: Brute Force and Quantum Computers",
+      "translation": "上一章：暴力搜索与量子计算机"
+    },
+    {
+      "key": "t_5f7801ba38093e83f680",
+      "source": "Next: Index",
+      "translation": "下一章：索引"
+    },
+    {
+      "key": "t_f5d3e60b079ab9ce0cf6",
+      "source": "Book navigation",
+      "translation": "书籍导航"
+    },
+    {
+      "key": "t_3b70be6312a34f1dbd01",
+      "source": "Figure 22.6: Gradient tree boosting (GBT) appears to follow recent usage too closely and therefore not able to predict the baseline usage as well as the newly develop method named LTAP. (a) GTB on Control group. (b) LTAP on Control group. (c) GTB on Passive group. (d) LTAP on Passive group. (e) GTB on Active group. (f) LTAP on Active group panel group",
+      "translation": "图 22.6：梯度树提升（GTB）过度拟合近期用电数据，因此对基线用电量的预测不如新开发的 LTAP 方法。六个面板依次为：（a）GTB 对照组；（b）LTAP 对照组；（c）GTB 被动组；（d）LTAP 被动组；（e）GTB 主动组；（f）LTAP 主动组"
+    },
+    {
+      "key": "t_15e39713b4873df1996c",
+      "source": "Figure 22.9",
+      "translation": "图 22.9"
+    }
+  ]
+}
