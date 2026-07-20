@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "afml-webbook-";
-const CACHE_NAME = "afml-webbook-20260719-pwa-mobile-reader";
+const CACHE_NAME = "afml-webbook-20260720-auto-resume-reading";
 const RUNTIME_CACHE = `${CACHE_NAME}-runtime`;
 const CORE_URLS = [
   "./",
@@ -30,10 +30,10 @@ const CORE_URLS = [
   "./zh/chapter-21.html",
   "./zh/chapter-22.html",
   "./zh/book-index.html",
-  "./assets/afml-book.css?v=20260719-pwa-mobile-reader",
-  "./assets/afml-book-zh.css?v=20260719-pwa-mobile-reader",
-  "./assets/afml-book.js?v=20260719-pwa-mobile-reader",
-  "./assets/afml-book-zh.js?v=20260719-pwa-mobile-reader",
+  "./assets/afml-book.css?v=20260720-auto-resume-reading",
+  "./assets/afml-book-zh.css?v=20260720-auto-resume-reading",
+  "./assets/afml-book.js?v=20260720-auto-resume-reading",
+  "./assets/afml-book-zh.js?v=20260720-auto-resume-reading",
   "./assets/icons/pwa-192.png",
   "./assets/icons/pwa-512.png",
   "./assets/icons/apple-touch-icon.png"
