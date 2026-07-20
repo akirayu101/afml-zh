@@ -28,7 +28,7 @@ ASSET_JS = ROOT / "assets" / "afml-book.js"
 MANIFEST = ROOT / "manifest.webmanifest"
 SERVICE_WORKER = ROOT / "service-worker.js"
 PWA_ICON_DIR = ROOT / "assets" / "icons"
-ASSET_VERSION = "20260719-pwa-mobile-reader"
+ASSET_VERSION = "20260720-auto-resume-reading"
 MATHJAX_URL = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
 
 
@@ -12872,7 +12872,7 @@ def write_pwa_assets() -> None:
         "short_name": "AFML 中文",
         "description": "适合移动端阅读的《金融机器学习进阶》中文静态网页版。",
         "lang": "zh-CN",
-        "start_url": "./zh/index.html",
+        "start_url": "./zh/index.html?resume=last-reading-position",
         "scope": "./",
         "display": "standalone",
         "orientation": "any",
@@ -15666,6 +15666,8 @@ if (document.readyState === "loading") {
 }
 
 const PWA_READING_STORAGE_KEY = "afml-reading-position";
+const PWA_RESUME_QUERY_KEY = "resume";
+const PWA_RESUME_QUERY_VALUE = "last-reading-position";
 let deferredPwaInstallPrompt = null;
 let pwaToastTimer = 0;
 
@@ -15684,6 +15686,7 @@ const pwaLabels = () => {
     online: isZh ? "网络已恢复" : "You are back online",
     resume: isZh ? "继续上次阅读" : "Continue reading",
     resumeLabel: title => isZh ? `继续阅读：${title}` : `Continue reading: ${title}`,
+    restored: isZh ? "已恢复到上次阅读位置" : "Returned to your last reading position",
     progress: isZh ? "本章阅读进度" : "Chapter reading progress",
   };
 };
@@ -15798,6 +15801,90 @@ const writeReadingPosition = value => {
   }
 };
 
+const resumeReadingRequested = () => {
+  return new URLSearchParams(location.search).get(PWA_RESUME_QUERY_KEY) === PWA_RESUME_QUERY_VALUE;
+};
+
+const clearResumeReadingRequest = () => {
+  if (!resumeReadingRequested()) return;
+  const url = new URL(location.href);
+  url.searchParams.delete(PWA_RESUME_QUERY_KEY);
+  history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
+};
+
+const validReadingPosition = state => {
+  if (!state || !/^[a-z0-9-]+\\.html$/i.test(state.file || "")) return false;
+  return (state.language || "").split("-")[0] === document.documentElement.lang.split("-")[0];
+};
+
+const readingPositionHash = state => (/^#[a-z0-9._:-]+$/i.test(state.hash || "") ? state.hash : "");
+
+const readingPositionHref = state => {
+  const query = `${encodeURIComponent(PWA_RESUME_QUERY_KEY)}=${encodeURIComponent(PWA_RESUME_QUERY_VALUE)}`;
+  return `${state.file}?${query}${readingPositionHash(state)}`;
+};
+
+const autoResumeReading = () => {
+  if (document.body.classList.contains("reading-page") || !resumeReadingRequested()) return false;
+  const state = readReadingPosition();
+  if (!validReadingPosition(state)) {
+    clearResumeReadingRequest();
+    return false;
+  }
+  location.replace(readingPositionHref(state));
+  return true;
+};
+
+const restoreReadingPosition = (state, updateProgress, onComplete) => {
+  const storedRatio = Number(state.scrollRatio);
+  const legacyRatio = Number(state.progress) / 100;
+  const ratio = Math.min(1, Math.max(0, Number.isFinite(storedRatio) ? storedRatio : legacyRatio || 0));
+  let finished = false;
+  let fallbackTimer = 0;
+
+  const apply = () => {
+    if (finished) return;
+    const distance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo(0, Math.round(distance * ratio));
+    updateProgress(ratio);
+  };
+
+  const cleanup = () => {
+    window.clearTimeout(fallbackTimer);
+    for (const type of ["wheel", "touchstart", "pointerdown", "keydown"]) {
+      window.removeEventListener(type, cancel);
+    }
+  };
+
+  const finish = restored => {
+    if (finished) return;
+    if (restored) apply();
+    finished = true;
+    cleanup();
+    clearResumeReadingRequest();
+    onComplete(restored);
+  };
+
+  const cancel = () => finish(false);
+  for (const type of ["wheel", "touchstart", "pointerdown", "keydown"]) {
+    window.addEventListener(type, cancel, { passive: true });
+  }
+
+  const finishAfterLayout = async () => {
+    if (document.readyState !== "complete") {
+      await new Promise(resolve => window.addEventListener("load", resolve, { once: true }));
+    }
+    if (document.fonts?.ready) await document.fonts.ready.catch(() => null);
+    if (window.MathJax?.startup?.promise) await window.MathJax.startup.promise.catch(() => null);
+    window.setTimeout(() => finish(true), 80);
+  };
+
+  apply();
+  window.requestAnimationFrame(apply);
+  finishAfterLayout();
+  fallbackTimer = window.setTimeout(() => finish(true), 2500);
+};
+
 const installReadingProgress = () => {
   if (!document.body.classList.contains("reading-page")) return;
   const labels = pwaLabels();
@@ -15812,6 +15899,11 @@ const installReadingProgress = () => {
   document.body.appendChild(progress);
   let frame = 0;
   let saveTimer = 0;
+  const file = location.pathname.split("/").pop() || "index.html";
+  const storedPosition = readReadingPosition();
+  let restoring = resumeReadingRequested()
+    && validReadingPosition(storedPosition)
+    && storedPosition.file === file;
 
   const activeSectionHash = () => {
     let active = "";
@@ -15823,23 +15915,33 @@ const installReadingProgress = () => {
   };
 
   const savePosition = ratio => {
-    const file = location.pathname.split("/").pop() || "index.html";
     writeReadingPosition({
       file,
       hash: activeSectionHash(),
       title: currentPageHeading(labels),
       language: document.documentElement.lang,
       progress: Math.round(ratio * 100),
+      scrollRatio: Number(ratio.toFixed(6)),
+      scrollY: Math.round(window.scrollY),
       updatedAt: new Date().toISOString(),
     });
   };
 
-  const update = () => {
-    frame = 0;
+  const currentRatio = () => {
     const distance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    const ratio = Math.min(1, Math.max(0, window.scrollY / distance));
+    return Math.min(1, Math.max(0, window.scrollY / distance));
+  };
+
+  const updateProgress = ratio => {
     bar.style.transform = `scaleX(${ratio})`;
     progress.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+  };
+
+  const update = () => {
+    frame = 0;
+    const ratio = currentRatio();
+    updateProgress(ratio);
+    if (restoring) return;
     window.clearTimeout(saveTimer);
     saveTimer = window.setTimeout(() => savePosition(ratio), 650);
   };
@@ -15847,25 +15949,40 @@ const installReadingProgress = () => {
   const schedule = () => {
     if (!frame) frame = window.requestAnimationFrame(update);
   };
+
+  const persistCurrentPosition = () => {
+    if (restoring) return;
+    window.clearTimeout(saveTimer);
+    savePosition(currentRatio());
+  };
+
   window.addEventListener("scroll", schedule, { passive: true });
   window.addEventListener("resize", schedule, { passive: true });
-  window.addEventListener("pagehide", () => {
-    window.clearTimeout(saveTimer);
-    const distance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    savePosition(Math.min(1, Math.max(0, window.scrollY / distance)));
+  window.addEventListener("pagehide", persistCurrentPosition);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") persistCurrentPosition();
   });
-  update();
+  document.addEventListener("freeze", persistCurrentPosition);
+
+  if (restoring) {
+    restoreReadingPosition(storedPosition, updateProgress, restored => {
+      restoring = false;
+      update();
+      if (restored) showPwaToast(labels.restored);
+    });
+  } else {
+    clearResumeReadingRequest();
+    update();
+  }
 };
 
 const installResumeReading = () => {
   const actions = document.querySelector(".contents-actions");
   const state = readReadingPosition();
-  if (!actions || !state || !/^[a-z0-9-]+\\.html$/i.test(state.file || "")) return;
-  if ((state.language || "").split("-")[0] !== document.documentElement.lang.split("-")[0]) return;
-  const hash = /^#[a-z0-9._:-]+$/i.test(state.hash || "") ? state.hash : "";
+  if (!actions || !validReadingPosition(state)) return;
   const link = document.createElement("a");
   link.className = "resume-reading";
-  link.href = `${state.file}${hash}`;
+  link.href = readingPositionHref(state);
   link.textContent = pwaLabels().resume;
   link.setAttribute("aria-label", pwaLabels().resumeLabel(state.title || state.file));
   link.title = pwaLabels().resumeLabel(state.title || state.file);
@@ -15875,6 +15992,7 @@ const installResumeReading = () => {
 const installPwaReadingExperience = () => {
   installPwaControls();
   registerPwaServiceWorker();
+  if (autoResumeReading()) return;
   installReadingProgress();
   installResumeReading();
   window.addEventListener("offline", () => showPwaToast(pwaLabels().offline));

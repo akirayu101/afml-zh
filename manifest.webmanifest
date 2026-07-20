@@ -4,7 +4,7 @@
   "short_name": "AFML 中文",
   "description": "适合移动端阅读的《金融机器学习进阶》中文静态网页版。",
   "lang": "zh-CN",
-  "start_url": "./zh/index.html",
+  "start_url": "./zh/index.html?resume=last-reading-position",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

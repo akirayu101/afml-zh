@@ -217,10 +217,13 @@ def main() -> int:
                 failures.append(f"assets/afml-book.js: Codex selection logic missing `{expected}`")
         for expected in (
             'PWA_READING_STORAGE_KEY = "afml-reading-position"',
+            'PWA_RESUME_QUERY_VALUE = "last-reading-position"',
             "installPwaControls",
             "registerPwaServiceWorker",
             "installReadingProgress",
             "installResumeReading",
+            "autoResumeReading",
+            "restoreReadingPosition",
             'window.addEventListener("beforeinstallprompt"',
             'window.addEventListener("offline"',
             "slotCount = 1",
@@ -236,7 +239,7 @@ def main() -> int:
         except (OSError, json.JSONDecodeError) as exc:
             failures.append(f"manifest.webmanifest: invalid JSON: {exc}")
         else:
-            for key, expected in (("start_url", "./zh/index.html"), ("scope", "./"), ("display", "standalone")):
+            for key, expected in (("start_url", "./zh/index.html?resume=last-reading-position"), ("scope", "./"), ("display", "standalone")):
                 if manifest.get(key) != expected:
                     failures.append(f"manifest.webmanifest: expected {key}={expected!r}")
             icon_sizes = {icon.get("sizes") for icon in manifest.get("icons", [])}
