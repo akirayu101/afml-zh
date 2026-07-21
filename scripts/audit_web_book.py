@@ -81,6 +81,9 @@ def main() -> int:
             failures.append("assets/afml-book.css: light theme variable block is missing")
         if ".theme-toggle" not in css:
             failures.append("assets/afml-book.css: theme toggle style is missing")
+        for expected in ("--reader-font-scale: 100%;", "font-size: var(--reader-font-scale);", ".font-size-toggle", ".font-size-panel"):
+            if expected not in css:
+                failures.append(f"assets/afml-book.css: font size control style missing `{expected}`")
         for expected in (
             ".codex-selection-button",
             ".codex-selection-dialog",
@@ -177,6 +180,15 @@ def main() -> int:
         for expected in ('THEME_STORAGE_KEY = "afml-theme"', "installThemeToggle", 'button.className = "theme-toggle"'):
             if expected not in js:
                 failures.append(f"assets/afml-book.js: theme toggle logic missing `{expected}`")
+        for expected in (
+            'FONT_SCALE_STORAGE_KEY = "afml-font-scale"',
+            "FONT_SCALE_LEVELS",
+            "applyFontScale",
+            "installFontSizeControls",
+            'control.className = "font-size-control"',
+        ):
+            if expected not in js:
+                failures.append(f"assets/afml-book.js: font size control logic missing `{expected}`")
         for expected in (
             'SELECTION_NOTES_STORAGE_KEY = "afml-selection-notes"',
             "installSelectionNotes",

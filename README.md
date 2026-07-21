@@ -16,7 +16,7 @@ Then open:
 http://127.0.0.1:8787/zh/index.html
 ```
 
-The Chinese reader is installable as a Progressive Web App. On supported mobile browsers, use the reader's **Install** button or the browser's **Add to Home Screen** action. The service worker caches the book shell, chapters, figures, and MathJax runtime for offline reading. The reader saves the current chapter and scroll position locally, then returns to that position the next time the installed app is opened.
+The Chinese reader is installable as a Progressive Web App. On supported mobile browsers, use the reader's **Install** button or the browser's **Add to Home Screen** action. The service worker caches the book shell, chapters, figures, and MathJax runtime for offline reading. The reader saves the current chapter, scroll position, theme, and font size locally, then restores those preferences the next time the installed app is opened.
 
 ## Build and Review
 

@@ -28,7 +28,7 @@ ASSET_JS = ROOT / "assets" / "afml-book.js"
 MANIFEST = ROOT / "manifest.webmanifest"
 SERVICE_WORKER = ROOT / "service-worker.js"
 PWA_ICON_DIR = ROOT / "assets" / "icons"
-ASSET_VERSION = "20260720-auto-resume-reading"
+ASSET_VERSION = "20260721-font-size-controls"
 MATHJAX_URL = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
 
 
@@ -13016,6 +13016,7 @@ def write_css() -> None:
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
+  --reader-font-scale: 100%;
 }
 :root[data-theme="light"] {
   color-scheme: light;
@@ -13034,6 +13035,7 @@ def write_css() -> None:
 }
 html {
   min-height: 100%;
+  font-size: var(--reader-font-scale);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-padding-top: calc(1rem + var(--safe-top));
@@ -13044,7 +13046,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.55;
   letter-spacing: 0;
   text-rendering: optimizeLegibility;
@@ -13085,6 +13087,7 @@ article a { overflow-wrap: anywhere; }
 }
 .theme-toggle,
 .notes-toggle,
+.font-size-toggle,
 .install-toggle {
   display: inline-flex;
   align-items: center;
@@ -13100,12 +13103,66 @@ article a { overflow-wrap: anywhere; }
 }
 .theme-toggle::before,
 .notes-toggle::before,
+.font-size-toggle::before,
 .install-toggle::before {
   content: "";
   width: .72rem;
   height: .72rem;
   border-radius: 50%;
   background: var(--link);
+}
+.font-size-toggle::before {
+  content: "Aa";
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  color: var(--link);
+  font-size: .72rem;
+  line-height: 1;
+}
+.font-size-control {
+  position: relative;
+  display: inline-flex;
+}
+.font-size-panel {
+  position: absolute;
+  top: calc(100% + .45rem);
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  border: 1px solid var(--code-line);
+  border-radius: 999px;
+  padding: .35rem;
+  background: var(--panel-strong);
+  box-shadow: 0 .7rem 1.8rem rgba(0, 0, 0, .24);
+}
+.font-size-panel[hidden] {
+  display: none;
+}
+.font-size-panel button {
+  min-width: 2.35rem;
+  min-height: 2.35rem;
+  border: 1px solid var(--code-line);
+  border-radius: 999px;
+  padding: .25rem .55rem;
+  background: var(--panel);
+  color: var(--ink);
+  font: 650 .86rem/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  cursor: pointer;
+}
+.font-size-panel button:hover:not(:disabled) {
+  border-color: var(--link);
+}
+.font-size-panel button:disabled {
+  opacity: .42;
+  cursor: default;
+}
+.font-size-panel .font-size-value {
+  min-width: 3.6rem;
+  color: var(--link);
 }
 .notes-toggle::before {
   width: .62rem;
@@ -13127,11 +13184,14 @@ article a { overflow-wrap: anywhere; }
 }
 .theme-toggle:hover,
 .notes-toggle:hover,
+.font-size-toggle:hover,
 .install-toggle:hover {
   border-color: var(--link);
 }
 .theme-toggle:focus-visible,
 .notes-toggle:focus-visible,
+.font-size-toggle:focus-visible,
+.font-size-panel button:focus-visible,
 .install-toggle:focus-visible,
 .pwa-install-close:focus-visible,
 .reader-notes-close:focus-visible,
@@ -14147,11 +14207,11 @@ tr:nth-child(even) td { background: var(--table-stripe); }
   font-weight: 600;
 }
 @media (min-width: 1200px) {
-  body { font-size: 18px; }
+  body { font-size: 1.125rem; }
 }
 @media (max-width: 760px) {
   body {
-    font-size: 17px;
+    font-size: 1.0625rem;
   }
   body.reading-page {
     padding-bottom: calc(4.6rem + var(--safe-bottom));
@@ -14194,6 +14254,7 @@ tr:nth-child(even) td { background: var(--table-stripe); }
   }
   .theme-toggle,
   .notes-toggle,
+  .font-size-toggle,
   .install-toggle {
     min-width: 2.75rem;
     min-height: 2.75rem;
@@ -14203,8 +14264,14 @@ tr:nth-child(even) td { background: var(--table-stripe); }
   }
   .theme-toggle::before,
   .notes-toggle::before,
+  .font-size-toggle::before,
   .install-toggle::before {
     display: none;
+  }
+  .font-size-panel {
+    position: fixed;
+    top: calc(3.65rem + var(--safe-top));
+    right: max(.75rem, var(--safe-right));
   }
   .reader-notes-panel {
     top: auto;
@@ -14488,6 +14555,150 @@ if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", installThemeToggle);
 } else {
   installThemeToggle();
+}
+
+const FONT_SCALE_STORAGE_KEY = "afml-font-scale";
+const FONT_SCALE_LEVELS = [.9, 1, 1.1, 1.2, 1.3];
+const FONT_SCALE_DEFAULT = 1;
+let activeFontScale = FONT_SCALE_DEFAULT;
+
+const safeReadFontScale = () => {
+  try {
+    return Number.parseFloat(localStorage.getItem(FONT_SCALE_STORAGE_KEY) || "");
+  } catch {
+    return Number.NaN;
+  }
+};
+
+const safeWriteFontScale = scale => {
+  try {
+    localStorage.setItem(FONT_SCALE_STORAGE_KEY, String(scale));
+  } catch {
+    // Ignore storage failures; font sizing still works for this page view.
+  }
+};
+
+const fontSizeLabels = () => {
+  const isZh = document.documentElement.lang.toLowerCase().startsWith("zh");
+  return {
+    open: isZh ? "调整字体大小" : "Adjust font size",
+    group: isZh ? "字体大小" : "Font size",
+    smaller: isZh ? "缩小字体" : "Decrease font size",
+    reset: isZh ? "恢复默认字体大小" : "Reset font size",
+    larger: isZh ? "放大字体" : "Increase font size",
+  };
+};
+
+const normalizeFontScale = value => {
+  if (!Number.isFinite(value)) return FONT_SCALE_DEFAULT;
+  return FONT_SCALE_LEVELS.reduce((closest, level) => (
+    Math.abs(level - value) < Math.abs(closest - value) ? level : closest
+  ), FONT_SCALE_DEFAULT);
+};
+
+const updateFontSizeControls = control => {
+  if (!control) return;
+  const labels = fontSizeLabels();
+  const index = FONT_SCALE_LEVELS.indexOf(activeFontScale);
+  const percent = `${Math.round(activeFontScale * 100)}%`;
+  const toggle = control.querySelector(".font-size-toggle");
+  const decrease = control.querySelector('[data-font-size-action="decrease"]');
+  const reset = control.querySelector('[data-font-size-action="reset"]');
+  const increase = control.querySelector('[data-font-size-action="increase"]');
+  if (toggle) {
+    toggle.textContent = percent;
+    toggle.setAttribute("aria-label", `${labels.open}，${percent}`);
+    toggle.title = `${labels.open}：${percent}`;
+  }
+  if (decrease) decrease.disabled = index <= 0;
+  if (reset) {
+    reset.textContent = percent;
+    reset.disabled = activeFontScale === FONT_SCALE_DEFAULT;
+  }
+  if (increase) increase.disabled = index >= FONT_SCALE_LEVELS.length - 1;
+};
+
+const applyFontScale = (value, preservePosition = true) => {
+  const previousDistance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  const previousRatio = Math.min(1, Math.max(0, window.scrollY / previousDistance));
+  activeFontScale = normalizeFontScale(value);
+  document.documentElement.style.setProperty("--reader-font-scale", `${Math.round(activeFontScale * 100)}%`);
+  updateFontSizeControls(document.querySelector(".font-size-control"));
+  if (!preservePosition) return;
+  window.requestAnimationFrame(() => {
+    const nextDistance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo(0, Math.round(previousRatio * nextDistance));
+    window.dispatchEvent(new Event("resize"));
+  });
+};
+
+applyFontScale(safeReadFontScale(), false);
+
+const installFontSizeControls = () => {
+  const nav = document.querySelector(".book-topbar nav");
+  if (!nav || nav.querySelector(".font-size-control")) return;
+  const labels = fontSizeLabels();
+  const control = document.createElement("div");
+  control.className = "font-size-control";
+  const toggle = document.createElement("button");
+  toggle.className = "font-size-toggle";
+  toggle.type = "button";
+  toggle.setAttribute("aria-haspopup", "true");
+  toggle.setAttribute("aria-expanded", "false");
+  const panel = document.createElement("div");
+  panel.className = "font-size-panel";
+  panel.hidden = true;
+  panel.setAttribute("role", "group");
+  panel.setAttribute("aria-label", labels.group);
+
+  const createAction = (action, text, label, className = "") => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.fontSizeAction = action;
+    button.textContent = text;
+    button.setAttribute("aria-label", label);
+    if (className) button.className = className;
+    return button;
+  };
+  const decrease = createAction("decrease", "A−", labels.smaller);
+  const reset = createAction("reset", "100%", labels.reset, "font-size-value");
+  const increase = createAction("increase", "A+", labels.larger);
+  panel.append(decrease, reset, increase);
+  control.append(toggle, panel);
+  nav.appendChild(control);
+
+  const setOpen = open => {
+    panel.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+  };
+  toggle.addEventListener("click", () => setOpen(panel.hidden));
+  panel.addEventListener("click", event => {
+    const button = event.target.closest("[data-font-size-action]");
+    if (!button || button.disabled) return;
+    const index = FONT_SCALE_LEVELS.indexOf(activeFontScale);
+    let next = activeFontScale;
+    if (button.dataset.fontSizeAction === "decrease") next = FONT_SCALE_LEVELS[Math.max(0, index - 1)];
+    if (button.dataset.fontSizeAction === "increase") next = FONT_SCALE_LEVELS[Math.min(FONT_SCALE_LEVELS.length - 1, index + 1)];
+    if (button.dataset.fontSizeAction === "reset") next = FONT_SCALE_DEFAULT;
+    applyFontScale(next);
+    safeWriteFontScale(next);
+  });
+  document.addEventListener("click", event => {
+    if (!control.contains(event.target)) setOpen(false);
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !panel.hidden) {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+  updateFontSizeControls(control);
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", installFontSizeControls);
+} else {
+  installFontSizeControls();
 }
 
 const NOTES_STORAGE_KEY = "afml-reader-notes";

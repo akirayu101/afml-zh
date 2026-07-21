@@ -66,6 +66,150 @@ if (document.readyState === "loading") {
   installThemeToggle();
 }
 
+const FONT_SCALE_STORAGE_KEY = "afml-font-scale";
+const FONT_SCALE_LEVELS = [.9, 1, 1.1, 1.2, 1.3];
+const FONT_SCALE_DEFAULT = 1;
+let activeFontScale = FONT_SCALE_DEFAULT;
+
+const safeReadFontScale = () => {
+  try {
+    return Number.parseFloat(localStorage.getItem(FONT_SCALE_STORAGE_KEY) || "");
+  } catch {
+    return Number.NaN;
+  }
+};
+
+const safeWriteFontScale = scale => {
+  try {
+    localStorage.setItem(FONT_SCALE_STORAGE_KEY, String(scale));
+  } catch {
+    // Ignore storage failures; font sizing still works for this page view.
+  }
+};
+
+const fontSizeLabels = () => {
+  const isZh = document.documentElement.lang.toLowerCase().startsWith("zh");
+  return {
+    open: isZh ? "调整字体大小" : "Adjust font size",
+    group: isZh ? "字体大小" : "Font size",
+    smaller: isZh ? "缩小字体" : "Decrease font size",
+    reset: isZh ? "恢复默认字体大小" : "Reset font size",
+    larger: isZh ? "放大字体" : "Increase font size",
+  };
+};
+
+const normalizeFontScale = value => {
+  if (!Number.isFinite(value)) return FONT_SCALE_DEFAULT;
+  return FONT_SCALE_LEVELS.reduce((closest, level) => (
+    Math.abs(level - value) < Math.abs(closest - value) ? level : closest
+  ), FONT_SCALE_DEFAULT);
+};
+
+const updateFontSizeControls = control => {
+  if (!control) return;
+  const labels = fontSizeLabels();
+  const index = FONT_SCALE_LEVELS.indexOf(activeFontScale);
+  const percent = `${Math.round(activeFontScale * 100)}%`;
+  const toggle = control.querySelector(".font-size-toggle");
+  const decrease = control.querySelector('[data-font-size-action="decrease"]');
+  const reset = control.querySelector('[data-font-size-action="reset"]');
+  const increase = control.querySelector('[data-font-size-action="increase"]');
+  if (toggle) {
+    toggle.textContent = percent;
+    toggle.setAttribute("aria-label", `${labels.open}，${percent}`);
+    toggle.title = `${labels.open}：${percent}`;
+  }
+  if (decrease) decrease.disabled = index <= 0;
+  if (reset) {
+    reset.textContent = percent;
+    reset.disabled = activeFontScale === FONT_SCALE_DEFAULT;
+  }
+  if (increase) increase.disabled = index >= FONT_SCALE_LEVELS.length - 1;
+};
+
+const applyFontScale = (value, preservePosition = true) => {
+  const previousDistance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  const previousRatio = Math.min(1, Math.max(0, window.scrollY / previousDistance));
+  activeFontScale = normalizeFontScale(value);
+  document.documentElement.style.setProperty("--reader-font-scale", `${Math.round(activeFontScale * 100)}%`);
+  updateFontSizeControls(document.querySelector(".font-size-control"));
+  if (!preservePosition) return;
+  window.requestAnimationFrame(() => {
+    const nextDistance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    window.scrollTo(0, Math.round(previousRatio * nextDistance));
+    window.dispatchEvent(new Event("resize"));
+  });
+};
+
+applyFontScale(safeReadFontScale(), false);
+
+const installFontSizeControls = () => {
+  const nav = document.querySelector(".book-topbar nav");
+  if (!nav || nav.querySelector(".font-size-control")) return;
+  const labels = fontSizeLabels();
+  const control = document.createElement("div");
+  control.className = "font-size-control";
+  const toggle = document.createElement("button");
+  toggle.className = "font-size-toggle";
+  toggle.type = "button";
+  toggle.setAttribute("aria-haspopup", "true");
+  toggle.setAttribute("aria-expanded", "false");
+  const panel = document.createElement("div");
+  panel.className = "font-size-panel";
+  panel.hidden = true;
+  panel.setAttribute("role", "group");
+  panel.setAttribute("aria-label", labels.group);
+
+  const createAction = (action, text, label, className = "") => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.fontSizeAction = action;
+    button.textContent = text;
+    button.setAttribute("aria-label", label);
+    if (className) button.className = className;
+    return button;
+  };
+  const decrease = createAction("decrease", "A−", labels.smaller);
+  const reset = createAction("reset", "100%", labels.reset, "font-size-value");
+  const increase = createAction("increase", "A+", labels.larger);
+  panel.append(decrease, reset, increase);
+  control.append(toggle, panel);
+  nav.appendChild(control);
+
+  const setOpen = open => {
+    panel.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+  };
+  toggle.addEventListener("click", () => setOpen(panel.hidden));
+  panel.addEventListener("click", event => {
+    const button = event.target.closest("[data-font-size-action]");
+    if (!button || button.disabled) return;
+    const index = FONT_SCALE_LEVELS.indexOf(activeFontScale);
+    let next = activeFontScale;
+    if (button.dataset.fontSizeAction === "decrease") next = FONT_SCALE_LEVELS[Math.max(0, index - 1)];
+    if (button.dataset.fontSizeAction === "increase") next = FONT_SCALE_LEVELS[Math.min(FONT_SCALE_LEVELS.length - 1, index + 1)];
+    if (button.dataset.fontSizeAction === "reset") next = FONT_SCALE_DEFAULT;
+    applyFontScale(next);
+    safeWriteFontScale(next);
+  });
+  document.addEventListener("click", event => {
+    if (!control.contains(event.target)) setOpen(false);
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && !panel.hidden) {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+  updateFontSizeControls(control);
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", installFontSizeControls);
+} else {
+  installFontSizeControls();
+}
+
 const NOTES_STORAGE_KEY = "afml-reader-notes";
 const NOTES_SAVE_DELAY_MS = 450;
 let notesSaveTimer = 0;
